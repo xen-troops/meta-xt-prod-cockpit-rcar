@@ -40,20 +40,18 @@ Moulin is used to generate Ninja build file: moulin prod-cockpit-rcar.yaml. This
 
 ```
 # moulin prod-cockpit-rcar.yaml --help-config
-usage: moulin prod-cockpit-rcar.yaml
-       [--MACHINE {h3ulcb-4x2g-kf}
-       [--ENABLE_MM {no}] [--PREBUILT_DDK {no}]
-
+usage: moulin prod-cockpit-rcar.yaml --MACHINE h3ulcb-4x2g-kf --ENABLE_ANDROID yes --ENABLE_CLUSTER yes
+       
 Config file description: Xen-Troops development setup for Renesas RCAR Gen3
 hardware
 
 optional arguments:
   --MACHINE {h3ulcb-4x2g-kf}
                         RCAR Gen3-based device
-  --ENABLE_MM {no}      Enable Multimedia support
-  --PREBUILT_DDK {no}   Use pre-built GPU drivers
   --ENABLE_ANDROID {no,yes}
                         Build Android as a guest VM
+  --ENABLE_CLUSTER {no,yes}
+                        Build Instrument Cluster application.
 
 ```
 
