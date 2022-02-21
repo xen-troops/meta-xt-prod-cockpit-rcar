@@ -5,6 +5,7 @@ variables:
   YOCTOS_WORK_DIR: "yocto"
   DOM0_BUILD_DIR: "build-dom0"
   DOMD_BUILD_DIR: "build-domd"
+  CLUSTER_BUILD_DIR: "build-cluster-wrapper"
   XT_DOMD_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-domd.dtb"
   XT_XEN_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-xen.dtb"
   XT_PVR_NUM_OSID: "2"
@@ -241,6 +242,37 @@ components:
         - "tmp/deploy/images/%{MACHINE}/%{XT_XEN_DTB_NAME}"
         - "tmp/deploy/images/%{MACHINE}/core-image-minimal-%{MACHINE}.ext4"
 
+  cluster:
+    build-dir: "%{YOCTOS_WORK_DIR}"
+    sources:
+      - *COMMON_SOURCES
+      - type: git        
+        url: "git://git.yoctoproject.org/meta-arm.git"
+        rev: "f7c5e7d5094f65d105d9d580ba59527c25fb0d0f"
+      - type: git
+        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
+        rev: master
+
+    builder:
+      type: yocto
+      work_dir: "%{CLUSTER_BUILD_DIR}"
+      conf:
+        - *COMMON_CONF
+        - *DOMD_DOMU_CONF
+        - [MACHINE, "generic-armv8-xt"]
+      build_target: cluster-wrapper
+      layers:
+        - "../poky/meta"
+        - "../poky/meta-poky"
+        - "../poky/meta-yocto-bsp"
+        - "../meta-arm/meta-arm-toolchain"
+        - "../meta-openembedded/meta-python"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-cluster"
+        - "../meta-xt-common/meta-xt-domx"
+        - "../meta-openembedded/meta-oe"
+      target_images:
+        - "tmp/deploy/cluster_wrapper.bin"
+
 images:
   full:
     type: gpt
@@ -308,3 +340,15 @@ parameters:
               conf:
                 # Mask MMP recipes
                 - [BBMASK_append, "|kernel-module-uvcs-drv|omx-user-module"]          
+          
+  ENABLE_CLUSTER:
+    desc: "Build generic Yocto-based DomU"
+    "no":
+      default: true
+    "yes":
+      overrides:
+        components:
+          dom0:
+            builder:
+              additional_deps:
+                - "%{CLUSTER_BUILD_DIR}/tmp/deploy/cluster_wrapper.bin" 
