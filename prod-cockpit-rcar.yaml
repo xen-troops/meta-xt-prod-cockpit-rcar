@@ -233,6 +233,7 @@ components:
         - "../meta-xt-rcar/meta-xt-rcar-driver-domain"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-driver-domain"
         - "../meta-qt5"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-qt5"          
       target_images:
         - "tmp/deploy/images/%{MACHINE}/Image"
         - "tmp/deploy/images/%{MACHINE}/xen-%{MACHINE}.uImage"
