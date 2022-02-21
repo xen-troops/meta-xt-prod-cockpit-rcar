@@ -1,0 +1,3 @@
+SRCREV = "3581a6e85561da85858e1b90bef9be88b87acc4d"
+
+PV = "0.98+gitr${SRCPV}"
