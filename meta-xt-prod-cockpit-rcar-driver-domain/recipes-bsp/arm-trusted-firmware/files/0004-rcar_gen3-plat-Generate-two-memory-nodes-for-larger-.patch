@@ -1,0 +1,83 @@
+From c84e650cf4ba6bef46d23c769fb23ae715400437 Mon Sep 17 00:00:00 2001
+From: Marek Vasut <marek.vasut+renesas@gmail.com>
+Date: Fri, 16 Apr 2021 21:39:36 +0200
+Subject: [PATCH V2 4/4] rcar_gen3: plat: Generate two memory nodes for larger
+ than 2 GiB channel 0
+
+The DRAM channel 0 memory area in 32bit space is limited to 2 GiB window.
+Furthermore, the first 128 MiB of this memory window are reserved and not
+accessible by the system software, hence the 32bit area memory node is
+limited to range 0x4800_0000..0xbfff_ffff.
+
+In case there are more than 2 GiB of DRAM populated in channel 0, it is
+necessary to generate two memory nodes, once covering the 2 GiB - 128 MiB
+area in the 32bit space, and another covering the rest of the memory in
+64bit space. This patch implements handling of such a case.
+
+Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
+Change-Id: I3495241fb938e355352e817afaca8f01d04c81d2
+---
+V2: Actually decrement the size32 by 128 MiB, so that on 1 GiB bank
+    we won't end up generating [ 48000000 -  87ffffff] node, but
+    rather [ 48000000 -  7fffffff] node.
+---
+ plat/renesas/rcar/bl2_plat_setup.c | 34 ++++++++++++++++++++++++++----
+ 1 file changed, 30 insertions(+), 4 deletions(-)
+
+diff --git a/plat/renesas/rcar/bl2_plat_setup.c b/plat/renesas/rcar/bl2_plat_setup.c
+index d4fcc3900..4d4f8220b 100644
+--- a/plat/renesas/rcar/bl2_plat_setup.c
++++ b/plat/renesas/rcar/bl2_plat_setup.c
+@@ -602,7 +602,7 @@ err:
+ 
+ static void bl2_advertise_dram_entries(uint64_t dram_config[8])
+ {
+-	uint64_t start, size;
++	uint64_t start, size, size32;
+ 	int chan;
+ 
+ 	for (chan = 0; chan < 4; chan++) {
+@@ -631,11 +631,37 @@ static void bl2_advertise_dram_entries(uint64_t dram_config[8])
+ 
+ 		/*
+ 		 * Channel 0 is mapped in 32bit space and the first
+-		 * 128 MiB are reserved
++		 * 128 MiB are reserved and the maximum size is 2GiB.
+ 		 */
+ 		if (chan == 0) {
+-			start = 0x48000000;
+-			size -= 0x8000000;
++			/* Limit the 32bit entry to 2 GiB - 128 MiB */
++			size32 = size - 0x8000000;
++			if (size32 >= 0x78000000)
++				size32 = 0x78000000;
++
++			/* Emit 32bit entry, up to 2 GiB - 128 MiB long. */
++			bl2_add_dram_entry(0x48000000, size32);
++
++			/*
++			 * If channel 0 is less than 2 GiB long, the
++			 * entire memory fits into the 32bit space entry,
++			 * so move on to the next channel.
++			 */
++			if (size <= 0x80000000)
++				continue;
++
++			/*
++			 * If channel 0 is more than 2 GiB long, emit
++			 * another entry which covers the rest of the
++			 * memory in channel 0, in the 64bit space.
++			 *
++			 * Start of this new entry is at 2 GiB offset
++			 * from the beginning of the 64bit channel 0
++			 * address, size is 2 GiB shorter than total
++			 * size of the channel.
++			 */
++			start += 0x80000000;
++			size -= 0x80000000;
+ 		}
+ 
+ 		bl2_add_dram_entry(start, size);
+-- 
+2.30.2
+

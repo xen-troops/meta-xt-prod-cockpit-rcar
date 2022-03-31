@@ -1,0 +1,49 @@
+From 44d8a2f1a0c42b7525c0280b01a73996c2fbabe6 Mon Sep 17 00:00:00 2001
+From: Marek Vasut <marek.vasut+renesas@gmail.com>
+Date: Thu, 22 Apr 2021 00:55:36 +0200
+Subject: [PATCH 2/4] rcar_gen3: plat: Fix DRAM size judgment by PRR register
+
+The even dram_config[] array fields contain DRAM bank base addresses,
+while odd dram_config[] array fields contain DRAM bank size. Fix the
+assignment for M3W.
+
+2 GiB M3W has 1 GiB DRAM at bank 0x4_0000_0000 and 1 GiB at 0x6_0000_0000,
+4 GiB M3W has 2 GiB DRAM at bank 0x4_0000_0000 and 2 GiB at 0x6_0000_0000.
+
+Fixes: 65755155e ("rcar_gen3: plat: Add DRAM size judgment by PRR register")
+Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
+Change-Id: Id2938d1d8ee4a81d6bca7a977eae3d6174c3fdb4
+---
+ plat/renesas/rcar/bl2_plat_setup.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/plat/renesas/rcar/bl2_plat_setup.c b/plat/renesas/rcar/bl2_plat_setup.c
+index fc657a44d..038601188 100644
+--- a/plat/renesas/rcar/bl2_plat_setup.c
++++ b/plat/renesas/rcar/bl2_plat_setup.c
+@@ -672,19 +672,16 @@ static void bl2_advertise_dram_size(uint32_t product)
+ #if (RCAR_GEN3_ULCB == 1)
+ 			/* 2GB(1GBx2 2ch split) */
+ 			dram_config[1] = 0x40000000ULL;
+-			dram_config[2] = 0x600000000ULL;
+-			dram_config[3] = 0x40000000ULL;
++			dram_config[5] = 0x40000000ULL;
+ #else
+ 			/* 4GB(2GBx2 2ch split) */
+ 			dram_config[1] = 0x80000000ULL;
+-			dram_config[2] = 0x600000000ULL;
+-			dram_config[3] = 0x80000000ULL;
++			dram_config[5] = 0x80000000ULL;
+ #endif
+ 		} else {
+ 			/* 8GB(2GBx4 2ch split) */
+ 			dram_config[1] = 0x100000000ULL;
+-			dram_config[2] = 0x600000000ULL;
+-			dram_config[3] = 0x100000000ULL;
++			dram_config[5] = 0x100000000ULL;
+ 		}
+ 		break;
+ 
+-- 
+2.30.2
+
