@@ -4,6 +4,12 @@ DESCRIPTION = "build of cluster_bin"
 
 LICENSE = "CLOSED"
 
+inherit deploy
+
+PLATFORM = "rcar"
+
+PARALLEL_MAKE = ""
+
 SRC_URI = " \
    git://git@gitpct.epam.com/epmd-aepr/vlib;protocol=ssh;branch=vlib-root \
 "
@@ -11,10 +17,11 @@ SRC_URI = " \
 SRCREV = "${AUTOREV}"
 
 DEPENDS = " \
-   gcc-arm-none-eabi-native \
+    cluster-wrapper-toolchain-native \
 "
+
 do_compile() {
-    make -C "${WORKDIR}/git/app/cluster_wrapper/target/arm-gnu-freertos_cr7_r-carx3"
+     oe_runmake -C "${WORKDIR}/git/app/cluster_wrapper/target/arm-gnu-freertos_cr7_r-carx3"
 }
 
 do_install() {
