@@ -27,10 +27,10 @@ common_data:
       rev: dunfell
     - type: git
       url: "https://github.com/xen-troops/meta-xt-common.git"
-      rev: master
+      rev: 76023c5b4db47d530dd1672ce145ed8a49936571
     - type: git
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
-      rev: master
+      rev: a9f873129cc8b7dca1f1d32daf4d435252a9a36e
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -113,7 +113,7 @@ components:
       - *COMMON_SOURCES
       - type: git
         url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+        rev: REL-1.0-pre-alpha
     builder:
       type: yocto
       work_dir: "%{DOM0_BUILD_DIR}"
@@ -178,7 +178,7 @@ components:
         rev: dunfell
       - type: git
         url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+        rev: REL-1.0-pre-alpha
       - type: git
         url: "https://github.com/meta-qt5/meta-qt5"
         rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
@@ -275,7 +275,7 @@ components:
         rev: "f7c5e7d5094f65d105d9d580ba59527c25fb0d0f"
       - type: git
         url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+        rev: REL-1.0-pre-alpha
 
     builder:
       type: yocto
