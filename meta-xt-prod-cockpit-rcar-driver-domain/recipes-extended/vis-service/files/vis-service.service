@@ -1,0 +1,12 @@
+[Unit]
+Description=Vis-Service, get data from the demo and resends to rpmsg
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/vis-service wss://wwwivi:443
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
