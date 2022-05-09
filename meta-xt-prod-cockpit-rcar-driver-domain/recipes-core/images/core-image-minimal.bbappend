@@ -13,8 +13,23 @@ IMAGE_INSTALL_append = " \
     optee-os \
     fio \
     iotop \
+    ca-certificates \
+    aos-certificates \
+    vis-service \
 "
 
 IMAGE_INSTALL_remove = " \
     dhcp-client \
 "
+
+install_aos () {
+    if echo "${XT_GUESTS_INSTALL}" | grep -qi "domu";then
+        exit 0
+    fi
+    if [ ! -z "${AOS_VIS_PACKAGE_DIR}" ];then
+        opkg install ${AOS_VIS_PACKAGE_DIR}/aos-vis
+    fi
+}
+
+ROOTFS_POSTPROCESS_COMMAND += "install_aos; "
+
