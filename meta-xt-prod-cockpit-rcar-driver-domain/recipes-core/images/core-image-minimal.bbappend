@@ -11,6 +11,8 @@ IMAGE_INSTALL_append = " \
     util-linux \
     dnsmasq \
     optee-os \
+    fio \
+    iotop \
 "
 
 IMAGE_INSTALL_remove = " \
