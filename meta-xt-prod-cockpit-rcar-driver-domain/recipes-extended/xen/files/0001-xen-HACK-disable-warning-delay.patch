@@ -1,0 +1,44 @@
+From 3a82ada146c6074244c5d91230da7446b4940213 Mon Sep 17 00:00:00 2001
+From: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+Date: Thu, 19 May 2022 10:08:16 +0200
+Subject: [PATCH] xen: HACK: disable warning delay
+
+Disable warning delay to speed up start by 3 sec.
+
+Signed-off-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+---
+ xen/common/warning.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
+
+diff --git a/xen/common/warning.c b/xen/common/warning.c
+index 0269c6715c..78cb23abdb 100644
+--- a/xen/common/warning.c
++++ b/xen/common/warning.c
+@@ -19,7 +19,7 @@ void __init warning_add(const char *warning)
+ 
+ void __init warning_print(void)
+ {
+-    unsigned int i, j;
++    unsigned int i;
+ 
+     if ( !nr_warnings )
+         return;
+@@ -32,15 +32,6 @@ void __init warning_print(void)
+         printk("***************************************************\n");
+     }
+ 
+-    for ( i = 0; i < 3; i++ )
+-    {
+-        printk("%u... ", 3 - i);
+-        for ( j = 0; j < 100; j++ )
+-        {
+-            process_pending_softirqs();
+-            mdelay(10);
+-        }
+-    }
+     printk("\n");
+ }
+ 
+-- 
+2.25.1
+
