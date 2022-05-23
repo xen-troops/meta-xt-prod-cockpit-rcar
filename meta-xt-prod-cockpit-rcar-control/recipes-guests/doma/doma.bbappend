@@ -22,4 +22,5 @@ do_install_append() {
 
     install -d ${D}${sysconfdir}/systemd/system/doma.service.d
     install -m 0644 ${WORKDIR}/doma-set-root.conf ${D}${sysconfdir}/systemd/system/doma.service.d
+    install -m 0644 ${WORKDIR}/doma-start-dependency.conf ${D}${sysconfdir}/systemd/system/doma.service.d
 }
