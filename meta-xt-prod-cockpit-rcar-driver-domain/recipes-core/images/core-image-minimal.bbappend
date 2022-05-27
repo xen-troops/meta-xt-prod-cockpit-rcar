@@ -13,6 +13,7 @@ IMAGE_INSTALL_append = " \
     optee-os \
     fio \
     iotop \
+    block \
 "
 
 IMAGE_INSTALL_remove = " \
