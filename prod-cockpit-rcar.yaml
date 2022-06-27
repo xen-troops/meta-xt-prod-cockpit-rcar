@@ -177,9 +177,14 @@ components:
       - type: git
         url: "https://github.com/xen-troops/meta-renesas.git"
         rev: "Renesas-Yocto-v5.1-patched"
+      - type: git
+        url: "https://github.com/aoscloud/meta-aos"
+        rev: "4b0f4ea629db039af8cec8f9ea019bb4c9e6d0c7"
     builder:
       type: yocto
       work_dir: "%{DOMD_BUILD_DIR}"
+      layers:
+        - "../meta-aos"
       conf:
         - *COMMON_CONF
         - *DOMD_DOMU_CONF
