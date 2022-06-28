@@ -12,5 +12,6 @@
 / {
         chosen {
                 bootargs = "loglvl=none guest_loglvl=none dom0_mem=256M console=dtuart dtuart=serial0 dom0_max_vcpus=4 bootscrub=0 sched_ratelimit_us=100 hmp-unsafe=true xsm=flask console_timestamps=boot";
+                xen,dom0-bootargs = "loglevel=0 systemd.show_status=0 systemd.log_level=emerg console=hvc0";
         };
 };
