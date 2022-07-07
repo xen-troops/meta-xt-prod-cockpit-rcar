@@ -6,6 +6,7 @@ variables:
   DOM0_BUILD_DIR: "build-dom0"
   DOMD_BUILD_DIR: "build-domd"
   CLUSTER_BUILD_DIR: "build-cluster-wrapper"
+  TOOLS_BUILD_DIR: "build-tools-native"
   XT_DOMD_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-domd.dtb"
   XT_XEN_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-xen.dtb"
   XT_PVR_NUM_OSID: "2"
@@ -295,6 +296,29 @@ components:
       target_images:
         - "tmp/deploy/cluster_wrapper.bin"
 
+  tools:
+    build-dir: "%{YOCTOS_WORK_DIR}"
+    sources:
+      - *COMMON_SOURCES
+      - type: git
+        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
+        rev: master
+
+    builder:
+      type: yocto
+      work_dir: "%{TOOLS_BUILD_DIR}"
+      conf:
+        - *COMMON_CONF
+        - [MACHINE, "generic-armv8-xt"]
+      build_target: cluster-wrapper
+      layers:
+        - "../poky/meta"
+        - "../poky/meta-poky"
+        - "../poky/meta-yocto-bsp"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-tools-native"
+      target_images:
+        - "tmp/deploy/fsgen"
+
 images:
   full:
     type: gpt
@@ -448,3 +472,14 @@ parameters:
               android:
                 *ANDROID_IMAGE
 
+  ENABLE_TOOLS:
+    desc: "Build native tools"
+    "no":
+      default: true
+    "yes":
+      overrides:
+        components:
+          dom0:
+            builder:
+              additional_deps:
+                - "%{CLUSTER_BUILD_DIR}/tmp/deploy/fsgen"
