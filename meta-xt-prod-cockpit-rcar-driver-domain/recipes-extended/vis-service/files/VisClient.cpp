@@ -17,16 +17,24 @@
 #include <QJsonArray>
 #include <QTimer>
 #include "VisClient.h"
-
+#include <limits>
 
 QT_USE_NAMESPACE
 
 const unsigned long visClientTimeout = 1000;
 struct rpmsg_endpoint_info ept_info = {"rpmsg-openamp-demo-channel", 0x2, 0x1};
 
+
+enum CtlIO_id{
+    SPEED = 1,
+    GEAR = 2,
+};
+
+const int not_defined_value = std::numeric_limits<int>::max();
+
 typedef struct {
-    int   speed;
-    int     rpm;
+    int   value;
+    int   ioctl_cmd;
 }taurus_cluster_data_t;
 
 
@@ -61,14 +69,18 @@ VisClient::VisClient(QObject *parent, const QString &url, const QString& rpmsg):
         throw std::invalid_argument("No device "+rpmsg.toStdString());
     }
     qDebug() << "Create VIS client - send 100 for test";
-    int speed = 100;
+
+    taurus_cluster_data_t data = {
+	    .value = 100,
+	    .ioctl_cmd = 1,
+    };
     // just for the test purposes, to see that connection exists
-    while(speed != 0) {
-	write(mFdept, &speed, sizeof(speed));
-	--speed;
+    while(data.value != 0) {
+	write(mFdept, &data, sizeof(data));
+	--data.value;
     }
-    speed = 0;
-    write(mFdept, &speed, sizeof(speed));
+    data.value = 0;
+    write(mFdept, &data, sizeof(data));
     qDebug() << "Create VIS client - send 0 to reset";
 }
 VisClient::~VisClient()
@@ -149,7 +161,7 @@ void VisClient::onTextMessageReceived(const QString &message)
 {
     qDebug() << "Receive message:" << message;
     // send dummy data 
-    taurus_cluster_data_t data = {0, 0};
+    taurus_cluster_data_t data = {0, CtlIO_id::SPEED};
     
     QFile file("/var/vis-response-2.txt");
 
@@ -188,16 +200,28 @@ void VisClient::onTextMessageReceived(const QString &message)
 	    auto sId = getSubscriptionId(message);
             if(sId == mSubscriptionId)
 	    {
-               data.speed = getSpeed(message);
-	       qDebug() << " getSpeed " << data.speed;
-	       if(data.speed >= 0)
+	       data.value = getSpeed(message);
+	       qDebug() << " getSpeed " << data.value;
+	       if(data.value != not_defined_value)
                {
+		   data.ioctl_cmd = CtlIO_id::SPEED;
                    write(mFdept, &data, sizeof(data));
 	       }
 	       else
 	       {
 		  qDebug() << "No speed value in the message";
 	       }
+	       data.value = getGearSelect(message);
+               qDebug() << " getGear " << data.value;
+               if(data.value != not_defined_value)
+               {
+		   data.ioctl_cmd = CtlIO_id::GEAR;
+                   write(mFdept, &data, sizeof(data));
+               }
+               else
+               {
+                  qDebug() << "No Gear value in the message";
+               }
 	    }
 	    else
 	    {
@@ -215,21 +239,26 @@ void VisClient::onTextMessageReceived(const QString &message)
 
 int VisClient::getSpeed(const QString &message)const
 {
-    int res = -1;
+    int res = getValue("Signal.Vehicle.Speed", message);
+    return res == not_defined_value ? not_defined_value : (int)(res/1000);
+}
+
+int VisClient::getGearSelect(const QString & message)const
+{
+    return getValue("Signal.Drivetrain.Transmission.Gear", message);
+}
+
+int VisClient::getValue(const QString & propId, const QString & message)const
+{
+    int res = not_defined_value;
     QByteArray br = message.toUtf8();
-
     QJsonDocument doc = QJsonDocument::fromJson(br);
-
     QJsonObject obj = doc.object();
-
     QJsonArray arr = obj.value("value").toArray();
-    
-    const QString speedValue = "Signal.Vehicle.Speed";//"Signal.Cabin.Infotainment.Navigation.CurrentLocation.Speed";
-
     foreach(const QJsonValue &v, arr){
-        if(v.toObject().contains(speedValue)) {//v.toObject().contains("Signal.Emulator.telemetry.veh_speed")) {
-           qDebug()<<"speed " << (int)(v.toObject().value(speedValue).toInt()/1000);
-	   res = (int)(v.toObject().value(speedValue).toInt()/1000);//"Signal.Emulator.telemetry.veh_speed").toInt();
+        if(v.toObject().contains(propId)) {
+           res = (int)(v.toObject().value(propId).toInt());
+	   qDebug()<< propId  << " = " << res;
        }
 
     }
