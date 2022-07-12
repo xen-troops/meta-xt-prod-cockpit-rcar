@@ -34,7 +34,7 @@ PACKAGECONFIG += "vsp2"
 PACKAGECONFIG[gbm] = "-gbm,-no-gbm,libgbm"
 PACKAGECONFIG += "gbm"
 
-PACKAGECONFIG_remove += "openssl pcre"
+PACKAGECONFIG_remove += " pcre"
 
 do_install_append() {
     # Update the mkspecs to include the default OE toolchain config for the target

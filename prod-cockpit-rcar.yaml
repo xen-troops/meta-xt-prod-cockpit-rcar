@@ -6,6 +6,7 @@ variables:
   DOM0_BUILD_DIR: "build-dom0"
   DOMD_BUILD_DIR: "build-domd"
   CLUSTER_BUILD_DIR: "build-cluster-wrapper"
+  TOOLS_BUILD_DIR: "build-tools-native"
   XT_DOMD_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-domd.dtb"
   XT_XEN_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-xen.dtb"
   XT_PVR_NUM_OSID: "2"
@@ -112,8 +113,8 @@ components:
     sources:
       - *COMMON_SOURCES
       - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+        url: "https://github.com/iusyk/meta-xt-prod-cockpit-rcar.git"
+        rev: cluster-drv-communication
     builder:
       type: yocto
       work_dir: "%{DOM0_BUILD_DIR}"
@@ -177,17 +178,22 @@ components:
         url: git://git.yoctoproject.org/meta-selinux
         rev: dunfell
       - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+        url: "https://github.com/iusyk/meta-xt-prod-cockpit-rcar.git"
+        rev: cluster-drv-communication
       - type: git
         url: "https://github.com/meta-qt5/meta-qt5"
         rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
       - type: git
         url: "https://github.com/xen-troops/meta-renesas.git"
         rev: "Renesas-Yocto-v5.1-patched"
+      - type: git
+        url: "https://github.com/aoscloud/meta-aos"
+        rev: "4b0f4ea629db039af8cec8f9ea019bb4c9e6d0c7"
     builder:
       type: yocto
       work_dir: "%{DOMD_BUILD_DIR}"
+      layers:
+        - "../meta-aos"
       conf:
         - *COMMON_CONF
         - *DOMD_DOMU_CONF
@@ -274,8 +280,8 @@ components:
         url: "git://git.yoctoproject.org/meta-arm.git"
         rev: "f7c5e7d5094f65d105d9d580ba59527c25fb0d0f"
       - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+        url: "https://github.com/iusyk/meta-xt-prod-cockpit-rcar.git"
+        rev: cluster-drv-communication
 
     builder:
       type: yocto
@@ -296,6 +302,29 @@ components:
         - "../meta-openembedded/meta-oe"
       target_images:
         - "tmp/deploy/cluster_wrapper.bin"
+
+  tools:
+    build-dir: "%{YOCTOS_WORK_DIR}"
+    sources:
+      - *COMMON_SOURCES
+      - type: git
+        url: "https://github.com/iusyk/meta-xt-prod-cockpit-rcar.git"
+        rev: cluster-drv-communication
+
+    builder:
+      type: yocto
+      work_dir: "%{TOOLS_BUILD_DIR}"
+      conf:
+        - *COMMON_CONF
+        - [MACHINE, "generic-armv8-xt"]
+      build_target: cluster-wrapper
+      layers:
+        - "../poky/meta"
+        - "../poky/meta-poky"
+        - "../poky/meta-yocto-bsp"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-tools-native"
+      target_images:
+        - "tmp/deploy/fsgen"
 
 images:
   full:
@@ -450,3 +479,14 @@ parameters:
               android:
                 *ANDROID_IMAGE
 
+  ENABLE_TOOLS:
+    desc: "Build native tools"
+    "no":
+      default: true
+    "yes":
+      overrides:
+        components:
+          dom0:
+            builder:
+              additional_deps:
+                - "%{CLUSTER_BUILD_DIR}/tmp/deploy/fsgen"
