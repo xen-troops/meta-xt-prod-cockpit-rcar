@@ -28,6 +28,8 @@ struct rpmsg_endpoint_info ept_info = {"rpmsg-openamp-demo-channel", 0x2, 0x1};
 enum CtlIO_id{
     SPEED = 1,
     GEAR = 2,
+    RPM = 3,
+    TURN = 4,
 };
 
 const int not_defined_value = std::numeric_limits<int>::max();
@@ -222,6 +224,28 @@ void VisClient::onTextMessageReceived(const QString &message)
                {
                   qDebug() << "No Gear value in the message";
                }
+	       data.value = getRpm(message);
+               qDebug() << " getRpm " << data.value;
+               if(data.value != not_defined_value)
+               {
+                   data.ioctl_cmd = CtlIO_id::RPM;
+                   write(mFdept, &data, sizeof(data));
+               }
+               else
+               {
+                  qDebug() << "No RPM value in the message";
+               }
+               data.value = getTurnDirection(message);
+               qDebug() << " getDirection " << data.value;
+               if(data.value != not_defined_value)
+               {
+                   data.ioctl_cmd = CtlIO_id::TURN;
+                   write(mFdept, &data, sizeof(data));
+               }
+               else
+               {
+                  qDebug() << "No Turn value in the message";
+               }
 	    }
 	    else
 	    {
@@ -246,6 +270,42 @@ int VisClient::getSpeed(const QString &message)const
 int VisClient::getGearSelect(const QString & message)const
 {
     return getValue("Signal.Drivetrain.Transmission.Gear", message);
+}
+
+int VisClient::getRpm(const QString & message)const
+{
+    return getValue("Signal.Drivetrain.InternalCombustionEngine.Engine.Speed", message);
+}
+
+int VisClient::getTurnDirection(const QString & message)const
+{
+    auto value = getStringValue("Signal.Traffic.Turn.Direction", message);
+    if(value == "right")
+    {
+       return 1;
+    }
+    else if(value == "left")
+    {
+        return 2;
+    }
+    return 0;
+}
+
+QString VisClient::getStringValue(const QString & propId, const QString & message)const
+{
+    QString res;
+    QByteArray br = message.toUtf8();
+    QJsonDocument doc = QJsonDocument::fromJson(br);
+    QJsonObject obj = doc.object();
+    QJsonArray arr = obj.value("value").toArray();
+    foreach(const QJsonValue &v, arr){
+        if(v.toObject().contains(propId)) {
+           res = v.toObject().value(propId).toString();
+           qDebug()<< propId  << " = " << res;
+       }
+
+    }
+    return res;
 }
 
 int VisClient::getValue(const QString & propId, const QString & message)const

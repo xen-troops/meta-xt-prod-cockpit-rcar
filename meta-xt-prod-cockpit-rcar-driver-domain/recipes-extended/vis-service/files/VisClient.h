@@ -44,7 +44,10 @@ private Q_SLOTS:
     QString getSubscriptionId(const QString &message)const;
     int getSpeed(const QString &message)const;
     int getGearSelect(const QString &message)const;
+    int getRpm(const QString & message)const;
+    int getTurnDirection(const QString & message)const;
     int getValue(const QString & propId, const QString & message)const;
+    QString getStringValue(const QString & propId, const QString & message)const;
 private:
     QString mUrl;
     QWebSocket mWebSocket;
