@@ -198,7 +198,7 @@ components:
 
         # take dedicated cr7 kernel
         - [RENESAS_BSP_URL_pn-linux-renesas,  "git://git@gitpct.epam.com/rec-inv/linux.git;protocol=ssh"]
-        - [BRANCH_pn-linux-renesas, "v5.10_cr7_aosbox"]
+        - [BRANCH_pn-linux-renesas, "v5.10_cr7_aosbox_clusterdrv"]
 
         # get xen customized under cr7
         - [XEN_URL_pn-xen-tools, "%{XEN_URL}"]
