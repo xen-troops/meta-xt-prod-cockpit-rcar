@@ -32,11 +32,19 @@ enum CtlIO_id{
     TURN = 4,
 };
 
+enum GearPosition{
+    PARK    	= 0,
+    NEUTRAL 	= 2,
+    DRIVE   	= 3,
+    REVERSE 	= 4,
+    GUNDEFINED 	= 5,
+};
+
 const int not_defined_value = std::numeric_limits<int>::max();
 
 typedef struct {
-    int   value;
-    int   ioctl_cmd;
+    uint64_t   value;
+    uint64_t   ioctl_cmd;
 }taurus_cluster_data_t;
 
 
@@ -213,7 +221,7 @@ void VisClient::onTextMessageReceived(const QString &message)
 	       {
 		  qDebug() << "No speed value in the message";
 	       }
-	       data.value = getGearSelect(message);
+	       data.value = (uint64_t)getGearSelect(message);
                qDebug() << " getGear " << data.value;
                if(data.value != not_defined_value)
                {
@@ -267,9 +275,26 @@ int VisClient::getSpeed(const QString &message)const
     return res == not_defined_value ? not_defined_value : (int)(res/1000);
 }
 
-int VisClient::getGearSelect(const QString & message)const
+GearPosition VisClient::getGearSelect(const QString & message)const
 {
-    return getValue("Signal.Drivetrain.Transmission.Gear", message);
+    int val = getValue("Signal.Drivetrain.Transmission.Gear", message);
+    GearPosition res = GearPosition::GUNDEFINED;
+    switch(val)
+    {
+	case 0: 
+	res = GearPosition::PARK;
+	break;
+	case 2: 
+	res = GearPosition::NEUTRAL;
+	break;
+	case 3: 
+	res = GearPosition::DRIVE;
+	break;
+	case 4: 
+	res = GearPosition::REVERSE;
+	break;
+    }
+    return res;
 }
 
 int VisClient::getRpm(const QString & message)const
