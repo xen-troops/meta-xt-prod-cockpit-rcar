@@ -19,19 +19,22 @@ common_data:
   sources: &COMMON_SOURCES
     - type: git
       url: "git://git.yoctoproject.org/poky"
-      rev: dunfell
+      rev: 02867c90395db2ebfbcaed3d0d813b889978888c
     - type: git
       url: "git://git.openembedded.org/meta-openembedded"
-      rev: dunfell
+      rev: deee226017877d51188e0a46f9e6b93c10ffbb34
     - type: git
       url: "git://git.yoctoproject.org/meta-virtualization"
-      rev: dunfell
+      rev: f6b88c1d2f515ffac90457c0d649d6c805fff736
     - type: git
       url: "https://github.com/xen-troops/meta-xt-common.git"
-      rev: master
+      rev: 57d8c5983bc5e0631c6cc7a622b79456af8a0124
     - type: git
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
-      rev: master
+      rev: d909b66098cb9e54339ff1ddf80f488aab80dbd6
+    - type: git
+      url: "https://github.com/iusyk/meta-xt-prod-cockpit-rcar.git"
+      rev: REL-v1.0
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -84,10 +87,10 @@ common_data:
     sources:
       - type: git
         url: "git://git.openembedded.org/meta-python2"
-        rev: dunfell
+        rev: b901080cf57d9a7f5476ab4d96e56c30db8170a8
       - type: git
         url: "https://github.com/kraj/meta-clang"
-        rev: dunfell
+        rev: 3bb001d3f364bbf6588fed04b9ee2c7e74a0beba
       - type: git
         url: "ssh://git@gitpct.epam.com/epmd-aepr/img-proprietary"
         rev: "ef1aa566d74a11c4d2ae9592474030a706b4cf39"
@@ -104,9 +107,6 @@ components:
     default: true
     sources:
       - *COMMON_SOURCES
-      - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
     builder:
       type: yocto
       work_dir: "%{DOM0_BUILD_DIR}"
@@ -168,10 +168,7 @@ components:
       - *COMMON_SOURCES
       - type: git
         url: git://git.yoctoproject.org/meta-selinux
-        rev: dunfell
-      - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+        rev: 1a13839d114e6694d5ae2aa5dfa11c6824277b99
       - type: git
         url: "https://github.com/meta-qt5/meta-qt5"
         rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
@@ -271,9 +268,6 @@ components:
       - type: git        
         url: "git://git.yoctoproject.org/meta-arm.git"
         rev: "f7c5e7d5094f65d105d9d580ba59527c25fb0d0f"
-      - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
 
     builder:
       type: yocto
@@ -299,9 +293,6 @@ components:
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources:
       - *COMMON_SOURCES
-      - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
 
     builder:
       type: yocto
