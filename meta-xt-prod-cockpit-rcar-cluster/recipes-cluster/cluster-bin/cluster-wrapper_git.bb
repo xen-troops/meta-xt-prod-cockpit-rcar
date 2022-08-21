@@ -11,7 +11,7 @@ PLATFORM = "rcar"
 PARALLEL_MAKE = ""
 
 SRC_URI = " \
-   git://git@gitpct.epam.com/epmd-aepr/vlib;protocol=ssh;branch=sport-mode \
+   git://git@gitpct.epam.com/epmd-aepr/vlib;protocol=ssh;rev=e62850a5f2998099f0461d15c2395d9d3a74ef89 \
 "
 
 SRCREV = "${AUTOREV}"
