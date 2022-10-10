@@ -16,6 +16,7 @@ IMAGE_INSTALL_append = " \
     ca-certificates \
     aos-certificates \
     vis-service \
+    cluster-view \
 "
 
 IMAGE_INSTALL_remove = " \

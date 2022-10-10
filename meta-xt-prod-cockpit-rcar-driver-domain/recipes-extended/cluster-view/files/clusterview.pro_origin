@@ -1,0 +1,10 @@
+QT += quick
+
+SOURCES += \
+    main.cpp
+
+RESOURCES += \
+    qml.qrc
+
+OTHER_FILES += \
+    doc/src/*.*

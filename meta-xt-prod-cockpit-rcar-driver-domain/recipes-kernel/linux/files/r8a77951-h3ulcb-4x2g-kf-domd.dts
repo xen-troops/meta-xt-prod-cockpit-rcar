@@ -47,12 +47,12 @@
                                 display-map = <0>;
                                 layers {
                                         primary{
-                                                /* Position the layer in the centre of a 1920x720 display */
+                                                /* Layer shold display the information at all display */
                                                 layer-map=<0x3>;
-                                                size-w=<800>;
-                                                size-h=<600>;
-                                                pos-x=<560>;    // (1920 - 800)/2
-                                                pos-y=<60>;     // (720 - 600)/2
+                                                size-w=<1920>;
+                                                size-h=<720>;
+                                                pos-x=<0>;
+                                                pos-y=<0>;
                                                 pos-override;
                                         };
                                 };
