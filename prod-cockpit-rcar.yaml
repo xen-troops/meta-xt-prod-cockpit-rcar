@@ -247,7 +247,7 @@ components:
     sources:
       - type: repo
         url: "ssh://git@gitpct.epam.com/rec-inv/android_manifest.git"
-        rev: android-11-master
+        rev: android-12-master
         manifest: doma.xml
         depth: 1
         groups: all
