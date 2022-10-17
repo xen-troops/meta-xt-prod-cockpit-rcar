@@ -1,5 +1,5 @@
 desc: "Xen-Troops development setup for Renesas RCAR Gen3 hardware"
-min_ver: "0.4"
+min_ver: "0.7"
 
 variables:
   YOCTOS_WORK_DIR: "yocto"
@@ -7,6 +7,7 @@ variables:
   DOMD_BUILD_DIR: "build-domd"
   CLUSTER_BUILD_DIR: "build-cluster-wrapper"
   TOOLS_BUILD_DIR: "build-tools-native"
+  ANDROID_KERNEL_DIR: "android_kernel"
   XT_DOMD_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-domd.dtb"
   XT_XEN_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-xen.dtb"
   XT_PVR_NUM_OSID: "2"
@@ -242,6 +243,31 @@ components:
         - "tmp/deploy/images/%{MACHINE}/%{XT_XEN_DTB_NAME}"
         - "tmp/deploy/images/%{MACHINE}/core-image-minimal-%{MACHINE}.ext4"
 
+  doma_kernel:
+    build-dir: "%{ANDROID_KERNEL_DIR}"
+    sources:
+      - type: repo
+        url: https://github.com/xen-troops/android_kernel_manifest.git
+        rev: common-android12-5.4-cr7-master
+        manifest: default.xml
+        depth: 1
+        groups: all
+        dir: "."
+    builder:
+      type: android_kernel
+      env:
+        - "TARGET_BOARD_PLATFORM=%{SOC_FAMILY}"
+        - "BUILD_CONFIG=common/build.config.xenvm"
+        - "SKIP_MRPROPER=1"
+      target_images:
+        - "out/android12-5.4/dist/Image"
+        - "out/android12-5.4/dist/pvrsrvkm.ko"
+        - "out/android12-5.4/dist/mmngr.ko"
+        - "out/android12-5.4/dist/mmngrbuf.ko"
+        - "out/android12-5.4/dist/uvcs_drv.ko"
+        - "out/android12-5.4/dist/vspm.ko"
+        - "out/android12-5.4/dist/vspm_if.ko"
+
   doma:
     build-dir: "android"
     sources:
@@ -256,12 +282,23 @@ components:
       type: android
       env:
         - "TARGET_BOARD_PLATFORM=%{SOC_FAMILY}"
+        - "TARGET_PREBUILT_KERNEL=../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/Image"
+        - "DDK_KM_PREBUILT_MODULE=../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/pvrsrvkm.ko"
+        - "KERNEL_MODULES_OUT=../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist"
       lunch_target: xenvm-userdebug
       target_images:
         - "out/target/product/xenvm/boot.img"
         - "out/target/product/xenvm/super.img"
         - "out/target/product/xenvm/userdata.img"
         - "out/target/product/xenvm/vbmeta.img"
+      additional_deps:
+        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/Image"
+        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/pvrsrvkm.ko"
+        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/mmngr.ko"
+        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/mmngrbuf.ko"
+        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/uvcs_drv.ko"
+        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/vspm.ko"
+        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/vspm_if.ko"
 
   cluster:
     build-dir: "%{YOCTOS_WORK_DIR}"
