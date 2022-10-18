@@ -32,14 +32,6 @@ enum CtlIO_id{
     TURN = 4,
 };
 
-enum GearPosition{
-    PARK    	= 0,
-    NEUTRAL 	= 2,
-    DRIVE   	= 3,
-    REVERSE 	= 4,
-    GUNDEFINED 	= 5,
-};
-
 const int not_defined_value = std::numeric_limits<int>::max();
 
 typedef struct {
