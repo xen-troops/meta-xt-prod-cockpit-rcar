@@ -41,9 +41,17 @@ private Q_SLOTS:
     void onSslErrors(const QList<QSslError> &errors);
     void onTextMessageReceived(const QString &message);
 
+private:
+    enum GearPosition{
+    	PARK        = 0,
+    	NEUTRAL     = 2,
+    	DRIVE       = 3,
+    	REVERSE     = 4,
+    	GUNDEFINED  = 5,
+    };
     QString getSubscriptionId(const QString &message)const;
     int getSpeed(const QString &message)const;
-    int getGearSelect(const QString &message)const;
+    GearPosition getGearSelect(const QString &message)const;
     int getRpm(const QString & message)const;
     int getTurnDirection(const QString & message)const;
     int getValue(const QString & propId, const QString & message)const;
