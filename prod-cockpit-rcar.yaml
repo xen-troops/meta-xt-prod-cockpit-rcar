@@ -10,6 +10,7 @@ variables:
   ANDROID_KERNEL_DIR: "android_kernel"
   XT_DOMD_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-domd.dtb"
   XT_XEN_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-xen.dtb"
+  XT_XEN_REVISION: "d9703fe08c3d32dbfb89ab10502ad2ffeb52de62"
   XT_PVR_NUM_OSID: "2"
   XT_OP_TEE_FLAVOUR: "generic_dt"
   XT_DOMA_TAG: ""
@@ -135,11 +136,11 @@ components:
 
         # get xen customized under cr7
         - [XEN_URL_pn-xen-tools, "%{XEN_URL}"]
-        - [SRCREV_pn-xen-tools, "d9703fe08c3d32dbfb89ab10502ad2ffeb52de62"]
+        - [SRCREV_pn-xen-tools, "%{XT_XEN_REVISION}"]
         - [XEN_URL_pn-xen, "%{XEN_URL}"]
         - [XEN_REL_pn-xen, "4.16"]
         - [XEN_REL_pn-xen-tools, "4.16"]
-        - [SRCREV_pn-xen, "d9703fe08c3d32dbfb89ab10502ad2ffeb52de62"]
+        - [SRCREV_pn-xen, "%{XT_XEN_REVISION}"]
 
       layers:
         - "../meta-virtualization"
@@ -199,11 +200,11 @@ components:
 
         # get xen customized under cr7
         - [XEN_URL_pn-xen-tools, "%{XEN_URL}"]
-        - [SRCREV_pn-xen-tools, "d9703fe08c3d32dbfb89ab10502ad2ffeb52de62"]
+        - [SRCREV_pn-xen-tools, "%{XT_XEN_REVISION}"]
         - [XEN_URL_pn-xen, "%{XEN_URL}"]
         - [XEN_REL_pn-xen, "4.16"]
         - [XEN_REL_pn-xen-tools, "4.16"]
-        - [SRCREV_pn-xen, "d9703fe08c3d32dbfb89ab10502ad2ffeb52de62"]
+        - [SRCREV_pn-xen, "%{XT_XEN_REVISION}"]
         
         # add graphic packages required qt
         - [DISTRO_FEATURES_append, " pam"]
