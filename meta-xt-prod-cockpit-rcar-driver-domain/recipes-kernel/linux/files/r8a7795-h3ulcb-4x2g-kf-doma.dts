@@ -67,6 +67,19 @@
                                         };
                                 };
                         };
+			display-1 {
+				display-map = <0>;
+				layers {
+					primary {
+						layer-map=<0x4>;
+						size-w=<448>;
+						size-h=<600>;
+						pos-x=<736>;
+						pos-y=<0>;
+						pos-override;
+					};
+				};
+			};
                 };
 	};
 
