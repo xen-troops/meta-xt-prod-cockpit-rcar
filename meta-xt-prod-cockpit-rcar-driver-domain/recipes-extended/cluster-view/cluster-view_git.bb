@@ -160,6 +160,8 @@ S = "${WORKDIR}"
 
 inherit pkgconfig qmake5 
 
+SYSTEMD_SERVICE_${PN} = "cluster-view.service"
+
 FILES_${PN} += " \
     ${bindir}/clusterview \
     ${systemd_system_unitdir}/cluster-view.service \
