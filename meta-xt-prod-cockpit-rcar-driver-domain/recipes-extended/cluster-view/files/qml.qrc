@@ -128,5 +128,18 @@
         <file>images/Gears_N.png</file>
         <file>images/Gears_P.png</file>
         <file>images/Gears_R.png</file>
+        <file>images/Auto_Lighting_off.png</file>
+        <file>images/Turn_right_off.png</file>
+        <file>images/SPORT_on.png</file>
+        <file>images/Auto_Lighting_on.png</file>
+        <file>images/Turn_left_off.png</file>
+        <file>images/Cruise_control_on.png</file>
+        <file>images/SPORT_off.png</file>
+        <file>qml/Footer.qml</file>
+        <file>qml/TimeInfo.qml</file>
+        <file>qml/TripInfo.qml</file>
+        <file>qml/WeatherInfo.qml</file>
+        <file>qml/OdoInfo.qml</file>
+        <file>qml/SpeedLimitInfo.qml</file>
     </qresource>
 </RCC>

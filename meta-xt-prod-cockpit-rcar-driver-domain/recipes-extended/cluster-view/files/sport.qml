@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import VisClient 1.0
+import "./qml/"
 
 Window {
     id: window
@@ -12,16 +13,25 @@ Window {
 
     VisClient{
         id: vis
-        urlValue: "wss://wwwivi:8088"
+        urlValue: cmdLine.urlValue
+        
+        onUrlValueChanged: {
+            console.log("NEW Url " + urlValue)
+        }
+
         onGearValueChanged: {
-            for(var i= 0; i < topInfo.gear.length;++i)
+            for(var i= 0; i < footer.gear.length;++i)
             {
-                if(vis.gearValue == topInfo.gear[i].gear){
-                    topInfo.currentGear = i;
+                if(vis.gearValue == footer.gear[i].gear){
+                    footer.currentGear = i;
                     return;
                 }
             }
         }
+    }
+
+    Connections{
+        target: cmdLine
     }
 
     Item {
@@ -91,83 +101,7 @@ Window {
             }
         }
 
-        Text {
-            id: timeInfo
-            x: 40
-            y: 40
-            color: "white"
-            font.pixelSize: 30
-            text: {topInfo.timeUpdated;return Qt.formatTime(new Date(), "hh:mm ap")}
-        }
-
-        Text {
-            id: tripInfo
-            x: 40
-            y: 653
-            color: "white"
-            font.pixelSize: 30
-            text: "TRIP A 1000 KM"
-        }
-
-        Item {
-            id: weatherInfo
-            x: 1756
-            y: 40
-            Image {
-               id: cloud_img
-               anchors.left: parent.left
-               anchors.top: weatherInfo.top
-               source: "images/Cloudy.png"
-               anchors.topMargin: 5
-            }
-            Text {
-                id: tempInfo
-                anchors.left: cloud_img.right
-                anchors.top: weatherInfo.top
-                anchors.leftMargin: 5
-                font.pixelSize: 30
-                color: "white"
-                text: qsTr("23")
-            }
-            Image {
-               id: temp_img
-               anchors.left: tempInfo.right
-               anchors.leftMargin: 5
-               anchors.top: weatherInfo.top
-               source: "images/C.png"
-            }
-        }
-        Item {
-            id: odoInfo
-            x:1755
-            y: 653
-            Text {
-                id: odo
-                anchors.left: odoInfo.left
-                color: "white"
-                font.pixelSize: 30
-                text: qsTr("3378 KM")
-            }
-        }
-        Item {
-            id: speedLimitInfo
-            x: 430
-            y: 137
-            Image {
-               id: speed_limit_img
-               anchors.left: speedLimitInfo.left
-               anchors.top: speedLimitInfo.top
-               source: "images/Speed_limit_EU_bg_circle.png"
-            }
-            Text {
-                id: speedLimit
-                anchors.centerIn: speed_limit_img
-                color: "black"
-                font.pixelSize: 30
-                text: qsTr("50")
-            }
-        }
-
+        
         Item {
             id: gearShiftItem
             x: 1393
@@ -195,11 +129,25 @@ Window {
             }
         }
 
-        Image {
-            id: gear
-            source : topInfo.gear[topInfo.currentGear].source
-            x : topInfo.gear[topInfo.currentGear].x
-            y : topInfo.gear[topInfo.currentGear].y
+        TimeInfo{
+
+        }
+        TripInfo{
+
+        }
+        WeatherInfo{
+
+        }
+        OdoInfo{
+
+        }
+        SpeedLimitInfo{
+            x: 430
+            y: 137
+        }
+        Footer{
+            id: footer
+            sport: true
         }
 
         property var rpmGaugeImages : [
@@ -280,18 +228,9 @@ Window {
             {source :"images/D6.png", x: 1393, y: 304, speed: 240},
         ]
 
-        property var gear: [
-            {source: "images/Gears_all_off.png", x: 839, y: 639, gear: 5},
-            {source: "images/Gears_D.png", x: 839, y: 639, gear: 3},
-            {source: "images/Gears_N.png", x: 839, y: 639, gear: 2},
-            {source: "images/Gears_P.png", x: 839, y: 639, gear: 0},
-            {source: "images/Gears_R.png", x: 839, y: 639, gear: 4},
-        ]
-
         property var timeUpdated: 0
         property var currentGauge: 0
-        property var currentGear: 0
-
+        
         property var speedGaugeIndex: {
             if(vis.speedValue == 240)
                 return topInfo.speedGaugeImages.length - 1
@@ -318,7 +257,7 @@ Window {
         }
 
         Timer {
-            interval: 500; running: true/*vis.connectedValue*/; repeat: true
+            interval: 500; running: !vis.connectedValue; repeat: true
             onTriggered: {
                 if(vis.speedValue < 240){
                     vis.speedValue += 5
@@ -335,6 +274,9 @@ Window {
                 else 
                 {
                     ++vis.gearValue;
+                }
+                if(!vis.connectedValue){
+                    vis.connectTo()
                 }
             }
         }
