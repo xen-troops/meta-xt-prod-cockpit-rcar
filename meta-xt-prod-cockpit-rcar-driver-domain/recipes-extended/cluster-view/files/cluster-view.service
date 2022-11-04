@@ -7,7 +7,7 @@ Environment=QT_LOGGING_RULES=qt.qpa.*=true
 Environment=QT_QPA_PLATFORM=eglfs
 Environment=QT_QPA_EGLFS_KMS_CONFIG="/etc/eglfs.conf"
 Environment=QT_QPA_EGLFS_KMS_ATOMIC=1
-ExecStart=/usr/bin/clusterview
+ExecStart=/usr/bin/clusterview wss://wwwivi:443 1
 ExecStop=/usr/bin/killall -s KILL openglwindow
 Type=simple
 

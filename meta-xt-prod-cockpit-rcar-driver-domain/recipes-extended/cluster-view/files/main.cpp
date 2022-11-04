@@ -1,11 +1,13 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-
+#include <QQmlContext>
 #include <QtGui>
 #include <string.h>
 //#include <QtQuick3D/qquick3d.h>
 #include <qqml.h>
+
 #include "visclient.h"
+#include "commandline.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,11 +20,21 @@ int main(int argc, char *argv[])
         qDebug() << "Arg: " << argv[1];
     }
     QQmlApplicationEngine engine;
+    //CommandLine cmd;
 
     qmlRegisterType<VisClient>("VisClient", 1, 0, "VisClient");
 
-    if(argc > 1 && !strcmp(argv[1], "1"))
-        engine.load(QUrl(QStringLiteral("qrc:/sport.qml")));
+    CommandLine cmd;
+    cmd.setUrlValue("wss://wwwivi:443");
+
+    if(argc > 1){
+        cmd.setUrlValue(argv[1]);
+    }
+
+    engine.rootContext()->setContextProperty("cmdLine", &cmd);
+
+    if(argc > 2 && !strcmp(argv[2], "2"))
+        engine.load(QUrl(QStringLiteral("qrc:/sport.qml")));//("qrc:/main.qml")));
     else
         engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     
