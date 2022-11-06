@@ -9,6 +9,8 @@ SRC_URI = " \
       file://main.cpp \ 
       file://visclient.h \
       file://visclient.cpp \
+      file://commandline.cpp \
+      file://commandline.h \
       file://main.qml \
       file://qml.qrc \
       file://images/cluster-bkg.png \
@@ -145,6 +147,20 @@ SRC_URI = " \
       file://images/Gears_P.png \
       file://images/Gears_N.png \
       file://images/Gears_R.png \
+      file://images/Cruise_control_on.png \
+      file://images/Turn_left_off.png \
+      file://images/Auto_Lighting_off.png \
+      file://images/Turn_right_off.png \
+      file://images/Auto_Lighting_on.png \
+      file://images/SPORT_on.png \
+      file://images/SPORT_off.png \
+      file://qml/Footer.qml \
+      file://qml/Footer.qml \
+      file://qml/OdoInfo.qml \
+      file://qml/SpeedLimitInfo.qml \
+      file://qml/TimeInfo.qml \
+      file://qml/TripInfo.qml \
+      file://qml/WeatherInfo.qml \      
 "
 
 DEPENDS += " \
