@@ -30,6 +30,18 @@ enum CtlIO_id{
     GEAR = 2,
     RPM = 3,
     TURN = 4,
+    DOOR_OPEN = 5,
+    FOG_LIGHTS_BACK = 6,
+    FOG_LIGHTS_FRONT = 7,
+    HIGH_BEAMS_LIGHT = 8,
+    HIGH_ENGINE_TEMPERATURE = 9,
+    LOW_BATTERY = 10,
+    LOW_BEAMS_LIGHTS = 11,
+    LOW_FUEL = 12,
+    LOW_OIL = 13,
+    LOW_TIRE_PRESSURE = 14,
+    SEAT_BEALT = 15,
+    SIDE_LIGHTS = 16,
 };
 
 const int not_defined_value = std::numeric_limits<int>::max();
@@ -84,6 +96,33 @@ VisClient::VisClient(QObject *parent, const QString &url, const QString& rpmsg):
     data.value = 0;
     write(mFdept, &data, sizeof(data));
     qDebug() << "Create VIS client - send 0 to reset";
+
+    qDebug() << "!!!! RESET VALUES:" << mUrl;
+    data.value = 0;
+    data.ioctl_cmd = CtlIO_id::DOOR_OPEN;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::FOG_LIGHTS_BACK;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::FOG_LIGHTS_FRONT;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::HIGH_BEAMS_LIGHT;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::HIGH_ENGINE_TEMPERATURE;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::LOW_BATTERY;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::LOW_BEAMS_LIGHTS;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::LOW_FUEL;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::LOW_OIL;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::LOW_TIRE_PRESSURE;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::SEAT_BEALT;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::SIDE_LIGHTS;
+    write(mFdept, &data, sizeof(data));
 }
 VisClient::~VisClient()
 {
