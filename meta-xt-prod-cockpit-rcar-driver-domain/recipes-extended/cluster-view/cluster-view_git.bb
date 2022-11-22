@@ -174,7 +174,7 @@ DEPENDS += " \
 
 S = "${WORKDIR}"
 
-inherit pkgconfig qmake5 
+inherit pkgconfig qmake5 systemd
 
 SYSTEMD_SERVICE_${PN} = "cluster-view.service"
 
