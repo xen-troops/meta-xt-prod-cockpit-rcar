@@ -1,6 +1,5 @@
 [Unit]
 Description=qmltest
-After=dbus.service multi-user.target
 
 [Service]
 Environment=QT_LOGGING_RULES=qt.qpa.*=true
