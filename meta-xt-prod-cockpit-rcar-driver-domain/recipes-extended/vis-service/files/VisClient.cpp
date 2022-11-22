@@ -36,7 +36,7 @@ const int not_defined_value = std::numeric_limits<int>::max();
 
 typedef struct {
     uint64_t   value;
-    uint64_t   ioctl_cmd;
+    uint16_t   ioctl_cmd;
 }taurus_cluster_data_t;
 
 
