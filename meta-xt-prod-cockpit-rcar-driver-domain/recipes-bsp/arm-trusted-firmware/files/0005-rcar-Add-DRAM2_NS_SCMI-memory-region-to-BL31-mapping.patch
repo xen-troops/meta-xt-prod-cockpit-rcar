@@ -1,0 +1,68 @@
+From 78a945134462f5b8b7ba5a5963b79e00a0a80ed2 Mon Sep 17 00:00:00 2001
+From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Date: Fri, 29 Sep 2017 13:56:04 +0300
+Subject: [PATCH 05/11] rcar: Add DRAM2_NS_SCMI memory region to BL31 mapping
+
+Actually it is shared memory region owned by Secure World DDR area
+for communication between server (ARM TF) and client (some software
+running in lower privilege level) using SCMI protocol.
+
+Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Signed-off-by: Sergiy Kibrik <Sergiy_Kibrik@epam.com>
+---
+ plat/renesas/rcar/aarch64/platform_common.c | 4 ++++
+ plat/renesas/rcar/include/platform_def.h    | 2 +-
+ plat/renesas/rcar/include/rcar_def.h        | 2 ++
+ 3 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/plat/renesas/rcar/aarch64/platform_common.c b/plat/renesas/rcar/aarch64/platform_common.c
+index 22660166f..dc2253189 100644
+--- a/plat/renesas/rcar/aarch64/platform_common.c
++++ b/plat/renesas/rcar/aarch64/platform_common.c
+@@ -39,6 +39,9 @@ const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN]
+ #define MAP_SHARED_RAM		MAP_REGION_FLAT(RCAR_SHARED_MEM_BASE,	\
+ 					RCAR_SHARED_MEM_SIZE,		\
+ 					MT_MEMORY | MT_RW | MT_SECURE)
++#define MAP_DRAM2_NS_SCMI	MAP_REGION_FLAT(DRAM2_NS_SCMI_BASE,	\
++					DRAM2_NS_SCMI_SIZE,		\
++					MT_RW_DATA | MT_NS)
+ 
+ #define MAP_FLASH0		MAP_REGION_FLAT(FLASH0_BASE,		\
+ 					FLASH0_SIZE,			\
+@@ -126,6 +129,7 @@ static const mmap_region_t rcar_mmap[] = {
+ 	MAP_SHARED_RAM,
+ 	MAP_ATFW_CRASH,
+ 	MAP_ATFW_LOG,
++	MAP_DRAM2_NS_SCMI,
+ 	MAP_DEVICE_RCAR,
+ 	MAP_DEVICE_RCAR2,
+ 	MAP_SRAM,
+diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
+index f28d72702..f2e829a51 100644
+--- a/plat/renesas/rcar/include/platform_def.h
++++ b/plat/renesas/rcar/include/platform_def.h
+@@ -157,7 +157,7 @@
+ #elif IMAGE_BL2
+ #define MAX_XLAT_TABLES		U(5)
+ #elif IMAGE_BL31
+-#define MAX_XLAT_TABLES		U(4)
++#define MAX_XLAT_TABLES		U(5)
+ #elif IMAGE_BL32
+ #define MAX_XLAT_TABLES		U(3)
+ #endif
+diff --git a/plat/renesas/rcar/include/rcar_def.h b/plat/renesas/rcar/include/rcar_def.h
+index 5bd7c2d08..b216034c6 100644
+--- a/plat/renesas/rcar/include/rcar_def.h
++++ b/plat/renesas/rcar/include/rcar_def.h
+@@ -20,6 +20,8 @@
+ #define FLASH0_SIZE			U(0x04000000)
+ #define FLASH_MEMORY_SIZE		U(0x04000000)	/* hyper flash */
+ #define FLASH_TRANS_SIZE_UNIT		U(0x00000100)
++#define DRAM2_NS_SCMI_BASE		U(0x57000000)
++#define DRAM2_NS_SCMI_SIZE		U(0x00010000)
+ #define DEVICE_RCAR_BASE		U(0xE6000000)
+ #define DEVICE_RCAR_SIZE		U(0x00300000)
+ #define DEVICE_RCAR_BASE2		U(0xE6360000)
+-- 
+2.25.1
+

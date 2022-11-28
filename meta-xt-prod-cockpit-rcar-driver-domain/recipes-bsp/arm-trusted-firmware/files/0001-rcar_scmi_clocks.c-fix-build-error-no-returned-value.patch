@@ -1,0 +1,25 @@
+From ba32c627e07ae2bfb01d2bac9052500b119419da Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Mon, 28 Nov 2022 15:17:19 +0100
+Subject: [PATCH] rcar_scmi_clocks.c: fix build error 'no returned value'
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ plat/renesas/rcar/rcar_scmi_clocks.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/plat/renesas/rcar/rcar_scmi_clocks.c b/plat/renesas/rcar/rcar_scmi_clocks.c
+index e3711f04f..1e51822af 100644
+--- a/plat/renesas/rcar/rcar_scmi_clocks.c
++++ b/plat/renesas/rcar/rcar_scmi_clocks.c
+@@ -758,6 +758,7 @@ static const struct scmi_clk_ops * __clk_get_ops(struct scmi_clk *sclk)
+ 	}
+ 
+ 	/* should not reach here */
++	return NULL;
+ }
+ 
+ static uint64_t __clk_get_rate_locked(uint32_t id)
+-- 
+2.25.1
+

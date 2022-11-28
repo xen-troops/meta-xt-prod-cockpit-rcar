@@ -1,0 +1,22 @@
+From df81cb9c45c26bd40616bc3172aba3ac063a7461 Mon Sep 17 00:00:00 2001
+From: Sergiy Kibrik <Sergiy_Kibrik@epam.com>
+Date: Mon, 27 Sep 2021 10:25:20 +0000
+Subject: [PATCH 11/11] bldcmd.sh: build scmi platform by default
+
+---
+ bldcmd.sh | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/bldcmd.sh b/bldcmd.sh
+index ec0bc44cf..617caebca 100644
+--- a/bldcmd.sh
++++ b/bldcmd.sh
+@@ -15,4 +15,5 @@ RCAR_BL33_EXECUTION_EL=1  \
+ RCAR_RPC_HYPERFLASH_LOCKED=0 \
+ DEBUG=1 \
+ SPD=opteed \
++RCAR_SCMI_PLATFORM=1 \
+ bl2 bl31 rcar
+-- 
+2.25.1
+
