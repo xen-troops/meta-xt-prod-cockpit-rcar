@@ -3,7 +3,6 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 
 / {
-
 	#address-cells = <2>;
 	#size-cells = <2>;
 
@@ -45,6 +44,12 @@
 			reusable;
 			reg = <0x00000000 0x68000000 0x0 0x20000000>; /* 512Mb */
 		};
+
+		/* reserved region for scmi channels*/
+		scmi_memory: linux,scmi_mem@57000000 {
+			no-map;
+			reg = <0x0 0x57000000 0x0 0x4000>;
+		};
 	};
 
 	rvgc {
@@ -55,32 +60,32 @@
 
                 displays {
                         display-0 {
-                                display-map = <0x1>;
-                                layers {
-                                        primary {
-                                                layer-map = <0x3>;
-                                                size-w = <1920>;
-                                                size-h = <1080>;
-                                                pos-x = <0x0>;
-                                                pos-y = <0x0>;
-						pos-override;
-                                        };
+                            display-map = <0x1>;
+                            layers {
+                                primary {
+                                    layer-map = <0x4>;
+                                    size-w = <1920>;
+                                    size-h = <1080>;
+                                    pos-x = <0x0>;
+                                    pos-y = <0x0>;
+								    pos-override;
                                 };
+                            };
                         };
-			display-1 {
-				display-map = <0>;
-				layers {
-					primary {
-						layer-map=<0x4>;
-						size-w=<448>;
-						size-h=<600>;
-						pos-x=<736>;
-						pos-y=<0>;
-						pos-override;
+						display-1 {
+							display-map = <0>;
+							layers {
+								primary {
+									layer-map=<0x3>;
+									size-w=<448>;
+									size-h=<600>;
+									pos-x=<736>;
+									pos-y=<0>;
+									pos-override;
+									};
+						};
 					};
 				};
-			};
-                };
 	};
 
 	vspm_if {
@@ -95,6 +100,27 @@
 	mmngrbuf {
 		compatible = "renesas,mmngrbuf";
 	};
+
+	cpu_scp_shm: scp-shmem@57000000 {
+		compatible = "arm,scmi-shmem";
+		reg = <0x0 0x57000000 0x0 0x1000>;
+	};
+
+        scp-shmem@57001000 {
+                compatible = "arm,scmi-shmem";
+                reg = <0x00 0x57001000 0x00 0x1000>;
+        };
+
+        scp-shmem@57002000 {
+                compatible = "arm,scmi-shmem";
+                reg = <0x00 57002000 0x00 0x1000>;
+        };
+
+        scp-shmem@57003000 {
+                compatible = "arm,scmi-shmem";
+                reg = <0x00 57003000 0x00 0x1000>;
+                phandle = <0x19>;
+        };
 
 	passthrough {
 		compatible = "simple-bus";
@@ -114,6 +140,10 @@
 			compatible = "renesas,usb2-phy-r8a7795",
 				     "renesas,rcar-gen3-usb2-phy";
 			reg = <0 0xee0a0200 0 0x700>;
+			scmi_devid = <13>;
+			clocks = <&scmi_clock 5>;
+			resets = <&scmi_reset 12>;
+			power-domains = <&scmi_power 0>;
 			#phy-cells = <1>;
 			/* clocks = <&cpg CPG_MOD 702>; */
 			/* power-domains = <&sysc R8A7795_PD_ALWAYS_ON>; */
@@ -124,6 +154,10 @@
 		ohci1: usb@ee0a0000 {
 			compatible = "generic-ohci";
 			reg = <0 0xee0a0000 0 0x100>;
+			scmi_devid = <12>;
+			clocks = <&scmi_clock 4>;
+			resets = <&scmi_reset 11>;
+			power-domains = <&scmi_power 0>;
 			interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
 			phys = <&usb2_phy1 1>;
 			phy-names = "usb";
@@ -134,6 +168,10 @@
 		ehci1: usb@ee0a0100 {
 			compatible = "generic-ehci";
 			reg = <0 0xee0a0100 0 0x100>;
+			scmi_devid = <12>;
+			clocks = <&scmi_clock 4>;
+			resets = <&scmi_reset 11>;
+			power-domains = <&scmi_power 0>;
 			interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
 			companion = <&ohci1>;
 			phys = <&usb2_phy1 2>;
@@ -360,11 +398,6 @@
 			reg = <0 0xfff00044 0 4>;
 		};
 
-		i2c2_clk: i2c2_clk {
-			compatible = "fixed-clock";
-			clock-frequency = <133333328>;
-			#clock-cells = <0>;
-		};
 
 		audio_clkout: audio-clkout {
 			/*
@@ -390,17 +423,64 @@
 			#clock-cells = <0>;
 			clock-frequency = <0>;
 		};
-		fixed_clk_66560000: fixed_clk_66560000 {
-			compatible = "fixed-clock";
-			#clock-cells = <0>;
-			clock-frequency = <66560000>;
-		};
 		sound_card: sound {
 			compatible = "audio-graph-card";
 			label = "rcar-sound";
 			dais = <&rsnd_port0>;
 		};
 		rcar_sound: sound@ec500000 {
+			scmi_devid = <20>;
+
+			resets = <&scmi_reset 16>,
+				<&scmi_reset 17>, <&scmi_reset 18>,
+				<&scmi_reset 19>, <&scmi_reset 20>,
+				<&scmi_reset 21>, <&scmi_reset 22>,
+				<&scmi_reset 23>, <&scmi_reset 24>,
+				<&scmi_reset 25>, <&scmi_reset 26>;
+			clocks =
+				/* "ssi-all" */
+				<&scmi_clock 9>,
+				/* "ssi.9", "ssi.8" */
+				<&scmi_clock 10>, <&scmi_clock 11>,
+				/* "ssi.7", "ssi.6" */
+				<&scmi_clock 12>, <&scmi_clock 13>,
+				/* "ssi.5", "ssi.4" */
+				<&scmi_clock 14>, <&scmi_clock 15>,
+				/* "ssi.3", "ssi.2" */
+				<&scmi_clock 16>, <&scmi_clock 17>,
+				/* "ssi.1", "ssi.0" */
+				<&scmi_clock 18>, <&scmi_clock 19>,
+				/* "src.9", "src.8" */
+				<&scmi_clock 25>, <&scmi_clock 26>,
+				/* "src.7", "src.6" */
+				<&scmi_clock 27>, <&scmi_clock 28>,
+				/* "src.5", "src.4" */
+				<&scmi_clock 29>, <&scmi_clock 30>,
+				/* "src.3", "src.2" */
+				<&scmi_clock 31>, <&scmi_clock 32>,
+				/* "src.1", "src.0" */
+				<&scmi_clock 33>, <&scmi_clock 34>,
+				/* "mix.1", "mix.0" */
+				<&scmi_clock 23>, <&scmi_clock 24>,
+				/* "ctu.1", "ctu.0" */
+				<&scmi_clock 23>, <&scmi_clock 24>,
+				/* "dvc.0", "dvc.1" */
+				<&scmi_clock 22>, <&scmi_clock 21>,
+				/* "clk_a", "clk_b" */
+				<&audio_clk_a>, <&cs2000>,
+				/* "clk_c", "clk_i" */
+				<&audio_clk_c>;/*, <&i2c2_clk>;*/
+			clock-names = "ssi-all",
+				  "ssi.9", "ssi.8", "ssi.7", "ssi.6",
+				  "ssi.5", "ssi.4", "ssi.3", "ssi.2",
+				  "ssi.1", "ssi.0",
+				  "src.9", "src.8", "src.7", "src.6",
+				  "src.5", "src.4", "src.3", "src.2",
+				  "src.1", "src.0",
+				  "mix.1", "mix.0",
+				  "ctu.1", "ctu.0",
+				  "dvc.0", "dvc.1",
+				  "clk_a", "clk_b", "clk_c", "clk_i";
 			/*
 			 * #sound-dai-cells is required
 			 *
@@ -422,58 +502,7 @@
 				<0 0xec000000 0 0x1000>,
 				<0 0xec008000 0 0x1000>;
 			reg-names = "scu", "adg", "ssiu", "ssi", "audmapp";
-
-			clocks =
-				 /* "ssi-all" */
-				 <&fixed_clk_66560000>,
-				 /* "ssi.9", "ssi.8" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "ssi.7", "ssi.6" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "ssi.5", "ssi.4" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "ssi.3", "ssi.2" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "ssi.1", "ssi.0" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "src.9", "src.8" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "src.7", "src.6" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "src.5", "src.4" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "src.3", "src.2" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "src.1", "src.0" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "mix.1", "mix.0" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "ctu.1", "ctu.0" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "dvc.0", "dvc.1" */
-				 <&fixed_clk_66560000>, <&fixed_clk_66560000>,
-				 /* "clk_a", "clk_b" */
-				 <&audio_clk_a>, <&cs2000>,
-				 /* "clk_c", "clk_i" */
-				 <&audio_clk_c>, <&i2c2_clk>;
-
-			clock-names = "ssi-all",
-				      "ssi.9", "ssi.8",
-				      "ssi.7", "ssi.6",
-				      "ssi.5", "ssi.4",
-				      "ssi.3", "ssi.2",
-				      "ssi.1", "ssi.0",
-				      "src.9", "src.8",
-				      "src.7", "src.6",
-				      "src.5", "src.4",
-				      "src.3", "src.2",
-				      "src.1", "src.0",
-				      "mix.1", "mix.0",
-				      "ctu.1", "ctu.0",
-				      "dvc.0", "dvc.1",
-				      "clk_a", "clk_b",
-				      "clk_c", "clk_i";
-
+			
 			/*
 			pinctrl-0 = <&sound_pins &sound_clk_pins>;
 			pinctrl-names = "default";
@@ -644,6 +673,10 @@
 			compatible = "renesas,dmac-r8a7795",
 				     "renesas,rcar-dmac";
 			reg = <0 0xec700000 0 0x10000>;
+			scmi_devid = <21>;
+			clocks = <&scmi_clock 36>;
+			resets = <&scmi_reset 28>;
+			power-domains = <&scmi_power 0>;
 			interrupts = <GIC_SPI 350 IRQ_TYPE_LEVEL_HIGH
 				      GIC_SPI 320 IRQ_TYPE_LEVEL_HIGH
 				      GIC_SPI 321 IRQ_TYPE_LEVEL_HIGH
@@ -674,6 +707,10 @@
 			compatible = "renesas,dmac-r8a7795",
 				     "renesas,rcar-dmac";
 			reg = <0 0xec720000 0 0x10000>;
+			scmi_devid = <22>;
+			clocks = <&scmi_clock 35>;
+			resets = <&scmi_reset 27>;
+			power-domains = <&scmi_power 0>;
 			interrupts = <GIC_SPI 351 IRQ_TYPE_LEVEL_HIGH
 				      GIC_SPI 336 IRQ_TYPE_LEVEL_HIGH
 				      GIC_SPI 337 IRQ_TYPE_LEVEL_HIGH
@@ -701,6 +738,9 @@
 		};
 
 		i2c2: i2c@e6510000 {
+			scmi_devid = <5>;
+			resets = <&scmi_reset 5>;
+
 			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "renesas,i2c-r8a7795",
@@ -712,17 +752,17 @@
 			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
 			resets = <&cpg 929>;
 			*/
-			clocks = <&i2c2_clk>;
+/*			clocks = <&i2c2_clk>;*/
 
 			/*
 			 * FIXME: Force dmac1/dmac2 to be not used as this
 			 * DMA controller cannot be shared.
 			 */
-			/*
-			dmas = <&dmac1 0x95>, <&dmac1 0x94>,
-			       <&dmac2 0x95>, <&dmac2 0x94>;
-			dma-names = "tx", "rx", "tx", "rx";
-			*/
+			
+		/*	dmas = <&dmac1 0x95>, <&dmac1 0x94>,
+			       <&dmac2 0x95>, <&dmac2 0x94>;*/
+/*			dma-names = "tx", "rx", "tx", "rx";*/
+			
 			i2c-scl-internal-delay-ns = <6>;
 
 			/*
@@ -786,6 +826,28 @@
                                 parts = "vbmeta,boot";
                                 by_name_prefix="/dev/block/by-name";
                         };
+		};
+		scmi {
+			compatible = "arm,scmi-smc";
+			arm,smc-id = <0x82000002>;
+			shmem = <&cpu_scp_shm>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			scmi_power: protocol@11 {
+				reg = <0x11>;
+				#power-domain-cells = <1>;
+			};
+
+			scmi_clock: protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
+
+			scmi_reset: protocol@16 {
+				reg = <0x16>;
+				#reset-cells = <1>;
+			};
 		};
 	};
 

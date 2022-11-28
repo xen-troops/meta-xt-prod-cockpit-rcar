@@ -62,6 +62,25 @@
                };
         };
 
+	passthrough_always_on {
+                compatible = "xen-troops,passthrough";
+                clocks = <&cpg CPG_MOD 929>, /* audma1 */
+				 <&cpg CPG_MOD 218>,  /* dma-controller@e7300000 */
+				 <&cpg CPG_MOD 217>,  /* dma-controller@e7310000 */
+				 <&cpg CPG_MOD 219>, /* dma-controller@e6700000 */
+				 <&cpg CPG_MOD 21>,  /* dma-controller@ffc10000 */
+				 <&cpg CPG_MOD 16>,  /* dma-controller@ffc20000 */
+				 <&cpg CPG_MOD 130>, /* vcp4@ */
+				 <&cpg CPG_MOD 131>,
+				 <&cpg CPG_MOD 619>,
+				 <&cpg CPG_MOD 624>, <&cpg CPG_MOD 606>, /* vspbc */
+				 <&cpg CPG_MOD 626>, <&cpg CPG_MOD 607>, /* vspbd */
+				 <&cpg CPG_MOD 631>, <&cpg CPG_MOD 611>, /* vspi0 */
+				 <&cpg CPG_MOD 630>, <&cpg CPG_MOD 610>, /* vspi1 */
+				 <&cpg CPG_MOD 119>, <&cpg CPG_MOD 615>, /* fdp0 */
+				 <&cpg CPG_MOD 118>, <&cpg CPG_MOD 614>; /* fdp1 */
+        };
+
 	/delete-node/mmngr;
 	/delete-node/mmngrbuf;
 
@@ -535,6 +554,7 @@
 &ssi9			{ xen,passthrough; };
 &tsc			{ xen,passthrough; };
 &usb2_phy0		{ xen,passthrough; };
+&usb2_phy1              { xen,passthrough; };
 &hsusb			{ xen,passthrough; };
 &xhci0			{ xen,passthrough; };
 &usb3_peri0		{ xen,passthrough; };

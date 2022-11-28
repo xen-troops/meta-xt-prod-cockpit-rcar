@@ -1,0 +1,77 @@
+From 32f91590908879a6c5b83b09ae08f106ab7f4621 Mon Sep 17 00:00:00 2001
+From: Nicolas Pitre <npitre@baylibre.com>
+Date: Fri, 7 May 2021 16:20:36 -0400
+Subject: [PATCH 2/4] firmware: arm_scmi: Add clock management to the SCMI
+ power domain
+
+Clocks requiring non-atomic contexts are supported by the generic clock
+PM layer since commit 0bfa0820c274 ("PM: clk: make PM clock layer
+compatible with clocks that must sleep"). That means we can have
+SCMI-based clocks be managed by the SCMI power domain now.
+
+Link: https://lore.kernel.org/r/5q88n947-pon-4940-3or6-s54o4r361o5s@onlyvoer.pbz
+Tested-by: Dien Pham <dien.pham.ry@renesas.com>
+Reviewed-by: Gaku Inami <gaku.inami.xh@renesas.com>
+Signed-off-by: Nicolas Pitre <npitre@baylibre.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Sergiy Kibrik <Sergiy_Kibrik@epam.com>
+Reviewed-by: Oleksii Moisieiev <oleksii_moisieiev@epam.com>
+Reviewed-by: Andrii Anisov <andrii_anisov@epam.com>
+---
+ drivers/firmware/arm_scmi/scmi_pm_domain.c | 26 ++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+diff --git a/drivers/firmware/arm_scmi/scmi_pm_domain.c b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+index 9e44479f0284..4f2194b92ec3 100644
+--- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
++++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+@@ -8,6 +8,7 @@
+ #include <linux/err.h>
+ #include <linux/io.h>
+ #include <linux/module.h>
++#include <linux/pm_clock.h>
+ #include <linux/pm_domain.h>
+ #include <linux/scmi_protocol.h>
+ 
+@@ -51,6 +52,27 @@ static int scmi_pd_power_off(struct generic_pm_domain *domain)
+ 	return scmi_pd_power(domain, false);
+ }
+ 
++static int scmi_pd_attach_dev(struct generic_pm_domain *pd, struct device *dev)
++{
++	int ret;
++
++	ret = pm_clk_create(dev);
++	if (ret)
++		return ret;
++
++	ret = of_pm_clk_add_clks(dev);
++	if (ret >= 0)
++		return 0;
++
++	pm_clk_destroy(dev);
++	return ret;
++}
++
++static void scmi_pd_detach_dev(struct generic_pm_domain *pd, struct device *dev)
++{
++	pm_clk_destroy(dev);
++}
++
+ static int scmi_pm_domain_probe(struct scmi_device *sdev)
+ {
+ 	int num_domains, i;
+@@ -96,6 +118,10 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
+ 		scmi_pd->genpd.name = scmi_pd->name;
+ 		scmi_pd->genpd.power_off = scmi_pd_power_off;
+ 		scmi_pd->genpd.power_on = scmi_pd_power_on;
++		scmi_pd->genpd.attach_dev = scmi_pd_attach_dev;
++		scmi_pd->genpd.detach_dev = scmi_pd_detach_dev;
++		scmi_pd->genpd.flags = GENPD_FLAG_PM_CLK |
++				       GENPD_FLAG_ACTIVE_WAKEUP;
+ 
+ 		pm_genpd_init(&scmi_pd->genpd, NULL,
+ 			      state == SCMI_POWER_STATE_GENERIC_OFF);
+-- 
+2.25.1
+
