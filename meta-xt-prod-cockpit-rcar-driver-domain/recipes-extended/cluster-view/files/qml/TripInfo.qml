@@ -7,6 +7,6 @@ Item {
         y: 653
         color: "white"
         font.pixelSize: 30
-        text: "TRIP A 1000 KM"
+        text: "TRIP A 1000 MI"
     }
 }

@@ -23,3 +23,23 @@ void CommandLine::setUrlValue(QString url)
 
     emit urlValueChanged();
 }
+
+Q_INVOKABLE int CommandLine::getMode() const {
+    return mMode;
+}
+
+int CommandLine::modeValue()
+{
+    return mMode;
+}
+void CommandLine::setModeValue(int mode)
+{
+    if(mMode == mode)
+    {
+        return;
+    }
+
+    mMode = mode;
+
+    emit modeValueChanged();
+}
