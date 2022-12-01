@@ -20,12 +20,12 @@ int main(int argc, char *argv[])
         qDebug() << "Arg: " << argv[1];
     }
     QQmlApplicationEngine engine;
-    //CommandLine cmd;
 
     qmlRegisterType<VisClient>("VisClient", 1, 0, "VisClient");
 
     CommandLine cmd;
     cmd.setUrlValue("wss://wwwivi:443");
+    cmd.setModeValue((argc > 2 && !strcmp(argv[2], "2"))?2:1);
 
     if(argc > 1){
         cmd.setUrlValue(argv[1]);
@@ -33,10 +33,7 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty("cmdLine", &cmd);
 
-    if(argc > 2 && !strcmp(argv[2], "2"))
-        engine.load(QUrl(QStringLiteral("qrc:/sport.qml")));//("qrc:/main.qml")));
-    else
-        engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     
     if (engine.rootObjects().isEmpty())
         return -1;
