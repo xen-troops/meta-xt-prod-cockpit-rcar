@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>main.qml</file>
-        <file>cluster-bkg.png</file>
-    </qresource>
-</RCC>
