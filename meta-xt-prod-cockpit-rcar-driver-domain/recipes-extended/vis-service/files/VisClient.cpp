@@ -40,8 +40,10 @@ enum CtlIO_id{
     LOW_FUEL = 12,
     LOW_OIL = 13,
     LOW_TIRE_PRESSURE = 14,
-    SEAT_BEALT = 15,
+    SEAT_BELT = 15,
     SIDE_LIGHTS = 16,
+    BATTERY_ISSUE = 17,
+    AUTO_LIGHTING_ON = 18    
 };
 
 const int not_defined_value = std::numeric_limits<int>::max();
@@ -119,9 +121,13 @@ VisClient::VisClient(QObject *parent, const QString &url, const QString& rpmsg):
     write(mFdept, &data, sizeof(data));
     data.ioctl_cmd = CtlIO_id::LOW_TIRE_PRESSURE;
     write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::SEAT_BEALT;
+    data.ioctl_cmd = CtlIO_id::SEAT_BELT;
     write(mFdept, &data, sizeof(data));
     data.ioctl_cmd = CtlIO_id::SIDE_LIGHTS;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::BATTERY_ISSUE;
+    write(mFdept, &data, sizeof(data));
+    data.ioctl_cmd = CtlIO_id::AUTO_LIGHTING_ON;
     write(mFdept, &data, sizeof(data));
 }
 VisClient::~VisClient()
