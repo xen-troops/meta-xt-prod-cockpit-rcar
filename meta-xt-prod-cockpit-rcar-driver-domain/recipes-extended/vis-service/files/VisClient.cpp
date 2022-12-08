@@ -100,35 +100,12 @@ VisClient::VisClient(QObject *parent, const QString &url, const QString& rpmsg):
     qDebug() << "Create VIS client - send 0 to reset";
 
     qDebug() << "!!!! RESET VALUES:" << mUrl;
-    data.value = 0;
-    data.ioctl_cmd = CtlIO_id::DOOR_OPEN;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::FOG_LIGHTS_BACK;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::FOG_LIGHTS_FRONT;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::HIGH_BEAMS_LIGHT;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::HIGH_ENGINE_TEMPERATURE;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::LOW_BATTERY;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::LOW_BEAMS_LIGHTS;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::LOW_FUEL;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::LOW_OIL;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::LOW_TIRE_PRESSURE;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::SEAT_BELT;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::SIDE_LIGHTS;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::BATTERY_ISSUE;
-    write(mFdept, &data, sizeof(data));
-    data.ioctl_cmd = CtlIO_id::AUTO_LIGHTING_ON;
-    write(mFdept, &data, sizeof(data));
+    for(int i = 5; i < 19;++i)
+    {
+        data.value = 0;
+        data.ioctl_cmd = i;
+        write(mFdept, &data, sizeof(data));
+    }
 }
 VisClient::~VisClient()
 {
