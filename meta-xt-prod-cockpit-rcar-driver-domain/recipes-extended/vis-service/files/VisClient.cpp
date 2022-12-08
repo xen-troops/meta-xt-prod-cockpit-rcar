@@ -81,7 +81,6 @@ VisClient::VisClient(QObject *parent, const QString &url, const QString& rpmsg):
 
     if(mFdept < 0){
         close(mFd);
-
         throw std::invalid_argument("No device "+rpmsg.toStdString());
     }
     qDebug() << "Create VIS client - send 100 for test";
@@ -92,8 +91,8 @@ VisClient::VisClient(QObject *parent, const QString &url, const QString& rpmsg):
     };
     // just for the test purposes, to see that connection exists
     while(data.value != 0) {
-	write(mFdept, &data, sizeof(data));
-	--data.value;
+        write(mFdept, &data, sizeof(data));
+        --data.value;
     }
     data.value = 0;
     write(mFdept, &data, sizeof(data));
@@ -191,13 +190,13 @@ void VisClient::onTextMessageReceived(const QString &message)
 
     if(file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-          // We're going to streaming text to the file
-          QTextStream stream(&file);
+        // We're going to streaming text to the file
+        QTextStream stream(&file);
 
-          stream << message;
+        stream << message;
 
-          file.close();
-          qDebug() << "Writing finished\n";
+        file.close();
+        qDebug() << "Writing finished\n";
     }
 
     qDebug() << "mState: " << mState;
@@ -206,73 +205,73 @@ void VisClient::onTextMessageReceived(const QString &message)
     {
        case SubscrState::StateGetValues:
        {
-          auto sId = mID.createUuid().toString().replace("{","").replace("}","");
-          mState = SubscrState::StateSubscribe;
-          qDebug() << "onConnected, send subscription";
-          sendMessage("{\"action\": \"subscribe\", \"path\": \"*\", \"requestId\": \"" + sId + "\"}");
+            auto sId = mID.createUuid().toString().replace("{","").replace("}","");
+            mState = SubscrState::StateSubscribe;
+            qDebug() << "onConnected, send subscription";
+            sendMessage("{\"action\": \"subscribe\", \"path\": \"*\", \"requestId\": \"" + sId + "\"}");
        }
        break;
        case SubscrState::StateSubscribe:
        {
-          mSubscriptionId = getSubscriptionId(message);
-	  mState = SubscrState::StateReady;
-	  qDebug() << "Subscribed , Id." << mSubscriptionId;
+            mSubscriptionId = getSubscriptionId(message);
+            mState = SubscrState::StateReady;
+            qDebug() << "Subscribed , Id." << mSubscriptionId;
        }
        break;
        case SubscrState::StateReady:
        {
-	    auto sId = getSubscriptionId(message);
+            auto sId = getSubscriptionId(message);
             if(sId == mSubscriptionId)
-	    {
-	       data.value = getSpeed(message);
-	       qDebug() << " getSpeed " << data.value;
-	       if(data.value != not_defined_value)
-               {
-		   data.ioctl_cmd = CtlIO_id::SPEED;
-                   write(mFdept, &data, sizeof(data));
-	       }
-	       else
-	       {
-		  qDebug() << "No speed value in the message";
-	       }
-	       data.value = (uint64_t)getGearSelect(message);
-               qDebug() << " getGear " << data.value;
-               if(data.value != not_defined_value)
-               {
-		   data.ioctl_cmd = CtlIO_id::GEAR;
-                   write(mFdept, &data, sizeof(data));
-               }
-               else
-               {
-                  qDebug() << "No Gear value in the message";
-               }
-	       data.value = getRpm(message);
-               qDebug() << " getRpm " << data.value;
-               if(data.value != not_defined_value)
-               {
-                   data.ioctl_cmd = CtlIO_id::RPM;
-                   write(mFdept, &data, sizeof(data));
-               }
-               else
-               {
-                  qDebug() << "No RPM value in the message";
-               }
-               data.value = getTurnDirection(message);
-               qDebug() << " getDirection " << data.value;
-               if(data.value != not_defined_value)
-               {
-                   data.ioctl_cmd = CtlIO_id::TURN;
-                   write(mFdept, &data, sizeof(data));
-               }
-               else
-               {
-                  qDebug() << "No Turn value in the message";
-               }
-	    }
-	    else
-	    {
-	        qDebug("Wrong subscription received.");
-	    }
+            {
+                data.value = getSpeed(message);
+                qDebug() << " getSpeed " << data.value;
+                if(data.value != not_defined_value)
+                {
+                    data.ioctl_cmd = CtlIO_id::SPEED;
+                    write(mFdept, &data, sizeof(data));
+                }
+                else
+                {
+                    qDebug() << "No speed value in the message";
+                }
+                data.value = (uint64_t)getGearSelect(message);
+                qDebug() << " getGear " << data.value;
+                if(data.value != not_defined_value)
+                {
+                    data.ioctl_cmd = CtlIO_id::GEAR;
+                    write(mFdept, &data, sizeof(data));
+                }
+                else
+                {
+                    qDebug() << "No Gear value in the message";
+                }
+                data.value = getRpm(message);
+                qDebug() << " getRpm " << data.value;
+                if(data.value != not_defined_value)
+                {
+                    data.ioctl_cmd = CtlIO_id::RPM;
+                    write(mFdept, &data, sizeof(data));
+                }
+                else
+                {
+                    qDebug() << "No RPM value in the message";
+                }
+                data.value = getTurnDirection(message);
+                qDebug() << " getDirection " << data.value;
+                if(data.value != not_defined_value)
+                {
+                    data.ioctl_cmd = CtlIO_id::TURN;
+                    write(mFdept, &data, sizeof(data));
+                }
+                else
+                {
+                    qDebug() << "No Turn value in the message";
+                }
+            }
+            else
+            {
+                qDebug("Wrong subscription received.");
+            }
        }
        break;
        default:
@@ -342,7 +341,6 @@ QString VisClient::getStringValue(const QString & propId, const QString & messag
            res = v.toObject().value(propId).toString();
            qDebug()<< propId  << " = " << res;
        }
-
     }
     return res;
 }
@@ -356,8 +354,8 @@ int VisClient::getValue(const QString & propId, const QString & message)const
     QJsonArray arr = obj.value("value").toArray();
     foreach(const QJsonValue &v, arr){
         if(v.toObject().contains(propId)) {
-           res = (int)(v.toObject().value(propId).toInt());
-	   qDebug()<< propId  << " = " << res;
+            res = (int)(v.toObject().value(propId).toInt());
+	        qDebug()<< propId  << " = " << res;
        }
 
     }
