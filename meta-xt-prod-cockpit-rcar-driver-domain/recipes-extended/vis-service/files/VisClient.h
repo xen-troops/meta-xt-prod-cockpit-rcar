@@ -23,6 +23,15 @@ public:
     VisClient(QObject *parent, const QString &url, const QString& rpmsg);
     virtual ~VisClient();
 
+    static int getBool(const QString & propId, const QString & message);
+    static int getTurnDirection(const QString & propId, const QString & message);
+    static int getValue(const QString & propId, const QString & message);
+    static int getTireStatus(const QString & propId, const QString & message);
+    static int getBeltStatus(const QString & propId, const QString & message);
+
+    static QString getStringValue(const QString & propId, const QString & message);
+    static QString getSubscriptionId(const QString &message);
+
     Q_INVOKABLE void connectTo();
     Q_INVOKABLE void disconnect();
     Q_INVOKABLE void sendMessage(const QString &message);
@@ -41,21 +50,6 @@ private Q_SLOTS:
     void onSslErrors(const QList<QSslError> &errors);
     void onTextMessageReceived(const QString &message);
 
-private:
-    enum GearPosition{
-    	PARK        = 0,
-    	NEUTRAL     = 2,
-    	DRIVE       = 3,
-    	REVERSE     = 4,
-    	GUNDEFINED  = 5,
-    };
-    QString getSubscriptionId(const QString &message)const;
-    int getSpeed(const QString &message)const;
-    GearPosition getGearSelect(const QString &message)const;
-    int getRpm(const QString & message)const;
-    int getTurnDirection(const QString & message)const;
-    int getValue(const QString & propId, const QString & message)const;
-    QString getStringValue(const QString & propId, const QString & message)const;
 private:
     QString mUrl;
     QWebSocket mWebSocket;
