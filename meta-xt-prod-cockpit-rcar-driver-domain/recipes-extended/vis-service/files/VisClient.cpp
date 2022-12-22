@@ -43,7 +43,8 @@ enum CtlIO_id{
     SEAT_BELT = 15,
     SIDE_LIGHTS = 16,
     BATTERY_ISSUE = 17,
-    AUTO_LIGHTING_ON = 18    
+    AUTO_LIGHTING_ON = 18,
+    CLUSTER_ACTIVE = 255,
 };
 
 const int not_defined_value = std::numeric_limits<int>::max();
@@ -132,6 +133,10 @@ VisClient::VisClient(QObject *parent, const QString &url, const QString& rpmsg):
         data.ioctl_cmd = i;
         write(mFdept, &data, sizeof(data));
     }
+    // inform cr7: cluster is active
+    data.value = 1;
+    data.ioctl_cmd = CtlIO_id::CLUSTER_ACTIVE;
+    write(mFdept, &data, sizeof(data));
 }
 VisClient::~VisClient()
 {
