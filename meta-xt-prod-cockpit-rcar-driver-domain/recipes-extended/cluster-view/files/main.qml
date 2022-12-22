@@ -40,7 +40,7 @@ Window {
         width: 1920
         height: 720
         anchors.fill: parent
-        opacity: cmdLine.firstStart ? 0 : 1
+        opacity: cmdLine.getMode() == 1 && cmdLine.firstStart ? 0 : 1
         Rectangle {
             id: cluster_bckg
             anchors.fill: parent
