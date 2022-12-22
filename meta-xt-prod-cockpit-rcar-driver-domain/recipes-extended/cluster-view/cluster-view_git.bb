@@ -257,6 +257,7 @@ SRC_URI = " \
       file://qml/TimeInfo.qml \
       file://qml/TripInfo.qml \
       file://qml/WeatherInfo.qml \
+      file://images/epam.png \
 "
 
 DEPENDS += " \

@@ -22,6 +22,7 @@ Window {
         onGearValueChanged: {
             for(var i= 0; i < footer.gear.length;++i)
             {
+                console.log(" SRC Gear Value " + vis.gearValue + " comparing with " + footer.gear[i].gear)
                 if(vis.gearValue == footer.gear[i].gear){
                     footer.currentGear = i;
                     return;
@@ -39,7 +40,9 @@ Window {
         width: 1920
         height: 720
         anchors.fill: parent
+        opacity: cmdLine.firstStart ? 0 : 1
         Rectangle {
+            id: cluster_bckg
             anchors.fill: parent
             color: "transparent"
             Image {
@@ -55,10 +58,20 @@ Window {
                 }
                 x:0
                 y:0
+                opacity: 1
             }
         }
 
-        TimeInfo{
+        Image {
+            id: epam
+            source : "images/epam.png"
+            x: 707
+            y: 10
+            opacity: 1
+            visible: cmdLine.getMode() == 1 && cmdLine.firstStart == 1
+        }
+
+         TimeInfo{
 
         }
 
@@ -77,7 +90,7 @@ Window {
             x:{
                 if(cmdLine.getMode() == 1)
                 {
-                    return 658
+                    return 580
                 }
                 return 284
             }
@@ -135,6 +148,26 @@ Window {
             interval: 60000; running: !vis.connectedValue; repeat: true
             onTriggered: {
                 topInfo.timeUpdated++
+            }
+        }
+
+        Timer {
+            id: epamTimer
+            interval: 450; repeat: false; running: cmdLine.getMode() == 1 && cmdLine.firstStart == 1 && epam.opacity != 0
+
+            onTriggered: {
+                epam.opacity -= 0.01
+
+                if(epam.opacity == 0)
+                {
+                   epam.visible = false
+                   epamTimer.stop()
+                }
+                console.log("!!!Background opacity " + topInfo.opacity)
+                if(topInfo.opacity != 1)
+                {
+                    topInfo.opacity += 0.1
+                }
             }
         }
 
