@@ -7,7 +7,6 @@ Item {
         source : footer.gear[footer.currentGear].source
         x : footer.gear[footer.currentGear].x
         y : footer.gear[footer.currentGear].y
-
     }
 
     Image {
@@ -22,22 +21,15 @@ Item {
                 return "../images/SPORT_off.png"
             }
         }
-        x: 1127//1137
-        y: 639//643
+        x: 1127
+        y: 639
     }
-/*
-    Image {
-        id: autoLight
-        source : "../images/Auto_Lighting_on.png"
-        x: 740
-        y: 643
-    }
-*/
+
     Image {
         id: cruis
         source : "../images/Cruise_control_on.png"
-        x: 648//680
-        y: 645//643
+        x: 648
+        y: 645
     }
 
     Image {
