@@ -9,6 +9,6 @@ Item {
         anchors.left: odoInfo.left
         color: "white"
         font.pixelSize: 30
-        text: qsTr("3378 KM")
+        text: qsTr("3378 MI")
     }
 }
