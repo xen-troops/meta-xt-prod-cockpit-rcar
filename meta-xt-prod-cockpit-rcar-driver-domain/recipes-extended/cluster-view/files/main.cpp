@@ -3,9 +3,7 @@
 #include <QQmlContext>
 #include <QtGui>
 #include <string.h>
-//#include <QtQuick3D/qquick3d.h>
 #include <qqml.h>
-
 #include "visclient.h"
 #include "commandline.h"
 
@@ -13,7 +11,6 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    //QSurfaceFormat::setDefaultFormat(QQuick3D::idealSurfaceFormat());
     qDebug() << "Command line " << argc;
     if(argc > 1)
     {
@@ -34,7 +31,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("cmdLine", &cmd);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-    
+
     if (engine.rootObjects().isEmpty())
         return -1;
 
