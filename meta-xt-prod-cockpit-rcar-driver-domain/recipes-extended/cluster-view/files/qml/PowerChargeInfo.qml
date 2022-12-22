@@ -39,7 +39,7 @@ Item {
         id: chargeValue
         x: 390
         y: 280
-        text: (currentCharge* 10).toString()
+        text: ((currentCharge+1)* 10).toString()
         color: "lightblue"
         font.pixelSize: 100
     }

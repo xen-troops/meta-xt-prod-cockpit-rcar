@@ -124,7 +124,7 @@ Window {
 
         Range{
             id: rangeInfo
-            rangeValue: 300
+            rangeValue: Math.round(300*vis.batteryValue/100)
         }
 
         Battery {
@@ -137,8 +137,8 @@ Window {
 
         PowerChargeInfo {
             id: powerChargeInfo
-            powerValue: 100
-            chargeValue: 100
+            powerValue: vis.batteryValue
+            chargeValue: vis.batteryValue
             visible: cmdLine.getMode() == 2
         }
 
@@ -182,11 +182,14 @@ Window {
                     vis.speedValue = 0
                     vis.rpmValue = 700;
                 }
-                if(rangeInfo.rangeValue > 0){
-                    rangeInfo.rangeValue -= 5
+
+                if(vis.batteryValue != 0)
+                {
+                    vis.batteryValue -= 1
                 }
-                else {
-                    rangeInfo.rangeValue = 300
+                else
+                {
+                    vis.batteryValue = 100
                 }
 
                 if(powerChargeInfo.powerValue > 0)
