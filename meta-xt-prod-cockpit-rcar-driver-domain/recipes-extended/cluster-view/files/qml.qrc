@@ -244,5 +244,6 @@
         <file>images/40_MPH.png</file>
         <file>images/100_MPH.png</file>
         <file>images/110_MPH.png</file>
+        <file>images/epam.png</file>
     </qresource>
 </RCC>
