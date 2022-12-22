@@ -63,11 +63,11 @@ Item {
     }
 
     property var gear: [
-        {source: "../images/Gears_all_off.png", x: 839, y: 629/*639*/, gear: 5},
+        {source: "../images/Gears_all_off.png", x: 839, y: 629/*639*/, gear: 10},
         {source: "../images/Gears_D.png", x: 839, y: 629/*639*/, gear: 3},
         {source: "../images/Gears_N.png", x: 839, y: 629/*639*/, gear: 2},
         {source: "../images/Gears_P.png", x: 839, y: 629/*639*/, gear: 0},
-        {source: "../images/Gears_R.png", x: 839, y: 629/*639*/, gear: 4},
+        {source: "../images/Gears_R.png", x: 839, y: 629/*639*/, gear: 5},
     ]
     property var readiness: false
     property var currentGear: 0

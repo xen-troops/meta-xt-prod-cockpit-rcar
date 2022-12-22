@@ -76,8 +76,8 @@ private: // methods
         PARK    	= 0,
         NEUTRAL 	= 2,
         DRIVE   	= 3,
-        REVERSE 	= 4,
-        GUNDEFINED 	= 5,
+        REVERSE 	= 5,
+        GUNDEFINED 	= 10,
     };
     QString getSubscriptionId(const QString &message)const;
     int getSpeed(const QString &message)const;

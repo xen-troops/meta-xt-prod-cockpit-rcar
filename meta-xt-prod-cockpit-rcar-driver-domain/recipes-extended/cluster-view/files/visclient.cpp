@@ -156,11 +156,11 @@ void VisClient::onTextMessageReceived(const QString &message)
                 qDebug() << "No speed value in the message";
              }
 
-             value = (int)getGearSelect(message);
+             value = getGearSelect(message);
              qDebug() << " getGear " << value;
-             if(value != not_defined_value)
+             if(value != GearPosition::GUNDEFINED)
              {
-                setGearValue(value);
+                setGearValue((int)value);
              }
              else
              {
@@ -212,7 +212,7 @@ VisClient::GearPosition VisClient::getGearSelect(const QString & message)const
     case 3:
     res = GearPosition::DRIVE;
     break;
-    case 4:
+    case -1:
     res = GearPosition::REVERSE;
     break;
     }
@@ -301,6 +301,7 @@ int VisClient::gearValue()const
 }
 void VisClient::setGearValue(int gear)
 {
+    qDebug() << "Gear position " << gear;
     if(this->gear == gear)
         return;
     this->gear = gear;
