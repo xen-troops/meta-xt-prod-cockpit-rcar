@@ -176,51 +176,6 @@ Window {
         Timer {
             interval: 2000; running: !vis.connectedValue; repeat: true
             onTriggered: {
-                if(vis.speedValue < 240){
-                    vis.speedValue += 5
-                    vis.rpmValue = 700 + 17*vis.speedValue
-                }
-                else {
-                    vis.speedValue = 0
-                    vis.rpmValue = 700;
-                }
-
-                if(vis.batteryValue != 0)
-                {
-                    vis.batteryValue -= 1
-                }
-                else
-                {
-                    vis.batteryValue = 100
-                }
-
-                if(powerChargeInfo.powerValue > 0)
-                {
-                    --powerChargeInfo.powerValue
-                }
-                else
-                {
-                    powerChargeInfo.powerValue = 100
-                }
-
-                if(powerChargeInfo.chargeValue > 0)
-                {
-                    --powerChargeInfo.chargeValue
-                }
-                else
-                {
-                    powerChargeInfo.chargeValue = 100
-                }
-
-                if(vis.gearValue == 3)
-                {
-                    vis.gearValue = 0;
-                }
-                else 
-                {
-                    ++vis.gearValue;
-                }
-
                 if(!vis.connectedValue){
                     vis.connectTo()
                 }
