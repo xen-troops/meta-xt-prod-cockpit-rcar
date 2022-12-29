@@ -18,6 +18,7 @@ class VisClient: public QObject
     Q_PROPERTY(QString urlValue READ urlValue WRITE setUrlValue NOTIFY urlValueChanged)
     Q_PROPERTY(bool connectedValue READ connectedValue WRITE setConnectedValue NOTIFY connectedValueChanged)
     Q_PROPERTY(int batteryValue READ batteryValue WRITE setBatteryValue NOTIFY batteryValueChanged)
+    Q_PROPERTY(int turnValue READ turnValue WRITE setTurnValue NOTIFY turnValueChanged)
 
 public:
 
@@ -46,6 +47,9 @@ public:
     int batteryValue()const;
     void setBatteryValue(int battery);
 
+    int turnValue()const;
+    void setTurnValue(int battery);
+
     bool connectedValue()const;
     void setConnectedValue(bool connected);
 
@@ -53,6 +57,9 @@ public:
     Q_INVOKABLE void disconnect();
     Q_INVOKABLE void sendMessage(const QString &message);
     //Q_INVOKABLE bool IsConnected()const;
+
+protected:
+    int getTurnDirection(const QString & propId, const QString & message);
 
 Q_SIGNALS:
     void connected();
@@ -69,6 +76,7 @@ private Q_SLOTS:
     void onTextMessageReceived(const QString &message);
 
 signals:
+    void turnValueChanged();
     void batteryValueChanged();
     void speedValueChanged();
     void rpmValueChanged();
@@ -93,6 +101,7 @@ private: // methods
     int getBattery(const QString & message)const;
 
 private:
+    int turn;
     int battery;
     int speed;
     int rpm;

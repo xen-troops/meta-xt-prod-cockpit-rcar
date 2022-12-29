@@ -2,6 +2,7 @@ import QtQuick 2.0
 
 Item {
     id: footer
+    property var turn: -1
     Image {
         id: gear
         source : footer.gear[footer.currentGear].source
@@ -51,15 +52,98 @@ Item {
     Image {
         id: turnLeft
         source: "../images/Turn_left_off.png"
-        x: 571//596
-        y: 639//638
+        x: 571
+        y: 639
     }
 
     Image {
         id: turnRight
         source: "../images/Turn_right_off.png"
-        x: 1309//1284
-        y: 639//638
+        x: 1309
+        y: 639
+    }
+
+    Image {
+        id: turnLeftOn
+        source: "../images/Turn_left_on.png"
+        x: 571
+        y: 639
+        visible: turn == 2 || turnLeftTimer.counter > 0 && turnLeftTimer.counter <= 6
+        onVisibleChanged:{
+            if(visible){
+                turnLeftTimer.counter = 1
+            }
+        }
+    }
+
+    Image {
+        id: turnRightOn
+        source: "../images/Turn_right_on.png"
+        x: 1309
+        y: 639
+        visible: turn == 1 || turnRightTimer.counter > 0 && turnRightTimer.counter <= 6
+        onVisibleChanged:{
+            if(visible){
+                turnRightTimer.counter = 1
+            }
+        }
+    }
+
+    Timer
+    {
+        id: turnRightTimer
+        property var counter: 0
+        interval: 500; repeat: true;
+        running: counter > 0 && counter <= 6
+        onCounterChanged: {
+            if(counter > 6)
+            {
+                counter = 0
+            }
+        }
+
+        onTriggered: {
+            if(turnRightOn.opacity == 1)
+            {
+                turnRightOn.opacity = 0
+            }
+            else
+            {
+                turnRightOn.opacity = 1
+            }
+            ++counter
+            console.log("Right counter " + counter)
+        }
+    }
+
+    Timer
+    {
+        id: turnLeftTimer
+        property var counter: 0
+
+        interval: 1000
+        repeat: true
+        running: counter > 0 && counter <= 6
+
+        onCounterChanged: {
+            if(counter > 6)
+            {
+                counter = 0
+            }
+        }
+
+        onTriggered: {
+            if(turnLeftOn.opacity == 1)
+            {
+                turnLeftOn.opacity = 0
+            }
+            else
+            {
+                turnLeftOn.opacity = 1
+            }
+            ++counter
+            console.log("Left counter " + counter + "  opacity " + turnLeftOn.opacity)
+        }
     }
 
     property var gear: [

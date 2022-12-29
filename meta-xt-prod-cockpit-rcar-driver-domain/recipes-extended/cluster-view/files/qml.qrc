@@ -245,5 +245,8 @@
         <file>images/100_MPH.png</file>
         <file>images/110_MPH.png</file>
         <file>images/epam.png</file>
+        <file>images/Turn_left_on.png</file>
+        <file>images/Turn_right_on.png</file>
+        <file>images/Outline.png</file>
     </qresource>
 </RCC>
