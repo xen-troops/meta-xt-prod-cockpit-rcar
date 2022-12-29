@@ -174,7 +174,7 @@ Window {
         }
 
         Timer {
-            interval: 500; running: !vis.connectedValue; repeat: true
+            interval: 2000; running: !vis.connectedValue; repeat: true
             onTriggered: {
                 if(vis.speedValue < 240){
                     vis.speedValue += 5
