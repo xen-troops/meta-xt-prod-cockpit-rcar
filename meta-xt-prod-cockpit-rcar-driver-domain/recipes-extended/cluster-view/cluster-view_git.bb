@@ -260,6 +260,7 @@ SRC_URI = " \
       file://images/epam.png \
       file://images/Turn_right_on.png \
       file://images/Turn_left_on.png \
+      file://images/Outline.png \
 "
 
 DEPENDS += " \
