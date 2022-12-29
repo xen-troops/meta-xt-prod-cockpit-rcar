@@ -10,6 +10,15 @@ Item {
         y : footer.gear[footer.currentGear].y
     }
 
+    Image
+    {
+        id: normal_outline
+        source: "../images/Outline.png"
+        visible: footer.sport == false
+        x: 435
+        y: 620
+    }
+
     Image {
         id: sport
         source : {
