@@ -140,7 +140,7 @@ Window {
 
         PowerChargeInfo {
             id: powerChargeInfo
-            powerValue: vis.batteryValue
+            powerValue: 100*vis.speedValue/150//vis.batteryValue
             chargeValue: vis.batteryValue
             visible: cmdLine.getMode() == 2
         }
