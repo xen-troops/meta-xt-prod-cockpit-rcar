@@ -65,8 +65,10 @@ Window {
         Image {
             id: epam
             source : "images/epam.png"
-            x: 707
-            y: 10
+            x: 736
+            y: 0
+            width: 448
+            height: 602
             opacity: 1
             visible: cmdLine.getMode() == 1 && cmdLine.firstStart == 1
         }
