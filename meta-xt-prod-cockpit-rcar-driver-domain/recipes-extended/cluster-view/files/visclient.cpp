@@ -16,6 +16,8 @@ const int not_defined_value = std::numeric_limits<int>::max();
 
 VisClient::VisClient(QObject *parent):
     QObject(parent),
+    battery(100),
+    turn(-1),
     speed(0),
     rpm(0),
     gear(0),
@@ -186,6 +188,17 @@ void VisClient::onTextMessageReceived(const QString &message)
              {
                  qDebug() << "No Battery value in the message";
              }
+             value = getTurnDirection("Signal.Traffic.Turn.Direction", message);
+             qDebug() << " getTurnDirection " << value;
+             if(value != not_defined_value)
+             {
+                 setTurnValue(value);
+             }
+             else
+             {
+                 setTurnValue(-1);
+                 qDebug() << "No Turn value in the message";
+             }
         }
         else
         {
@@ -198,6 +211,20 @@ void VisClient::onTextMessageReceived(const QString &message)
            qDebug() << "Wrong subscrition state.";
            return;
        }
+    }
+}
+
+int VisClient::turnValue()const
+{
+    return turn;
+}
+
+void VisClient::setTurnValue(int turn)
+{
+    if(this->turn != turn)
+    {
+        this->turn = turn;
+        emit turnValueChanged();
     }
 }
 
@@ -373,3 +400,18 @@ int VisClient::batteryValue()const
 {
     return battery;
 }
+
+int VisClient::getTurnDirection(const QString & propId, const QString & message)
+{
+    auto value = getStringValue(/*"Signal.Traffic.Turn.Direction"*/propId, message);
+    if(value == "right")
+    {
+       return 1;
+    }
+    else if(value == "left")
+    {
+        return 2;
+    }
+    return not_defined_value;
+}
+

@@ -108,6 +108,7 @@ Window {
             visible: true
             sport: cmdLine.getMode() == 2
             readiness: false
+            turn: vis.turnValue
         }
 
         NormalSpeedInfo {
