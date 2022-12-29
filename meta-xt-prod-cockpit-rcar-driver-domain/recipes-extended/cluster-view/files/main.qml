@@ -107,7 +107,7 @@ Window {
             id: footer
             visible: true
             sport: cmdLine.getMode() == 2
-            readiness: false
+            ready: vis.connectedValue
             turn: vis.turnValue
         }
 
@@ -229,11 +229,6 @@ Window {
         Component.onCompleted: {
             batteryInfo.reminder.visible = Qt.binding(function(){
                 return rangeInfo.rangeValue < 40
-            }
-            )
-
-            footer.readiness = Qt.binding(function(){
-                return vis.speedValue > 0
             }
             )
         }

@@ -36,7 +36,7 @@ Item {
     Image {
         id: readiness
         source : {
-            if(readiness)
+            if(ready)
             {
                 return "../images/READY_on.png"
             }
@@ -153,7 +153,7 @@ Item {
         {source: "../images/Gears_P.png", x: 839, y: 629/*639*/, gear: 0},
         {source: "../images/Gears_R.png", x: 839, y: 629/*639*/, gear: 5},
     ]
-    property var readiness: false
+    property bool ready: false
     property var currentGear: 0
     property bool sport: false
 }
