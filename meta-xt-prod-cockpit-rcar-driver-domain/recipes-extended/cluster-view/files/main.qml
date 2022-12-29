@@ -148,7 +148,7 @@ Window {
         property var timeUpdated: 0
 
         Timer {
-            interval: 60000; running: !vis.connectedValue; repeat: true
+            interval: 60000; running: true; repeat: true
             onTriggered: {
                 topInfo.timeUpdated++
             }
@@ -166,7 +166,6 @@ Window {
                    epam.visible = false
                    epamTimer.stop()
                 }
-                console.log("!!!Background opacity " + topInfo.opacity)
                 if(topInfo.opacity != 1)
                 {
                     topInfo.opacity += 0.1
