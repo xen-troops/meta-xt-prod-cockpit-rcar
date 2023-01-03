@@ -214,6 +214,7 @@ components:
         - [PREFERRED_PROVIDER_virtual/libgbm, "libgbm"]
         - [PREFERRED_PROVIDER_libgbm-dev, "libgbm"]
         - [BBMASK_append, "mesa-gl"]
+        - [BBMASK_append, "|meta-xt-domx/recipes-core/base-files"]
 
       build_target: core-image-minimal
       layers:
