@@ -40,7 +40,6 @@ Window {
         width: 1920
         height: 720
         anchors.fill: parent
-        opacity: cmdLine.getMode() == 1 && cmdLine.firstStart ? 0 : 1
         Rectangle {
             id: cluster_bckg
             anchors.fill: parent
@@ -165,10 +164,6 @@ Window {
                 {
                    epam.visible = false
                    epamTimer.stop()
-                }
-                if(topInfo.opacity != 1)
-                {
-                    topInfo.opacity += 0.1
                 }
             }
         }
