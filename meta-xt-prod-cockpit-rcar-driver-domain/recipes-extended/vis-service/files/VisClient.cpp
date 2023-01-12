@@ -19,72 +19,43 @@
 #include "VisClient.h"
 #include <limits>
 #include <vector>
+#include <linux/r_taurus_cluster_protocol.h>
 
 QT_USE_NAMESPACE
 
 const unsigned long visClientTimeout = 1000;
 struct rpmsg_endpoint_info ept_info = {"rpmsg-openamp-demo-channel", 0x2, 0x1};
-
-enum CtlIO_id{
-    SPEED = 1,
-    GEAR = 2,
-    RPM = 3,
-    TURN = 4,
-    DOOR_OPEN = 5,
-    FOG_LIGHTS_BACK = 6,
-    FOG_LIGHTS_FRONT = 7,
-    HIGH_BEAMS_LIGHT = 8,
-    HIGH_ENGINE_TEMPERATURE = 9,
-    LOW_BATTERY = 10,
-    LOW_BEAMS_LIGHTS = 11,
-    LOW_FUEL = 12,
-    LOW_OIL = 13,
-    LOW_TIRE_PRESSURE = 14,
-    SEAT_BELT = 15,
-    SIDE_LIGHTS = 16,
-    BATTERY_ISSUE = 17,
-    AUTO_LIGHTING_ON = 18,
-    CLUSTER_ACTIVE = 255,
-};
-
 const int not_defined_value = std::numeric_limits<int>::max();
-
-typedef struct {
-    uint64_t   value;
-    uint16_t   ioctl_cmd;
-}taurus_cluster_data_t;
-
 struct AosVisParameter {
     QString paramName;
-    CtlIO_id ctlIOId;
+    uint32_t ctlIOId;
     int value;
     std::function<int(const QString & propId, const QString & message)> getValue;
 };
 
 const std::vector<AosVisParameter> aosVisParameters {
-    {"Signal.Vehicle.Speed", CtlIO_id::SPEED, not_defined_value, VisClient::getValue},
-    {"Signal.Drivetrain.Transmission.Gear", CtlIO_id::GEAR, not_defined_value, VisClient::getValue},
-    {"Signal.Drivetrain.InternalCombustionEngine.Engine.Speed", CtlIO_id::RPM, not_defined_value, VisClient::getValue},
-    {"Signal.Traffic.Turn.Direction", CtlIO_id::TURN, not_defined_value, VisClient::getTurnDirection},
-    {"Signal.Cabin.Door.Row1.Left.IsOpen", CtlIO_id::DOOR_OPEN, not_defined_value, VisClient::getBool},
-    {"Signal.Cabin.Door.Row1.Right.IsOpen", CtlIO_id::DOOR_OPEN, not_defined_value, VisClient::getBool},
-    {"Signal.Cabin.Door.Row2.Left.IsOpen", CtlIO_id::DOOR_OPEN, not_defined_value, VisClient::getBool},
-    {"Signal.Cabin.Door.Row2.Right.IsOpen", CtlIO_id::DOOR_OPEN, not_defined_value, VisClient::getBool},
-    {"Signal.Body.Trunk.IsOpen", CtlIO_id::DOOR_OPEN, not_defined_value, VisClient::getBool},
-    {"Signal.Cabin.Seat.Row1.Pos1.IsBelted", CtlIO_id::SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
-    {"Signal.Cabin.Seat.Row1.Pos2.IsBelted", CtlIO_id::SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
-    {"Signal.Cabin.Seat.Row2.Pos1.IsBelted", CtlIO_id::SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
-    {"Signal.Cabin.Seat.Row2.Pos2.IsBelted", CtlIO_id::SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
-    {"Signal.Body.Lights.IsLowBeamOn", CtlIO_id::LOW_BEAMS_LIGHTS, not_defined_value, VisClient::getBool},
-    {"Signal.Body.Lights.IsHighBeamOn", CtlIO_id::HIGH_BEAMS_LIGHT, not_defined_value, VisClient::getBool},
-    {"Signal.Body.Lights.IsFrontFogOn", CtlIO_id::FOG_LIGHTS_FRONT, not_defined_value, VisClient::getBool},
-    {"Signal.Body.Lights.IsRearFogOn", CtlIO_id::FOG_LIGHTS_BACK, not_defined_value, VisClient::getBool},
-    {"Signal.Chassis.Axle.Row1.Wheel.Left.Tire.Pressure", CtlIO_id::LOW_TIRE_PRESSURE, not_defined_value, VisClient::getTireStatus},
+    {"Signal.Vehicle.Speed", CLUSTER_SPEED, not_defined_value, VisClient::getValue},
+    {"Signal.Drivetrain.Transmission.Gear", CLUSTER_GEAR, not_defined_value, VisClient::getValue},
+    {"Signal.Drivetrain.InternalCombustionEngine.Engine.Speed", CLUSTER_RPM, not_defined_value, VisClient::getValue},
+    {"Signal.Traffic.Turn.Direction", CLUSTER_TURN, not_defined_value, VisClient::getTurnDirection},
+    {"Signal.Cabin.Door.Row1.Left.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getBool},
+    {"Signal.Cabin.Door.Row1.Right.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getBool},
+    {"Signal.Cabin.Door.Row2.Left.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getBool},
+    {"Signal.Cabin.Door.Row2.Right.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getBool},
+    {"Signal.Body.Trunk.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getBool},
+    {"Signal.Cabin.Seat.Row1.Pos1.IsBelted", CLUSTER_SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
+    {"Signal.Cabin.Seat.Row1.Pos2.IsBelted", CLUSTER_SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
+    {"Signal.Cabin.Seat.Row2.Pos1.IsBelted", CLUSTER_SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
+    {"Signal.Cabin.Seat.Row2.Pos2.IsBelted", CLUSTER_SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
+    {"Signal.Body.Lights.IsLowBeamOn", CLUSTER_LOW_BEAMS_LIGHTS, not_defined_value, VisClient::getBool},
+    {"Signal.Body.Lights.IsHighBeamOn", CLUSTER_HIGH_BEAMS_LIGHT, not_defined_value, VisClient::getBool},
+    {"Signal.Body.Lights.IsFrontFogOn", CLUSTER_FOG_LIGHTS_FRONT, not_defined_value, VisClient::getBool},
+    {"Signal.Body.Lights.IsRearFogOn", CLUSTER_FOG_LIGHTS_BACK, not_defined_value, VisClient::getBool},
+    {"Signal.Chassis.Axle.Row1.Wheel.Left.Tire.Pressure", CLUSTER_LOW_TIRE_PRESSURE, not_defined_value, VisClient::getTireStatus},
 };
 
 VisClient::VisClient(QObject *parent, const QString &url, const QString& rpmsg):QObject(parent),
 	mUrl(url),
-	mEptInfo{"rpmsg-openamp-demo-channel", 0x2, 0x1},
 	mState(SubscrState::StateInit)
 {
     qDebug() << "Create VIS client";
@@ -98,53 +69,24 @@ VisClient::VisClient(QObject *parent, const QString &url, const QString& rpmsg):
     connect(&mWebSocket, &QWebSocket::disconnected, this, &VisClient::onDisconnected);
     connect(&mWebSocket, &QWebSocket::textMessageReceived, this, &VisClient::onTextMessageReceived);
 
-    mFd = open("/dev/rpmsg_ctrl0", O_WRONLY);
-    if(mFd < 0){
-        throw std::invalid_argument("No device /dev/rpmsg_ctrl0");
-    }
-
-    ioctl(mFd, RPMSG_CREATE_EPT_IOCTL, &mEptInfo);
-
-    mFdept = open(rpmsg.toStdString().c_str(), O_WRONLY);
-
+    mFdept = open("/dev/cluster-taurus", O_WRONLY);
     if(mFdept < 0){
-        close(mFd);
-        throw std::invalid_argument("No device "+rpmsg.toStdString());
+        throw std::invalid_argument("No device /dev/cluster-taurus");
     }
-    qDebug() << "Create VIS client - send 100 for test";
 
-    taurus_cluster_data_t data = {
-	    .value = 100,
-	    .ioctl_cmd = 1,
-    };
-    // just for the test purposes, to see that connection exists
-    while(data.value != 0) {
-        write(mFdept, &data, sizeof(data));
-        --data.value;
-    }
-    data.value = 0;
-    write(mFdept, &data, sizeof(data));
     qDebug() << "Create VIS client - send 0 to reset";
 
     qDebug() << "!!!! RESET VALUES:" << mUrl;
     for(int i = 5; i < aosVisParameters.size();++i)
     {
-        data.value = 0;
-        data.ioctl_cmd = i;
-        write(mFdept, &data, sizeof(data));
+        ioctl(mFdept, i, 0);
     }
-    // inform cr7: cluster is active
-    data.value = 1;
-    data.ioctl_cmd = CtlIO_id::CLUSTER_ACTIVE;
-    write(mFdept, &data, sizeof(data));
+    ioctl(mFdept, CLUSTER_ACTIVE, 1);
 }
 VisClient::~VisClient()
 {
     qDebug() << "Delete VIS client";
-
-    ioctl(mFdept, RPMSG_DESTROY_EPT_IOCTL);
     close(mFdept);
-    close(mFd);
     mWebSocket.close();
 }
 
@@ -216,7 +158,7 @@ void VisClient::onTextMessageReceived(const QString &message)
 {
     qDebug() << "Receive message:" << message;
     // send dummy data 
-    taurus_cluster_data_t data = {0, CtlIO_id::SPEED};
+    struct taurus_cluster_data data = {0, CLUSTER_SPEED};
     
     qDebug() << "mState: " << mState;
 

@@ -53,10 +53,8 @@ private Q_SLOTS:
 private:
     QString mUrl;
     QWebSocket mWebSocket;
-    int mFd;
     int mFdept;
     QUuid mID;
-    struct rpmsg_endpoint_info mEptInfo;
     SubscrState mState;
     QString mSubscriptionId;
 };    
