@@ -249,6 +249,14 @@
 	iommus = <&ipmmu_vi1 1>;
 };
 
+&vin6 {
+	iommus = <&ipmmu_vi1 1>;
+};
+
+&vin7 {
+	iommus = <&ipmmu_vi1 1>;
+};
+
 &sdhi3 {
 	iommus = <&ipmmu_ds1 35>;
 };
@@ -499,7 +507,7 @@
 &gsx			{ xen,passthrough; };
 &hdmi0			{ xen,passthrough; };
 &i2c2			{ xen,passthrough; };
-//&i2c4			{ xen,passthrough; };
+&i2c4			{ xen,passthrough; };
 &i2c_dvfs		{ xen,passthrough; };
 &intc_ex		{ xen,passthrough; };
 &mfis_as		{ xen,passthrough; };
@@ -551,6 +559,8 @@
 &vin3			{ xen,passthrough; };
 &vin4			{ xen,passthrough; };
 &vin5			{ xen,passthrough; };
+&vin6			{ xen,passthrough; };
+&vin7			{ xen,passthrough; };
 //&vspd0			{ xen,passthrough; };
 &vspd1			{ xen,passthrough; };
 &vspd2			{ xen,passthrough; };

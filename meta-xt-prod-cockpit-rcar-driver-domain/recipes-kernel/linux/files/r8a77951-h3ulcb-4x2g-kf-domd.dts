@@ -16,10 +16,6 @@
 #define PHANDLE_GIC (65000)
 
 / {
-	aliases {
-		/delete-property/ i2c4;
-	};
-
         reserved-memory {
                 #address-cells = <0x2>;
                 #size-cells = <0x2>;
@@ -148,21 +144,6 @@
 };
 
 /* CR7 is responislbe for graphics */
-&csi20 {
-	/delete-property/ status;
-	ports {
-		/delete-node/ port@0;
-	};
-};
-
-&csi40 {
-	/delete-property/ status;
-	ports {
-		/delete-node/ port@0;
-	};
-};
-
-/delete-node/ &i2c4;
 /delete-node/ &fcpvd0;
 /delete-node/ &fcpvd1;
 /delete-node/ &fcpvd2;
@@ -178,10 +159,6 @@
 /delete-node/ &pciec1;
 /delete-node/ &mpcie_3v3;
 /delete-node/ &mpcie_1v8;
-/delete-node/ &vdd_cam_a_0;
-/delete-node/ &vdd_cam_a_1;
-/delete-node/ &vdd_cam_a_2;
-/delete-node/ &vdd_cam_a_3;
 
 /* These USB controllers are used by DomA/U. */
 
@@ -288,8 +265,3 @@
 	};
 };
 
-&vin5 {
-	ports {
-		/delete-node/ port@0;
-	};
-};
