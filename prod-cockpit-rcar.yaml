@@ -29,11 +29,14 @@ common_data:
       url: "git://git.yoctoproject.org/meta-virtualization"
       rev: dunfell
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-common.git"
-      rev: master
+      url: "https://github.com/otyshchenko1/meta-xt-common.git"
+      rev: my_devel_dunfell
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-rcar.git"
-      rev: master
+      url: "https://github.com/otyshchenko1/meta-xt-rcar.git"
+      rev: my_devel_dunfell
+    - type: git
+      url: "https://github.com/DKlimenko/meta-xt-prod-cockpit-rcar.git"
+      rev: my_dunfell
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -105,9 +108,7 @@ components:
     default: true
     sources:
       - *COMMON_SOURCES
-      - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+
     builder:
       type: yocto
       work_dir: "%{DOM0_BUILD_DIR}"
@@ -170,14 +171,11 @@ components:
         url: git://git.yoctoproject.org/meta-selinux
         rev: dunfell
       - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
-      - type: git
         url: "https://github.com/meta-qt5/meta-qt5"
         rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
       - type: git
         url: "https://github.com/xen-troops/meta-renesas.git"
-        rev: "Renesas-Yocto-v5.1-patched"
+        rev: "Renesas-Yocto-v5.9-patched"
       - type: git
         url: "https://github.com/aoscloud/meta-aos"
         rev: "4b0f4ea629db039af8cec8f9ea019bb4c9e6d0c7"
@@ -195,11 +193,11 @@ components:
         - [MACHINE_FEATURES_append, " multimedia"]
 
         # take dedicated cr7 kernel
-        - [RENESAS_BSP_URL_pn-linux-renesas,  "git://git@github.com/xen-troops/linux.git;protocol=ssh"]
-        - [BRANCH_pn-linux-renesas, "cr7-cockpit-demo"]
+        - [RENESAS_BSP_URL_pn-linux-renesas,  "git://git@github.com/DKlimenko/linux-bsp.git;protocol=ssh"]
+        - [BRANCH_pn-linux-renesas, "cr7-cockpit-demo-v5.10.41"]
         - [SRCREV_pn-linux-renesas, "${AUTOREV}"]
-        - [RENESAS_BSP_URL_pn-linux-libc-headers,  "git://git@github.com/xen-troops/linux.git;protocol=ssh"]
-        - [BRANCH_pn-linux-libc-headers, "cr7-cockpit-demo"]
+        - [RENESAS_BSP_URL_pn-linux-libc-headers,  "git://git@github.com/DKlimenko/linux-bsp.git;protocol=ssh"]
+        - [BRANCH_pn-linux-libc-headers, "cr7-cockpit-demo-v5.10.41"]
         - [SRCREV_pn-linux-libc-headers, "${AUTOREV}"]
 
         # get xen customized under cr7
@@ -314,9 +312,6 @@ components:
       - type: git        
         url: "git://git.yoctoproject.org/meta-arm.git"
         rev: "f7c5e7d5094f65d105d9d580ba59527c25fb0d0f"
-      - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
 
     builder:
       type: yocto
@@ -342,9 +337,6 @@ components:
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources:
       - *COMMON_SOURCES
-      - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
 
     builder:
       type: yocto
@@ -401,8 +393,8 @@ parameters:
           domd:
             sources:
               - type: git
-                url: "https://github.com/CogentEmbedded/meta-rcar.git"
-                rev: v5.1.0
+                url: "https://github.com/xen-troops/meta-rcar.git"
+                rev: Renesas-Yocto-v5.9-patched
             builder:
               layers:
                 - "../meta-rcar/meta-rcar-gen3-adas"

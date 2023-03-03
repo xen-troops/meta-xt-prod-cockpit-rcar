@@ -89,6 +89,9 @@
 	/delete-node/pmu_a53;
 };
 
+/delete-node/&pciec0_ep;
+/delete-node/&pciec1_ep;
+
 /* ============================ Enabled IPMMUs ===============================*/
 
 &ipmmu_mm {
@@ -406,6 +409,21 @@
 		};
 
 		imprtt {
+			xen,passthrough;
+		};
+                imrlx4_imr0 {
+			xen,passthrough;
+		};
+
+		imrlx4_imr1 {
+			xen,passthrough;
+		};
+
+		imrlx4_imr2 {
+			xen,passthrough;
+		};
+
+		imrlx4_imr3 {
 			xen,passthrough;
 		};
 
