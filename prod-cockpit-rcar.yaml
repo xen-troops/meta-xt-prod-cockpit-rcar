@@ -10,7 +10,7 @@ variables:
   ANDROID_KERNEL_DIR: "android_kernel"
   XT_DOMD_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-domd.dtb"
   XT_XEN_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-xen.dtb"
-  XT_XEN_REVISION: "995f0fcf697d8d8690ed02e0990b2be074ebe8cb"
+  XT_XEN_REVISION: "e43b76f60b3f6512e78359db187f3bac9de0791f"
   XT_PVR_NUM_OSID: "2"
   XT_OP_TEE_FLAVOUR: "generic_dt"
   XT_DOMA_TAG: ""
