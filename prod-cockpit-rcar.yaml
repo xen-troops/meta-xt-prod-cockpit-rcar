@@ -30,10 +30,10 @@ common_data:
       rev: dunfell
     - type: git
       url: "https://github.com/xen-troops/meta-xt-common.git"
-      rev: master
+      rev: 273650379b2785465820ac9f61c6340d1cd86cac
     - type: git
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
-      rev: master
+      rev: 5d4e9d1d3ad49becde034f5c3d273d28270e4e00
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
