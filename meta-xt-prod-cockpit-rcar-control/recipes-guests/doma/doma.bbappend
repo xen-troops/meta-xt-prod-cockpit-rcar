@@ -6,11 +6,14 @@ SRC_URI += "\
     file://doma-vdevices.cfg \
     file://doma-set-root \
     file://doma-set-root.conf \
+    file://doma-pvcamera.conf \
+    file://doma-pvcamera.cfg \
 "
 
 FILES_${PN} += " \
     ${libdir}/xen/bin/doma-set-root \
     ${sysconfdir}/systemd/system/doma.service.d/doma-set-root.conf \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'pvcamera', '${sysconfdir}/systemd/system/doma.service.d/doma-pvcamera.conf', '', d)} \
 "
 
 do_install_append() {
@@ -22,4 +25,9 @@ do_install_append() {
 
     install -d ${D}${sysconfdir}/systemd/system/doma.service.d
     install -m 0644 ${WORKDIR}/doma-set-root.conf ${D}${sysconfdir}/systemd/system/doma.service.d
+
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'pvcamera', 'true', 'false', d)}; then
+        cat ${WORKDIR}/doma-pvcamera.cfg >> ${D}${sysconfdir}/xen/doma.cfg
+        install -m 0644 ${WORKDIR}/doma-pvcamera.conf ${D}${sysconfdir}/systemd/system/doma.service.d
+    fi
 }
