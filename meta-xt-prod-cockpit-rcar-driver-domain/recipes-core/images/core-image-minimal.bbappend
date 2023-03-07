@@ -16,6 +16,7 @@ IMAGE_INSTALL_append = " \
     aos-certificates \
     vis-service \
     cluster-view \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'pvcamera', 'camerabe', '', d)} \
 "
 
 IMAGE_INSTALL_remove = " \
