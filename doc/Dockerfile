@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev \
     x11proto-core-dev libx11-dev lib32z1-dev ccache libgl1-mesa-dev \
     libxml2-utils xsltproc unzip bc ninja-build \
-    python3-pyelftools python3-crypto libncurses5 libssl-dev -y && \
+    python3-pyelftools python3-crypto libncurses5 libssl-dev python3-pygit2 -y && \
     apt-get install --reinstall -y ca-certificates && \
     pip3 install pycryptodomex && \
     apt-get clean && rm -rf /tmp/* /var/tmp/*
