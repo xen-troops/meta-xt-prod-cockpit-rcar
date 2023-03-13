@@ -21,19 +21,19 @@ common_data:
   sources: &COMMON_SOURCES
     - type: git
       url: "git://git.yoctoproject.org/poky"
-      rev: dunfell
+      rev: 6b8a307b7843af23d189d7ffcecf32c05afac850
     - type: git
       url: "git://git.openembedded.org/meta-openembedded"
-      rev: dunfell
+      rev: e707e9b7cf5c62bff4fee029965a87b22dd4ccba
     - type: git
       url: "git://git.yoctoproject.org/meta-virtualization"
-      rev: dunfell
+      rev: beea119eb529b4a11f266004aee8b548427aea39
     - type: git
       url: "https://github.com/xen-troops/meta-xt-common.git"
-      rev: master
+      rev: 273650379b2785465820ac9f61c6340d1cd86cac
     - type: git
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
-      rev: master
+      rev: 5d4e9d1d3ad49becde034f5c3d273d28270e4e00
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -85,10 +85,10 @@ common_data:
     sources:
       - type: git
         url: "git://git.openembedded.org/meta-python2"
-        rev: dunfell
+        rev: b901080cf57d9a7f5476ab4d96e56c30db8170a8
       - type: git
         url: "https://github.com/kraj/meta-clang"
-        rev: dunfell
+        rev: 3bb001d3f364bbf6588fed04b9ee2c7e74a0beba
       - type: git
         url: "ssh://git@gitpct.epam.com/epmd-aepr/img-proprietary"
         rev: "ef1aa566d74a11c4d2ae9592474030a706b4cf39"
@@ -168,7 +168,7 @@ components:
       - *COMMON_SOURCES
       - type: git
         url: git://git.yoctoproject.org/meta-selinux
-        rev: dunfell
+        rev: 1a13839d114e6694d5ae2aa5dfa11c6824277b99
       - type: git
         url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
         rev: master
@@ -177,7 +177,7 @@ components:
         rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
       - type: git
         url: "https://github.com/xen-troops/meta-renesas.git"
-        rev: "Renesas-Yocto-v5.1-patched"
+        rev: c114f426b8cb1e38d3565313c3a3702f5d21d4ce
       - type: git
         url: "https://github.com/aoscloud/meta-aos"
         rev: "4b0f4ea629db039af8cec8f9ea019bb4c9e6d0c7"
