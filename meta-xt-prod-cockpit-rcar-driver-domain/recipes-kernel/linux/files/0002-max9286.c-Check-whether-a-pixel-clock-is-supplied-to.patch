@@ -1,0 +1,67 @@
+From 5e07a9d0ce6ae8e2c2979865ddfff0e2e206eab7 Mon Sep 17 00:00:00 2001
+From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Date: Wed, 22 Mar 2023 12:45:10 +0200
+Subject: [PATCH 2/2] max9286.c: Check whether a pixel clock is supplied to the
+ serializer
+
+Without this info being present, it is a bit difficult to understand
+what is wrong when subsequent streaming is not working.
+
+Also a good things for debugging deserializer are:
+v4l2-dbg -d /dev/v4l-subdev2 -l
+cat /sys/bus/i2c/drivers/max9286/18-002c/link_*
+
+While at it, clarify the debug info in max9286_link_show() as there is
+a mistake in the link status bits.
+
+Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+---
+ drivers/media/i2c/gmsl/max9286.c       | 9 +++++++++
+ drivers/media/i2c/gmsl/max9286_debug.h | 4 ++--
+ 2 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/i2c/gmsl/max9286.c b/drivers/media/i2c/gmsl/max9286.c
+index 223bedd00e50..123bb55d8bf1 100644
+--- a/drivers/media/i2c/gmsl/max9286.c
++++ b/drivers/media/i2c/gmsl/max9286.c
+@@ -593,6 +593,7 @@ static int max9286_post_initialize(struct i2c_client *client)
+ {
+ 	struct max9286_priv *priv = i2c_get_clientdata(client);
+ 	int idx;
++	u8 status;
+ 
+ 	for (idx = 0; idx < priv->n_links; idx++) {
+ 		if (!(priv->links_mask & (1 << idx)))
+@@ -604,6 +605,14 @@ static int max9286_post_initialize(struct i2c_client *client)
+ 
+ 		/* switch to GMSL serial_link for streaming video */
+ 		client->addr = priv->ser_addr[idx];
++
++		/* MAX96705: read bit PCLKDET (0) in input_status register (0x15) */
++		reg8_read(client, 0x15, &status);
++		if (status & BIT(0))
++			dev_info(&client->dev, "link%d: valid PCLK is detected\n", idx);
++		else
++			dev_err(&client->dev, "link%d: no valid PCLK detected\n", idx);
++
+ 		max9286_write_remote_verify(client, idx, 0x04, conf_link ? 0x43 : 0x83);
+ 	}
+ 
+diff --git a/drivers/media/i2c/gmsl/max9286_debug.h b/drivers/media/i2c/gmsl/max9286_debug.h
+index ef00efdb88e4..1e7a967cebc1 100644
+--- a/drivers/media/i2c/gmsl/max9286_debug.h
++++ b/drivers/media/i2c/gmsl/max9286_debug.h
+@@ -58,8 +58,8 @@ static ssize_t max9286_link_show(struct device *dev,
+ 	priv->correrr[i] += correrr;
+ 
+ 	reg8_read(client, 0x49, &val);
+-	configdet = !!(val & (1 << i));
+-	videodet = !!(val & (1 << (i + 4)));
++	videodet = !!(val & (1 << i));
++	configdet = !!(val & (1 << (i + 4)));
+ 
+ 	return sprintf(buf, "LINK:%d LF:%s HLOCKED:%d PRBSOK:%d LINBUFFOF:%d"
+ 		" LENGHTERR:%d VSYNCDET:%d CONFIGDET:%d VIDEODET:%d"
+-- 
+2.34.1
+
