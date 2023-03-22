@@ -1,0 +1,79 @@
+From 8d32b72e08b6b55e764380400400009520cc7de8 Mon Sep 17 00:00:00 2001
+From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Date: Wed, 22 Mar 2023 12:35:52 +0200
+Subject: [PATCH 1/2] ulcb-kf.dtsi: Enable Leopard Imaging LI-OV10640-490-GMSL
+ camera
+
+As it turned out from the investigation, for LI-OV10640-490-GMSL
+camera we do need to set ov490.c's driver parameter "group" to value 5
+(it is 0 by default). Looks like, this is needed for the firmware to kick
+processing. Without it a pixel clock (required for the serializer
+to start serializing video data from the camera sensor) wasn't supplied
+and as the result we couldn't stream by using these cameras.
+
+Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+---
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+index 9fefd991106d..9ec00aa2a3d7 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+@@ -600,6 +600,7 @@ deser@2c {
+ 				reg = <0x2c 0x3a>;
+ 				reg-names = "max9286", "ub9x4";
+ 				regs = <0x0c 0x0d 0x0e 0x0f>;
++				maxim,sensor_delay = <350>;
+ 				shutdown-gpios = <&gpio_exp_a_5c 13 GPIO_ACTIVE_LOW>;
+ 
+ 				poc0-supply = <&vdd_cam_a_0>;
+@@ -655,9 +656,10 @@ i2c@0 {
+ 					reg = <0>;
+ 
+ 					camera@60 {
+-						compatible = LVDS_CAMERA;
++						/* LI-OV10640-490-GMSL camera module */
++						compatible = "ovti,ov490";
++						group = <5>;
+ 						reg = <0x60 0x0c>;
+-
+ 						port {
+ 							camera_out0: endpoint {
+ 								remote-endpoint = <&deser_in0>;
+@@ -673,7 +675,9 @@ i2c@1 {
+ 					reg = <1>;
+ 
+ 					camera@61 {
+-						compatible = LVDS_CAMERA;
++						/* LI-OV10640-490-GMSL camera module */
++						compatible = "ovti,ov490";
++						group = <5>;
+ 						reg = <0x61 0x0d>;
+ 
+ 						port {
+@@ -690,7 +694,9 @@ i2c@2 {
+ 					reg = <2>;
+ 
+ 					camera@62 {
+-						compatible = LVDS_CAMERA;
++						/* LI-OV10640-490-GMSL camera module */
++						compatible = "ovti,ov490";
++						group = <5>;
+ 						reg = <0x62 0x0e>;
+ 
+ 						port {
+@@ -707,7 +713,9 @@ i2c@3 {
+ 					reg = <3>;
+ 
+ 					camera@63 {
+-						compatible = LVDS_CAMERA;
++						/* LI-OV10640-490-GMSL camera module */
++						compatible = "ovti,ov490";
++						group = <5>;
+ 						reg = <0x63 0x0f>;
+ 
+ 						port {
+-- 
+2.34.1
+
