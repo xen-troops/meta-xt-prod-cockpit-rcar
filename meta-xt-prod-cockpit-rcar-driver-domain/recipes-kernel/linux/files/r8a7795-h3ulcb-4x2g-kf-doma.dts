@@ -118,27 +118,6 @@
 		compatible = "renesas,mmngrbuf";
 	};
 
-	cpu_scp_shm: scp-shmem@57000000 {
-		compatible = "arm,scmi-shmem";
-		reg = <0x0 0x57000000 0x0 0x1000>;
-	};
-
-        scp-shmem@57001000 {
-                compatible = "arm,scmi-shmem";
-                reg = <0x00 0x57001000 0x00 0x1000>;
-        };
-
-        scp-shmem@57002000 {
-                compatible = "arm,scmi-shmem";
-                reg = <0x00 57002000 0x00 0x1000>;
-        };
-
-        scp-shmem@57003000 {
-                compatible = "arm,scmi-shmem";
-                reg = <0x00 57003000 0x00 0x1000>;
-                phandle = <0x19>;
-        };
-
 	passthrough {
 		compatible = "simple-bus";
 		ranges;
@@ -866,28 +845,6 @@
                                 parts = "vbmeta,boot";
                                 by_name_prefix="/dev/block/by-name";
                         };
-		};
-		scmi {
-			compatible = "arm,scmi-smc";
-			arm,smc-id = <0x82000002>;
-			shmem = <&cpu_scp_shm>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			scmi_power: protocol@11 {
-				reg = <0x11>;
-				#power-domain-cells = <1>;
-			};
-
-			scmi_clock: protocol@14 {
-				reg = <0x14>;
-				#clock-cells = <1>;
-			};
-
-			scmi_reset: protocol@16 {
-				reg = <0x16>;
-				#reset-cells = <1>;
-			};
 		};
 	};
 
