@@ -1,0 +1,41 @@
+From 4f1bbc019d34829d7306eaae6c0834cd3286273c Mon Sep 17 00:00:00 2001
+From: Mykyta Poturai <mykyta_poturai@epam.com>
+Date: Mon, 27 Mar 2023 13:09:13 +0000
+Subject: [PATCH] makefile: Adapt makefile for yocto build
+
+Signed-off-by: Mykyta Poturai <mykyta_poturai@epam.com>
+---
+ Makefile | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 1e8b433..84c5f3c 100644
+--- a/Makefile
++++ b/Makefile
+@@ -40,11 +40,11 @@ all: v4l2loopback.ko
+ v4l2loopback: v4l2loopback.ko
+ v4l2loopback.ko:
+ 	@echo "Building v4l2-loopback driver..."
+-	$(MAKE) -C $(KERNEL_DIR) M=$(PWD) modules
++	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) modules
+ 
+ install-all: install install-utils install-man
+-install:
+-	$(MAKE) -C $(KERNEL_DIR) M=$(PWD) modules_install
++modules_install:
++	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) modules_install
+ 	@echo ""
+ 	@echo "SUCCESS (if you got 'SSL errors' above, you can safely ignore them)"
+ 	@echo ""
+@@ -60,7 +60,7 @@ install-man: man/v4l2loopback-ctl.1
+ clean:
+ 	rm -f *~
+ 	rm -f Module.symvers Module.markers modules.order
+-	$(MAKE) -C $(KERNEL_DIR) M=$(PWD) clean
++	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) clean
+ 
+ distclean: clean
+ 	rm -f man/v4l2loopback-ctl.1
+-- 
+2.25.1
+

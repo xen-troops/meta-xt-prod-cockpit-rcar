@@ -17,6 +17,7 @@ IMAGE_INSTALL_append = " \
     vis-service \
     cluster-view \
     ${@bb.utils.contains('DISTRO_FEATURES', 'pvcamera', 'camerabe', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'pvcamera', 'v4l2loopback-mod', '', d)} \
 "
 
 IMAGE_INSTALL_remove = " \
