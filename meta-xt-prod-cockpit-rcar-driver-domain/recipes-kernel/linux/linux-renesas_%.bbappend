@@ -18,5 +18,6 @@ SRC_URI_append = " \
     file://0008-of-rename-_node_sysfs-to-_node_post.patch \
     file://0001-ulcb-kf.dtsi-Enable-Leopard-Imaging-LI-OV10640-490-G.patch \
     file://0002-max9286.c-Check-whether-a-pixel-clock-is-supplied-to.patch \
+    file://0001-HACK-media-xen-front-Guess-the-size-of-camera-buffer.patch \
 "
 
