@@ -1,0 +1,184 @@
+From 4d75dfa935adae3cb09ca1e483809eacab9f734e Mon Sep 17 00:00:00 2001
+From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Date: Wed, 29 Mar 2023 18:46:26 +0300
+Subject: [PATCH] [WIP] toolstack: Hotplug support for vcamera
+
+Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+---
+ tools/include/libxl.h            | 14 +++++++
+ tools/include/libxl_utils.h      |  3 ++
+ tools/libs/light/libxl_vcamera.c |  4 ++
+ tools/xl/xl_parse.c              |  2 +-
+ tools/xl/xl_parse.h              |  2 +-
+ tools/xl/xl_vcamera.c            | 68 +++++++++++++++++++++++++++++++-
+ 6 files changed, 89 insertions(+), 4 deletions(-)
+
+diff --git a/tools/include/libxl.h b/tools/include/libxl.h
+index d652895075..4b59e570e1 100644
+--- a/tools/include/libxl.h
++++ b/tools/include/libxl.h
+@@ -2336,6 +2336,20 @@ int libxl_device_vdispl_getinfo(libxl_ctx *ctx, uint32_t domid,
+                                 libxl_vdisplinfo *vdisplinfo)
+                                 LIBXL_EXTERNAL_CALLERS_ONLY;
+ 
++/* Virtual cameras */
++int libxl_device_vcamera_add(libxl_ctx *ctx, uint32_t domid,
++                            libxl_device_vcamera *vcamera,
++                            const libxl_asyncop_how *ao_how)
++                            LIBXL_EXTERNAL_CALLERS_ONLY;
++int libxl_device_vcamera_remove(libxl_ctx *ctx, uint32_t domid,
++                               libxl_device_vcamera *vcamera,
++                               const libxl_asyncop_how *ao_how)
++                               LIBXL_EXTERNAL_CALLERS_ONLY;
++int libxl_device_vcamera_destroy(libxl_ctx *ctx, uint32_t domid,
++                                libxl_device_vcamera *vdispl,
++                                const libxl_asyncop_how *ao_how)
++                                LIBXL_EXTERNAL_CALLERS_ONLY;
++
+ /* Virtual sounds */
+ int libxl_device_vsnd_add(libxl_ctx *ctx, uint32_t domid,
+                           libxl_device_vsnd *vsnd,
+diff --git a/tools/include/libxl_utils.h b/tools/include/libxl_utils.h
+index 46918aea84..51a170413d 100644
+--- a/tools/include/libxl_utils.h
++++ b/tools/include/libxl_utils.h
+@@ -86,6 +86,9 @@ int libxl_devid_to_device_vkb(libxl_ctx *ctx, uint32_t domid,
+ int libxl_devid_to_device_vdispl(libxl_ctx *ctx, uint32_t domid,
+                                  int devid, libxl_device_vdispl *vdispl);
+ 
++int libxl_devid_to_device_vcamera(libxl_ctx *ctx, uint32_t domid,
++                                 int devid, libxl_device_vcamera *vcamera);
++
+ int libxl_devid_to_device_vsnd(libxl_ctx *ctx, uint32_t domid,
+                                int devid, libxl_device_vsnd *vsnd);
+ 
+diff --git a/tools/libs/light/libxl_vcamera.c b/tools/libs/light/libxl_vcamera.c
+index e299154440..e7a656b578 100644
+--- a/tools/libs/light/libxl_vcamera.c
++++ b/tools/libs/light/libxl_vcamera.c
+@@ -103,6 +103,10 @@ static LIBXL_DEFINE_UPDATE_DEVID(vcamera)
+ static LIBXL_DEFINE_DEVICE_FROM_TYPE(vcamera)
+ static LIBXL_DEFINE_DEVICES_ADD(vcamera)
+ 
++LIBXL_DEFINE_DEVID_TO_DEVICE(vcamera)
++LIBXL_DEFINE_DEVICE_ADD(vcamera)
++LIBXL_DEFINE_DEVICE_REMOVE(vcamera)
++
+ DEFINE_DEVICE_TYPE_STRUCT(vcamera, VCAMERA, vcameras,
+                           .update_config = (device_update_config_fn_t) libxl__update_config_vcamera,
+                           .from_xenstore = (device_from_xenstore_fn_t) libxl__vcamera_from_xenstore,
+diff --git a/tools/xl/xl_parse.c b/tools/xl/xl_parse.c
+index 217c1a422c..5f0a1a5f2a 100644
+--- a/tools/xl/xl_parse.c
++++ b/tools/xl/xl_parse.c
+@@ -1433,7 +1433,7 @@ static int parse_vcamera_device(libxl_device_vcamera *vcamera,
+     return 0;
+ }
+ 
+-static int parse_vcamera_item(libxl_device_vcamera *vcamera, const char *item)
++int parse_vcamera_item(libxl_device_vcamera *vcamera, const char *item)
+ {
+     libxl_vcamera_format *format = NULL;
+     char *buf = NULL, *p, *strtok_ptr = NULL;
+diff --git a/tools/xl/xl_parse.h b/tools/xl/xl_parse.h
+index 347a95b694..84dbe763ae 100644
+--- a/tools/xl/xl_parse.h
++++ b/tools/xl/xl_parse.h
+@@ -36,7 +36,7 @@ int parse_nic_config(libxl_device_nic *nic, XLU_Config **config, char *token);
+ int parse_vdispl_config(libxl_device_vdispl *vdispl, char *token);
+ int parse_vsnd_item(libxl_device_vsnd *vsnd, const char *spec);
+ int parse_vkb_config(libxl_device_vkb *vkb, char *token);
+-int parse_vcamera_config(libxl_device_vcamera *vcamera, char *token);
++int parse_vcamera_item(libxl_device_vcamera *vcamera, const char *item);
+ 
+ int match_option_size(const char *prefix, size_t len,
+                       char *arg, char **argopt);
+diff --git a/tools/xl/xl_vcamera.c b/tools/xl/xl_vcamera.c
+index 04c5e300ad..669bf07ed7 100644
+--- a/tools/xl/xl_vcamera.c
++++ b/tools/xl/xl_vcamera.c
+@@ -24,7 +24,41 @@
+ 
+ int main_vcameraattach(int argc, char **argv)
+ {
+-    return 0;
++    int opt;
++    int rc;
++    uint32_t domid;
++    libxl_device_vcamera vcamera;
++
++    SWITCH_FOREACH_OPT(opt, "", NULL, "vcamera-attach", 1) {
++        /* No options */
++    }
++
++    libxl_device_vcamera_init(&vcamera);
++    domid = find_domain(argv[optind++]);
++
++    for (argv += optind, argc -= optind; argc > 0; ++argv, --argc) {
++        rc = parse_vcamera_item(&vcamera, *argv);
++        if (rc) goto out;
++    }
++
++    if (dryrun_only) {
++        char *json = libxl_device_vcamera_to_json(ctx, &vcamera);
++        printf("vcamera: %s\n", json);
++        free(json);
++        rc = 0;
++        goto out;
++    }
++
++    if (libxl_device_vcamera_add(ctx, domid, &vcamera, 0)) {
++        fprintf(stderr, "libxl_device_vcamera_add failed.\n");
++        rc = ERROR_FAIL; goto out;
++    }
++
++    rc = 0;
++
++out:
++    libxl_device_vcamera_dispose(&vcamera);
++    return rc;
+ }
+ 
+ int main_vcameralist(int argc, char **argv)
+@@ -34,7 +68,37 @@ int main_vcameralist(int argc, char **argv)
+ 
+ int main_vcameradetach(int argc, char **argv)
+ {
+-    return 0;
++    uint32_t domid, devid;
++    int opt, rc;
++    libxl_device_vcamera vcamera;
++
++    SWITCH_FOREACH_OPT(opt, "", NULL, "vcamera-detach", 2) {
++        /* No options */
++    }
++
++    domid = find_domain(argv[optind++]);
++    devid = atoi(argv[optind++]);
++
++    libxl_device_vcamera_init(&vcamera);
++
++    if (libxl_devid_to_device_vcamera(ctx, domid, devid, &vcamera)) {
++        fprintf(stderr, "Error: Device %d not connected.\n", devid);
++        rc = ERROR_FAIL;
++        goto out;
++    }
++
++    rc = libxl_device_vcamera_remove(ctx, domid, &vcamera, 0);
++    if (rc) {
++        fprintf(stderr, "libxl_device_vcamera_remove failed.\n");
++        rc = ERROR_FAIL;
++        goto out;
++    }
++
++    rc = 0;
++
++out:
++    libxl_device_vcamera_dispose(&vcamera);
++    return rc;
+ }
+ 
+ /*
+-- 
+2.34.1
+
