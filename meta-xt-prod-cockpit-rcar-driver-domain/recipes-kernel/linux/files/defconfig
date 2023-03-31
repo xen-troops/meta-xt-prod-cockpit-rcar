@@ -4426,7 +4426,7 @@ CONFIG_DVB_CXD2099=m
 CONFIG_DVB_SP2=m
 # end of Customise DVB Frontends
 
-# CONFIG_MEDIA_XEN_FRONTEND is not set
+CONFIG_MEDIA_XEN_FRONTEND=y
 # end of Media ancillary drivers
 
 #
