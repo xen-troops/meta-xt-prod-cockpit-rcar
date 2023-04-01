@@ -1,0 +1,21 @@
+[Unit]
+Description=Camera hotplug
+
+Requires=backend-ready@camerabe.service
+After=backend-ready@camerabe.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/xl vcamera-attach DomD backend=DomD be-alloc=0 unique-id=video0:media0 max-buffers=2 format=BA24,resolution=1280x1080
+ExecStart=/usr/sbin/xl vcamera-attach DomD backend=DomD be-alloc=0 unique-id=video1:media0 max-buffers=2 format=BA24,resolution=1280x1080
+ExecStart=/usr/sbin/xl vcamera-attach DomD backend=DomD be-alloc=0 unique-id=video2:media0 max-buffers=2 format=BA24,resolution=1280x1080
+ExecStart=/usr/sbin/xl vcamera-attach DomD backend=DomD be-alloc=0 unique-id=video3:media0 max-buffers=2 format=BA24,resolution=1280x1080
+ExecStop=/usr/sbin/xl vcamera-detach DomD 0
+ExecStop=/usr/sbin/xl vcamera-detach DomD 1
+ExecStop=/usr/sbin/xl vcamera-detach DomD 2
+ExecStop=/usr/sbin/xl vcamera-detach DomD 3
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+
