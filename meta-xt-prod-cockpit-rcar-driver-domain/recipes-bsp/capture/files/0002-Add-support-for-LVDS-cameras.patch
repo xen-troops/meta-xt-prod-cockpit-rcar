@@ -1,0 +1,66 @@
+From 0eae4c56dc22f56ff48a08d8c0161528089caed9 Mon Sep 17 00:00:00 2001
+From: Mykyta Poturai <mykyta_poturai@epam.com>
+Date: Sat, 1 Apr 2023 12:03:58 +0000
+Subject: [PATCH 2/2] Add support for LVDS cameras
+
+Add support for format specific converion between LVDS cameras and the
+LVDS display in DRM mode.
+
+When using pvcameras from multiple domains at the same time the
+streaming formats need to be the same. The closest one that android
+supports and we can process efficiently is ARGB32.
+
+Signed-off-by: Mykyta Poturai <mykyta_poturai@epam.com>
+---
+ capture.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/capture.c b/capture.c
+index b36e1b7..f288fe8 100644
+--- a/capture.c
++++ b/capture.c
+@@ -169,7 +169,19 @@ static void process_image(const void *p, int size, int dev)
+         if (out_buf)
+                 fwrite(p, size, 1, stdout);
+ 
+-            if (!strncmp(format_name, "rgb32", 5) | !strncmp(format_name, "raw10", 5)) {
++            if (!strncmp(format_name, "rgb32i", 6)){
++                int i;
++				int offset = (WIDTH*2)*(dev%(n_devs > 4 ? 4 : 3)) + (HEIGHT*modeset_list->stride/2)*(dev/(n_devs > 4 ? 4 : 3));
++				unsigned char *fbp = (unsigned char *)modeset_list->map + offset;
++				char *buf = (char *)p;
++
++				for (i = 0; i < HEIGHT; i+=2) {
++					memcpy(fbp, buf+1, WIDTH*2);
++					fbp += modeset_list->stride;
++					buf += (WIDTH*4);
++				}
++
++            } else if (!strncmp(format_name, "rgb32", 5) | !strncmp(format_name, "raw10", 5)) {
+ 					int i;
+ 					int offset = (WIDTH*4)*(dev%(n_devs > 4 ? 4 : 2)) + (HEIGHT*modeset_list->stride)*(dev/(n_devs > 4 ? 4 : 2));
+ 					unsigned char *fbp = (unsigned char *)modeset_list->map + offset;
+@@ -688,6 +700,11 @@ static void init_device(int dev)
+                 fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB565;
+                 output_fourcc = DRM_FORMAT_RGB565;
+         }
++        else if (!strncmp(format_name, "rgb32i", 5))
++        {
++                fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_ARGB32;
++                output_fourcc = DRM_FORMAT_XRGB8888;
++        }
+         else if (!strncmp(format_name, "rgb32", 5))
+         {
+                 fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_XBGR32;
+@@ -1135,7 +1152,7 @@ static void usage(FILE *fp, char **argv)
+                  "-u | --userp         Use application allocated buffers\n"
+                  "-o | --output        Outputs stream to stdout\n"
+                  "-F | --output_fb     Outputs stream to framebuffer\n"
+-                 "-f | --format        Set pixel format: raw10, uyvy, yuyv, rgb565, rgb32, nv12, nv16, bggr8, grey [%s]\n"
++                 "-f | --format        Set pixel format: raw10, uyvy, yuyv, rgb565, rgb32, rgb32i nv12, nv16, bggr8, grey [%s]\n"
+                  "-c | --count         Number of frames to grab [%i]\n"
+                  "-z | --fps_count     Enable fps show\n"
+                  "-s | --framerate     Set framerate\n"
+-- 
+2.25.1
+
