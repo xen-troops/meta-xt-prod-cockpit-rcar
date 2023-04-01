@@ -1,0 +1,29 @@
+From d405543aa27a79d27b4e0c9d5c91b31debead2dd Mon Sep 17 00:00:00 2001
+From: Mykyta Poturai <mykyta_poturai@epam.com>
+Date: Sat, 1 Apr 2023 11:35:43 +0000
+Subject: [PATCH 1/2] Change default camera list
+
+On cockpit product virtual cameras begin from /dev/video6, so change the
+default camerase from 0-3 to 6-9 when streaming multiple cameras.
+
+Signed-off-by: Mykyta Poturai <mykyta_poturai@epam.com>
+---
+ capture.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/capture.c b/capture.c
+index 71c2a4e..b36e1b7 100644
+--- a/capture.c
++++ b/capture.c
+@@ -75,7 +75,7 @@ static struct modeset_dev *modeset_list = NULL;
+ 
+ #define N_DEVS_MAX      12
+ static char             n_devs = 1;
+-static char            *dev_name[N_DEVS_MAX] = {"/dev/video0","/dev/video1","/dev/video2","/dev/video3","/dev/video4","/dev/video5","/dev/video6","/dev/video7","/dev/video8","/dev/video9","/dev/video10","/dev/video11"};
++static char            *dev_name[N_DEVS_MAX] = {"/dev/video6","/dev/video7","/dev/video8","/dev/video9","/dev/video4","/dev/video5","/dev/video6","/dev/video7","/dev/video8","/dev/video9","/dev/video10","/dev/video11"};
+ static char            *fbdev_name;
+ static enum io_method   io = IO_METHOD_MMAP;
+ //static enum io_method   io = IO_METHOD_USERPTR;
+-- 
+2.25.1
+
