@@ -183,23 +183,45 @@
 /delete-node/ &vdd_cam_a_2;
 /delete-node/ &vdd_cam_a_3;
 
+&avb {
+	scmi_devid = <0>;
+	clocks = <&scmi_clock 0>;
+	power-domains = <&scmi_power 0>;
+	resets = <&scmi_reset 0>;
+};
+
 /* These USB controllers are used by DomA/U. */
 
 &usb2_phy1 {
 	compatible = "xen-troops,passthrough";
-        /delete-property/clocks;
-        /delete-property/resets;
-        /delete-property/power-domains;
+    /delete-property/clocks;
+    /delete-property/resets;
+    /delete-property/power-domains;
 };
-/*
+
+&ohci0 {
+	status = "disabled";
+};
+
+&ehci0 {
+	status = "disabled";
+};
+
 &ohci1 {
+	status = "disabled";
 	compatible = "xen-troops,passthrough";
 };
 
 &ehci1 {
+	status = "disabled";
 	compatible = "xen-troops,passthrough";
 };
-*/
+
+&xhci0 /* usb@ee000000*/
+{
+	status = "disabled";
+};
+
 /* These MM devices are used by DomA/U. */
 
 &fcpcs {
@@ -256,56 +278,39 @@
 };
 
 &i2c2 {
+	status = "disabled";
 	compatible = "xen-troops,passthrough";
-};
-
-&audma0 {
-	compatible = "xen-troops,passthrough";
-};
-
-&audma1 {
-	compatible = "xen-troops,passthrough";
+	/delete-property/power-domains;
+	/delete-property/dmas;
+	/delete-property/dma-names;
 };
 
 &rcar_sound {
+	status = "disabled";
 	compatible = "xen-troops,passthrough";
-	clocks = <&cpg CPG_MOD 1005>,
-		 <&cpg CPG_MOD 1006>, <&cpg CPG_MOD 1007>,
-		 <&cpg CPG_MOD 1008>, <&cpg CPG_MOD 1009>,
-		 <&cpg CPG_MOD 1010>, <&cpg CPG_MOD 1011>,
-		 <&cpg CPG_MOD 1012>, <&cpg CPG_MOD 1013>,
-		 <&cpg CPG_MOD 1014>, <&cpg CPG_MOD 1015>,
-		 <&cpg CPG_MOD 1022>, <&cpg CPG_MOD 1023>,
-		 <&cpg CPG_MOD 1024>, <&cpg CPG_MOD 1025>,
-		 <&cpg CPG_MOD 1026>, <&cpg CPG_MOD 1027>,
-		 <&cpg CPG_MOD 1028>, <&cpg CPG_MOD 1029>,
-		 <&cpg CPG_MOD 1030>, <&cpg CPG_MOD 1031>,
-		 <&cpg CPG_MOD 1020>, <&cpg CPG_MOD 1021>,
-		 <&cpg CPG_MOD 1020>, <&cpg CPG_MOD 1021>,
-		 <&cpg CPG_MOD 1019>, <&cpg CPG_MOD 1018>,
-		 /*
-		  * FIXME: cs2000 is controlled via I2C-2 and only uses
-		  * fixed clocks, so can skip it here and enable via I2C-2
-		  * in DomU/A.
-		  */
-		/*
-		 <&audio_clk_a>, <&cs2000>,
-		 <&audio_clk_c>,
-		 */
-		 <&cpg CPG_CORE CPG_AUDIO_CLK_I>;
-
+	/delete-property/power-domains;
+	
 	ports {
 		/* HDMI snd in is not availble anymore */
 		/delete-node/ port@1;
 	};
 };
 
-&vin5 {
-        /delete-property/clocks;
-        /delete-property/resets;
-        /delete-property/power-domains;
-        status = "disabled";
+&audma0 /* dma-controller@ec700000*/
+{
+	status = "disabled";
+};
 
+&audma1 /* dma-controller@ec720000*/
+{
+	status = "disabled";
+};
+
+&vin5 {
+    /delete-property/clocks;
+    /delete-property/resets;
+    /delete-property/power-domains;
+    status = "disabled";
 	ports {
 		/delete-node/ port@0;
 	};

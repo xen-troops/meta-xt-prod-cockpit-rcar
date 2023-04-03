@@ -12,5 +12,6 @@ SRC_URI_append = " \
     file://0002-firmware-arm_scmi-Add-clock-management-to-the-SCMI-p.patch \
     file://0001-device-tree-Introduce-scmi-nodes-to-work-with-clocks.patch \
     file://0001-r8a77951-scmi.dtsi-change-the-start-memory-address.patch \
+    file://0001-scmi-clocks-add-scmi-clocks-to-rcar_sound.patch \
 "
 

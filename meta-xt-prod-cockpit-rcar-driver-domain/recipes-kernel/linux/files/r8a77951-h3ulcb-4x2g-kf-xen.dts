@@ -64,7 +64,8 @@
 
 	passthrough_always_on {
                 compatible = "xen-troops,passthrough";
-                clocks = <&cpg CPG_MOD 929>, /* audma1 */
+                clocks = 
+				/* <&cpg CPG_MOD 929>, */ /* audma1 */
 				 <&cpg CPG_MOD 218>,  /* dma-controller@e7300000 */
 				 <&cpg CPG_MOD 217>,  /* dma-controller@e7310000 */
 				 <&cpg CPG_MOD 219>, /* dma-controller@e6700000 */
@@ -223,6 +224,7 @@
 };
 
 &audma0 {
+	status = "disabled";
 	iommus = <&ipmmu_mp0 0>, <&ipmmu_mp0 1>,
 			 <&ipmmu_mp0 2>, <&ipmmu_mp0 3>,
 			 <&ipmmu_mp0 4>, <&ipmmu_mp0 5>,
@@ -234,6 +236,7 @@
 };
 
 &audma1 {
+	status = "disabled";
 	iommus = <&ipmmu_mp0 16>, <&ipmmu_mp0 17>,
 			 <&ipmmu_mp0 18>, <&ipmmu_mp0 19>,
 			 <&ipmmu_mp0 20>, <&ipmmu_mp0 21>,
@@ -281,10 +284,12 @@
 };
 
 &ehci0 {
+	status = "disabled";
 	iommus = <&ipmmu_hc 4>;
 };
 
 &ohci0 {
+	status = "disabled";
 	iommus = <&ipmmu_hc 4>;
 };
 
@@ -435,10 +440,12 @@
 };
 
 &ehci1 {
+	status = "disabled";
 	iommus = <&ipmmu_hc 5>;
 };
 
 &ohci1 {
+	status = "disabled";
 	iommus = <&ipmmu_hc 5>;
 };
 
