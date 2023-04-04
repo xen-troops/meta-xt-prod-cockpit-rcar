@@ -21,22 +21,22 @@ common_data:
   sources: &COMMON_SOURCES
     - type: git
       url: "git://git.yoctoproject.org/poky"
-      rev: dunfell
+      rev: 4ddc26f4e4c71b6981898687e2c2e9ce587d15b3
     - type: git
       url: "git://git.openembedded.org/meta-openembedded"
-      rev: dunfell
+      rev: 7203130ed8b58c0df75cb72222ac2bcf546bce44
     - type: git
       url: "git://git.yoctoproject.org/meta-virtualization"
-      rev: dunfell
+      rev: beea119eb529b4a11f266004aee8b548427aea39
     - type: git
       url: "https://github.com/xen-troops/meta-xt-common.git"
-      rev: master
+      rev: c1ad85f793a2bdad27281a1da87ccadb93948642
     - type: git
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
-      rev: master
+      rev: 5d4e9d1d3ad49becde034f5c3d273d28270e4e00
     - type: git
       url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: master
+      rev: REL-CES-2023
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -88,10 +88,10 @@ common_data:
     sources:
       - type: git
         url: "git://git.openembedded.org/meta-python2"
-        rev: dunfell
+        rev: b901080cf57d9a7f5476ab4d96e56c30db8170a8
       - type: git
         url: "https://github.com/kraj/meta-clang"
-        rev: dunfell
+        rev: 3bb001d3f364bbf6588fed04b9ee2c7e74a0beba
       - type: git
         url: "ssh://git@gitpct.epam.com/epmd-aepr/img-proprietary"
         rev: "ef1aa566d74a11c4d2ae9592474030a706b4cf39"
@@ -168,13 +168,13 @@ components:
       - *COMMON_SOURCES
       - type: git
         url: git://git.yoctoproject.org/meta-selinux
-        rev: dunfell
+        rev: 1a13839d114e6694d5ae2aa5dfa11c6824277b99
       - type: git
         url: "https://github.com/meta-qt5/meta-qt5"
         rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
       - type: git
         url: "https://github.com/xen-troops/meta-renesas.git"
-        rev: "Renesas-Yocto-v5.1-patched"
+        rev: c114f426b8cb1e38d3565313c3a3702f5d21d4ce
       - type: git
         url: "https://github.com/aoscloud/meta-aos"
         rev: "4b0f4ea629db039af8cec8f9ea019bb4c9e6d0c7"
@@ -248,7 +248,7 @@ components:
     sources:
       - type: repo
         url: https://github.com/xen-troops/android_kernel_manifest.git
-        rev: common-android12-5.4-cr7-master
+        rev: 0741e991143dcf495fa7a9b125cecf91d4a778a3
         manifest: default.xml
         depth: 1
         groups: all
@@ -273,7 +273,7 @@ components:
     sources:
       - type: repo
         url: "ssh://git@gitpct.epam.com/rec-inv/android_manifest.git"
-        rev: android-12-master
+        rev: f78a837f074c4695757f7958eebe113b0620e5e3
         manifest: doma.xml
         depth: 1
         groups: all
