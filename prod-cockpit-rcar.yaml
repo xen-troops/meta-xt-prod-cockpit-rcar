@@ -217,9 +217,6 @@ components:
         - [PREFERRED_PROVIDER_libgbm-dev, "libgbm"]
         - [BBMASK_append, "mesa-gl"]
         - [BBMASK_append, "|meta-xt-domx/recipes-core/base-files"]
-        # Remove cmem driver
-        - [BBMASK_append, "|meta-rcar-gen3/recipes-kernel/kernel-module-cmemdrv/"]
-        - [IMAGE_INSTALL_remove, "kernel-module-cmemdrv"]
 
       build_target: core-image-minimal
       layers:
