@@ -108,7 +108,7 @@ components:
       - *COMMON_SOURCES
       - type: git
         url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+        rev: camera-sharing-main
     builder:
       type: yocto
       work_dir: "%{DOM0_BUILD_DIR}"
@@ -172,7 +172,7 @@ components:
         rev: dunfell
       - type: git
         url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+        rev: camera-sharing-main
       - type: git
         url: "https://github.com/meta-qt5/meta-qt5"
         rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
@@ -317,7 +317,7 @@ components:
         rev: "f7c5e7d5094f65d105d9d580ba59527c25fb0d0f"
       - type: git
         url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+        rev: camera-sharing-main
 
     builder:
       type: yocto
@@ -345,7 +345,7 @@ components:
       - *COMMON_SOURCES
       - type: git
         url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
+        rev: camera-sharing-main
 
     builder:
       type: yocto
