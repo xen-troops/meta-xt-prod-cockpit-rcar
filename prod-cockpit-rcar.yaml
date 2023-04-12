@@ -15,6 +15,7 @@ variables:
   XT_OP_TEE_FLAVOUR: "generic_dt"
   XT_DOMA_TAG: ""
   XEN_URL: "git://git@gitpct.epam.com/rec-inv/xen.git;protocol=ssh;branch=v4.16rc_cr7"
+  XT_PREBUILT_GSX_DIR: ""
 
 common_data:
   # Sources used by all yocto-based domains
@@ -414,11 +415,25 @@ parameters:
   PREBUILT_DDK:
     desc: "Use pre-built GPU drivers"
     "no":
-      default: true
+      default: false
       overrides:
         components:
           domd:
             *DDK_SOURCE_OVERRIDES
+    "yes":
+      # Folder with prebuilt graphics package, i.e. file ${SOC_NAME}_linux_gsx_binaries_gles.tar.gz
+      # is provided as XT_PREBUILT_GSX_DIR variable to components
+      default: true
+      overrides:
+        variables:
+          XT_PREBUILT_GSX_DIR: "${TOPDIR}/../../prebuilt_gsx"
+        components:
+          domd:
+            builder:
+              conf:
+                - [XT_PREBUILT_GSX_DIR, "%{XT_PREBUILT_GSX_DIR}"]
+                - [FILESEXTRAPATHS_prepend_pn-gles-user-module, "%{XT_PREBUILT_GSX_DIR}:"]
+                - [FILESEXTRAPATHS_prepend_pn-kernel-module-gles, "%{XT_PREBUILT_GSX_DIR}:"]
 
   ENABLE_MM:
     desc: "Enable Multimedia support"
