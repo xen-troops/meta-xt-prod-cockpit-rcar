@@ -193,10 +193,10 @@ components:
 
         # take dedicated cr7 kernel
         - [RENESAS_BSP_URL_pn-linux-renesas,  "git://git@github.com/xen-troops/linux.git;protocol=ssh"]
-        - [BRANCH_pn-linux-renesas, "cr7-cockpit-demo"]
+        - [BRANCH_pn-linux-renesas, "v5.10.41/rcar-5.1.4.1-cockpit-rcar"]
         - [SRCREV_pn-linux-renesas, "${AUTOREV}"]
         - [RENESAS_BSP_URL_pn-linux-libc-headers,  "git://git@github.com/xen-troops/linux.git;protocol=ssh"]
-        - [BRANCH_pn-linux-libc-headers, "cr7-cockpit-demo"]
+        - [BRANCH_pn-linux-libc-headers, "v5.10.41/rcar-5.1.4.1-cockpit-rcar"]
         - [SRCREV_pn-linux-libc-headers, "${AUTOREV}"]
 
         # get xen customized under cr7
