@@ -34,6 +34,9 @@ common_data:
     - type: git
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
       rev: 5d4e9d1d3ad49becde034f5c3d273d28270e4e00
+    - type: git
+      url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
+      rev: master
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -105,9 +108,6 @@ components:
     default: true
     sources:
       - *COMMON_SOURCES
-      - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
     builder:
       type: yocto
       work_dir: "%{DOM0_BUILD_DIR}"
@@ -169,9 +169,6 @@ components:
       - type: git
         url: git://git.yoctoproject.org/meta-selinux
         rev: 1a13839d114e6694d5ae2aa5dfa11c6824277b99
-      - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
       - type: git
         url: "https://github.com/meta-qt5/meta-qt5"
         rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
@@ -314,9 +311,6 @@ components:
       - type: git        
         url: "git://git.yoctoproject.org/meta-arm.git"
         rev: "f7c5e7d5094f65d105d9d580ba59527c25fb0d0f"
-      - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
 
     builder:
       type: yocto
@@ -342,9 +336,6 @@ components:
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources:
       - *COMMON_SOURCES
-      - type: git
-        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: master
 
     builder:
       type: yocto
