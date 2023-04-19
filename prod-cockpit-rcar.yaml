@@ -29,14 +29,14 @@ common_data:
       url: "git://git.yoctoproject.org/meta-virtualization"
       rev: dunfell
     - type: git
-      url: "https://github.com/otyshchenko1/meta-xt-common.git"
-      rev: my_devel_dunfell
+      url: "https://github.com/xen-troops/meta-xt-common"
+      rev: be26ff13057f8aaa503db8ef4f3826a4b483f35b
     - type: git
-      url: "https://github.com/otyshchenko1/meta-xt-rcar.git"
-      rev: my_devel_dunfell
+      url: "https://github.com/xen-troops/meta-xt-rcar"
+      rev: da9485c357b041f5af6232e0a7f24bbbb3d72d56
     - type: git
-      url: "https://github.com/DKlimenko/meta-xt-prod-cockpit-rcar.git"
-      rev: my_dunfell
+      url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
+      rev: REL-v2.0
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -193,11 +193,11 @@ components:
         - [MACHINE_FEATURES_append, " multimedia"]
 
         # take dedicated cr7 kernel
-        - [RENESAS_BSP_URL_pn-linux-renesas,  "git://git@github.com/DKlimenko/linux-bsp.git;protocol=ssh"]
-        - [BRANCH_pn-linux-renesas, "cr7-cockpit-demo-v5.10.41"]
+        - [RENESAS_BSP_URL_pn-linux-renesas,  "git://git@github.com/xen-troops/linux.git;protocol=ssh"]
+        - [BRANCH_pn-linux-renesas, "v5.10.41/rcar-5.1.4.1-cockpit-rcar"]
         - [SRCREV_pn-linux-renesas, "${AUTOREV}"]
-        - [RENESAS_BSP_URL_pn-linux-libc-headers,  "git://git@github.com/DKlimenko/linux-bsp.git;protocol=ssh"]
-        - [BRANCH_pn-linux-libc-headers, "cr7-cockpit-demo-v5.10.41"]
+        - [RENESAS_BSP_URL_pn-linux-libc-headers,  "git://git@github.com/xen-troops/linux.git;protocol=ssh"]
+        - [BRANCH_pn-linux-libc-headers, "v5.10.41/rcar-5.1.4.1-cockpit-rcar"]
         - [SRCREV_pn-linux-libc-headers, "${AUTOREV}"]
 
         # get xen customized under cr7
