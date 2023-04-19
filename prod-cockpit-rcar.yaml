@@ -30,10 +30,10 @@ common_data:
       rev: beea119eb529b4a11f266004aee8b548427aea39
     - type: git
       url: "https://github.com/xen-troops/meta-xt-common.git"
-      rev: 273650379b2785465820ac9f61c6340d1cd86cac
+      rev: be26ff13057f8aaa503db8ef4f3826a4b483f35b
     - type: git
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
-      rev: 5d4e9d1d3ad49becde034f5c3d273d28270e4e00
+      rev: da9485c357b041f5af6232e0a7f24bbbb3d72d56
     - type: git
       url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
       rev: REL-v2.0
@@ -393,7 +393,7 @@ parameters:
             sources:
               - type: git
                 url: "https://github.com/CogentEmbedded/meta-rcar.git"
-                rev: v5.1.0
+                rev: Renesas-Yocto-v5.9-patched
             builder:
               layers:
                 - "../meta-rcar/meta-rcar-gen3-adas"
