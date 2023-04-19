@@ -174,7 +174,7 @@ components:
         rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
       - type: git
         url: "https://github.com/xen-troops/meta-renesas.git"
-        rev: c114f426b8cb1e38d3565313c3a3702f5d21d4ce
+        rev: Renesas-Yocto-v5.9-patched
       - type: git
         url: "https://github.com/aoscloud/meta-aos"
         rev: "4b0f4ea629db039af8cec8f9ea019bb4c9e6d0c7"
