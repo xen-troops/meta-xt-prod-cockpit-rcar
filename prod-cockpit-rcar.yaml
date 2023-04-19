@@ -21,13 +21,13 @@ common_data:
   sources: &COMMON_SOURCES
     - type: git
       url: "git://git.yoctoproject.org/poky"
-      rev: dunfell
+      rev: 6b8a307b7843af23d189d7ffcecf32c05afac850
     - type: git
       url: "git://git.openembedded.org/meta-openembedded"
-      rev: dunfell
+      rev: e707e9b7cf5c62bff4fee029965a87b22dd4ccba
     - type: git
       url: "git://git.yoctoproject.org/meta-virtualization"
-      rev: dunfell
+      rev: beea119eb529b4a11f266004aee8b548427aea39
     - type: git
       url: "https://github.com/xen-troops/meta-xt-common"
       rev: be26ff13057f8aaa503db8ef4f3826a4b483f35b
@@ -88,10 +88,10 @@ common_data:
     sources:
       - type: git
         url: "git://git.openembedded.org/meta-python2"
-        rev: dunfell
+        rev: b901080cf57d9a7f5476ab4d96e56c30db8170a8
       - type: git
         url: "https://github.com/kraj/meta-clang"
-        rev: dunfell
+        rev: 3bb001d3f364bbf6588fed04b9ee2c7e74a0beba
       - type: git
         url: "ssh://git@gitpct.epam.com/epmd-aepr/img-proprietary"
         rev: "ef1aa566d74a11c4d2ae9592474030a706b4cf39"
@@ -108,7 +108,6 @@ components:
     default: true
     sources:
       - *COMMON_SOURCES
-
     builder:
       type: yocto
       work_dir: "%{DOM0_BUILD_DIR}"
@@ -169,7 +168,7 @@ components:
       - *COMMON_SOURCES
       - type: git
         url: git://git.yoctoproject.org/meta-selinux
-        rev: dunfell
+        rev: 1a13839d114e6694d5ae2aa5dfa11c6824277b99
       - type: git
         url: "https://github.com/meta-qt5/meta-qt5"
         rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
@@ -312,7 +311,6 @@ components:
       - type: git        
         url: "git://git.yoctoproject.org/meta-arm.git"
         rev: "f7c5e7d5094f65d105d9d580ba59527c25fb0d0f"
-
     builder:
       type: yocto
       work_dir: "%{CLUSTER_BUILD_DIR}"
@@ -337,7 +335,6 @@ components:
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources:
       - *COMMON_SOURCES
-
     builder:
       type: yocto
       work_dir: "%{TOOLS_BUILD_DIR}"
