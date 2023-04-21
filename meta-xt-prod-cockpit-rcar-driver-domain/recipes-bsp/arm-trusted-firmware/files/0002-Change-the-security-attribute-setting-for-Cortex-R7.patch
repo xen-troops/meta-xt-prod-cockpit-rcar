@@ -10,18 +10,16 @@ INTC-RT.
  plat/renesas/rcar/bl2_secure_setting.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/plat/renesas/rcar/bl2_secure_setting.c b/plat/renesas/rcar/bl2_secure_setting.c
-index 7b72bcf8b..b4ae37ae1 100644
---- a/plat/renesas/rcar/bl2_secure_setting.c
-+++ b/plat/renesas/rcar/bl2_secure_setting.c
-@@ -23,7 +23,7 @@ static const struct {
- 	/* Bit 0: ARM realtime core (Cortex-R7) master port             */
- 	/*       0: Non-Secure                                          */
- 	{
--	SEC_SRC, 0x0000001EU},
-+	SEC_SRC, 0x0000001FU},
- 	/** Security attribute setting for slave ports 0 to 15		*/
- 	    /*      {SEC_SEL0,              0xFFFFFFFFU},                   */
- 	    /*      {SEC_SEL1,              0xFFFFFFFFU},                   */
--- 
-2.17.1
+diff --git a/plat/renesas/common/bl2_secure_setting.c b/plat/renesas/common/bl2_secure_setting.c
+index 8367b2270..b5bee7952 100644
+--- a/plat/renesas/common/bl2_secure_setting.c
++++ b/plat/renesas/common/bl2_secure_setting.c
+@@ -24,7 +24,7 @@ static const struct {
+ 	 * Bit 0: ARM realtime core (Cortex-R7) master port
+ 	 *        0: Non-Secure
+ 	 */
+-	{ SEC_SRC, 0x0000001EU },
++	{ SEC_SRC, 0x0000001FU },
+ 	/*
+ 	 * Security attribute setting for slave ports 0 to 15
+ 	 *      {SEC_SEL0,              0xFFFFFFFFU},

@@ -1,0 +1,19 @@
+diff --git a/arch/arm64/boot/dts/renesas/r8a77951.dtsi b/arch/arm64/boot/dts/renesas/r8a77951.dtsi
+index 14c78a5110a5..8d5e23d3a250 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77951.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77951.dtsi
+@@ -805,6 +805,14 @@ mfis: mfis@e6260000 {
+ 				     "renesas,mfis-lock";
+ 			reg = <0 0xe6260000 0 0x1000>;
+ 			#hwlock-cells = <1>;
++
++			mfis_as: mfis-as {
++				compatible = "renesas,mfis-as-r8a7795",
++							"renesas,mfis-as";
++				interrupts = <GIC_SPI 180 IRQ_TYPE_LEVEL_HIGH>;
++				interrupt-names = "eicr0";
++				renesas,mfis-ch = <0>;
++			};
+ 		};
+ 
+ 		rwdt: watchdog@e6020000 {
