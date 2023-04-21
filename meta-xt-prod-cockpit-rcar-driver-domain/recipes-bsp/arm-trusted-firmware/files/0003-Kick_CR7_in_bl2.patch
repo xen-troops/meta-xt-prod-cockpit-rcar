@@ -1,8 +1,8 @@
 diff --git a/bl2/bl2_main.c b/bl2/bl2_main.c
-index 802c17464..012bbfb14 100644
+index 203e1d4b1..1ce8961c7 100644
 --- a/bl2/bl2_main.c
 +++ b/bl2/bl2_main.c
-@@ -18,6 +18,10 @@
+@@ -21,6 +21,10 @@
  #include <plat/common/platform.h>
  
  #include "bl2_private.h"
@@ -13,7 +13,7 @@ index 802c17464..012bbfb14 100644
  
  #ifdef __aarch64__
  #define NEXT_IMAGE	"BL31"
-@@ -25,6 +29,76 @@
+@@ -28,6 +32,76 @@
  #define NEXT_IMAGE	"BL32"
  #endif
  
@@ -90,8 +90,8 @@ index 802c17464..012bbfb14 100644
  #if !BL2_AT_EL3
  /*******************************************************************************
   * Setup function for BL2.
-@@ -93,9 +167,16 @@ void bl2_main(void)
- 	/* initialize boot source */
+@@ -102,9 +176,16 @@ void bl2_main(void)
+ 	/* Initialize boot source */
  	bl2_plat_preload_setup();
  
 +	/* Load ROS image */
@@ -104,6 +104,6 @@ index 802c17464..012bbfb14 100644
  
 +	Kick_CR7();
 +
- #if !BL2_AT_EL3
- #ifndef __aarch64__
- 	/*
+ #if MEASURED_BOOT
+ 	/* Finalize measured boot */
+ 	measured_boot_finish();

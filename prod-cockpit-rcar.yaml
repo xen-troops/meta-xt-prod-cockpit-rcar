@@ -401,6 +401,9 @@ parameters:
               conf:
                 # Ignore OP-TEE patches as we have own OP-TEE
                 -  [BBMASK_append, "|meta-rcar-gen3-adas/recipes-bsp/optee"]
+                # Remove cmem driver
+                - [BBMASK_append, "|meta-rcar-gen3-adas/recipes-kernel/kernel-module-cmemdrv/"]
+                - [IMAGE_INSTALL_remove, "kernel-module-cmemdrv"]
   PREBUILT_DDK:
     desc: "Use pre-built GPU drivers"
     "no":
