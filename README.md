@@ -40,7 +40,7 @@ Moulin is used to generate Ninja build file: moulin prod-cockpit-rcar.yaml. This
 
 ```
 # moulin prod-cockpit-rcar.yaml --help-config
-usage: moulin prod-cockpit-rcar.yaml --MACHINE h3ulcb-4x2g-kf --ENABLE_ANDROID yes --ENABLE_CLUSTER yes
+usage: moulin prod-cockpit-rcar.yaml --MACHINE h3ulcb-4x2g-kf --ENABLE_ANDROID yes --ENABLE_CLUSTER yes --ENABLE_TOOLS yes
        
 Config file description: Xen-Troops development setup for Renesas RCAR Gen3
 hardware
@@ -52,6 +52,10 @@ optional arguments:
                         Build Android as a guest VM
   --ENABLE_CLUSTER {no,yes}
                         Build Instrument Cluster application.
+  --ENABLE_TOOLS {no. yes}
+  			Build the tool (cr7-image-gen). This application
+			allows generating the source files from the list of the images 
+			required for cr7.
 
 ```
 
