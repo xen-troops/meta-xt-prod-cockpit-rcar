@@ -16,4 +16,5 @@ do_compile() {
 do_install() {
          install -d ${D}${bindir}
          install -m 0755 cr7-image-gen ${D}${bindir}
+	 install -m 0755 cr7-image-gen ${DEPLOY_DIR}
 }
