@@ -335,22 +335,29 @@ components:
   tools:
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources:
-      - *COMMON_SOURCES
-
+      - type: git
+        url: "git://git.yoctoproject.org/poky"
+        rev: 6b8a307b7843af23d189d7ffcecf32c05afac850
+      - type: git
+        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
+        rev: master
     builder:
       type: yocto
       work_dir: "%{TOOLS_BUILD_DIR}"
       conf:
         - *COMMON_CONF
-        - [MACHINE, "generic-armv8-xt"]
-      build_target: cluster-wrapper
+        - [DISTRO_FEATURES_append, " systemd"]
+        - [VIRTUAL-RUNTIME_init_manager, "systemd"]
+        - [DISTRO_FEATURES_BACKFILL_CONSIDERED, "sysvinit"]
+        - [VIRTUAL-RUNTIME_initscripts, ""]
+        - [IMX_DEFAULT_DISTRO_FEATURES_append, " systemd"]
+      build_target: fsdata-native
       layers:
         - "../poky/meta"
         - "../poky/meta-poky"
-        - "../poky/meta-yocto-bsp"
-        - "../meta-xt-prod-cockpit-rcar/meta-xt-tools-native"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-native-tools"
       target_images:
-        - "tmp/deploy/fsgen"
+        - "tmp/deploy/cr7-image-gen"
 
 images:
   full:
@@ -520,4 +527,4 @@ parameters:
           dom0:
             builder:
               additional_deps:
-                - "%{CLUSTER_BUILD_DIR}/tmp/deploy/fsgen"
+                - "%{TOOLS_BUILD_DIR}/tmp/deploy/cr7-image-gen"
