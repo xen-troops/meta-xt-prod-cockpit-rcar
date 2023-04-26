@@ -342,15 +342,14 @@ components:
       work_dir: "%{TOOLS_BUILD_DIR}"
       conf:
         - *COMMON_CONF
-        - [MACHINE, "generic-armv8-xt"]
-      build_target: cluster-wrapper
+      build_target: fsdata-native
       layers:
         - "../poky/meta"
         - "../poky/meta-poky"
         - "../poky/meta-yocto-bsp"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-tools-native"
       target_images:
-        - "tmp/deploy/fsgen"
+        - "tmp/deploy/cr7-image-gen"
 
 images:
   full:
@@ -520,4 +519,4 @@ parameters:
           dom0:
             builder:
               additional_deps:
-                - "%{CLUSTER_BUILD_DIR}/tmp/deploy/fsgen"
+                - "%{TOOLS_BUILD_DIR}/tmp/deploy/cr7-image-gen"
