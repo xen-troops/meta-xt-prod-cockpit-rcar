@@ -335,19 +335,27 @@ components:
   tools:
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources:
-      - *COMMON_SOURCES
-
+      - type: git
+        url: "git://git.yoctoproject.org/poky"
+        rev: 6b8a307b7843af23d189d7ffcecf32c05afac850
+      - type: git
+        url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
+        rev: REL-v2.0
     builder:
       type: yocto
       work_dir: "%{TOOLS_BUILD_DIR}"
       conf:
         - *COMMON_CONF
+        - [DISTRO_FEATURES_append, " systemd"]
+        - [VIRTUAL-RUNTIME_init_manager, "systemd"]
+        - [DISTRO_FEATURES_BACKFILL_CONSIDERED, "sysvinit"]
+        - [VIRTUAL-RUNTIME_initscripts, ""]
+        - [IMX_DEFAULT_DISTRO_FEATURES_append, " systemd"]
       build_target: fsdata-native
       layers:
         - "../poky/meta"
         - "../poky/meta-poky"
-        - "../poky/meta-yocto-bsp"
-        - "../meta-xt-prod-cockpit-rcar/meta-xt-tools-native"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-native-tools"
       target_images:
         - "tmp/deploy/cr7-image-gen"
 
