@@ -10,10 +10,10 @@ SRC_URI = "file://main.cpp"
 S = "${WORKDIR}"
 
 do_compile() {
-         ${CXX} main.cpp -o fsgen
+         ${CXX} -std=c++17 main.cpp -o cr7-image-gen
 }
 
 do_install() {
          install -d ${D}${bindir}
-         install -m 0755 fsgen ${D}${bindir}
+         install -m 0755 cr7-image-gen ${D}${bindir}
 }
