@@ -1,0 +1,36 @@
+/dts-v1/;
+
+#include "r8a7795-h3ulcb-4x2g-kf-doma.dtsi"
+
+/ {
+	rvgc {
+		displays {
+			display-0 {
+				display-map = <0x1>;
+				layers {
+					primary {
+						layer-map = <0x3>;
+						size-w = <1920>;
+						size-h = <1080>;
+						pos-x = <0x0>;
+						pos-y = <0x0>;
+						pos-override;
+					};
+				};
+			};
+			display-1 {
+				display-map = <0x3>;
+				layers {
+					primary {
+						layer-map=<0x4>;
+						size-w=<448>;
+						size-h=<600>;
+						pos-x=<736>;
+						pos-y=<0>;
+						pos-override;
+					};
+				};
+			};
+		};
+	};
+};

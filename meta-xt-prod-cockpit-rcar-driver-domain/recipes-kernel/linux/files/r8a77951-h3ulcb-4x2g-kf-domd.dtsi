@@ -42,22 +42,6 @@
                 rvgc-memory {
                         memory-region = <&cr7_cma>;
                 };
-                displays {
-                        display-0 {
-                                display-map = <0>;
-                                layers {
-                                        primary{
-                                                /* Layer shold display the information at all display */
-                                                layer-map=<0x3>;
-                                                size-w=<1920>;
-                                                size-h=<720>;
-                                                pos-x=<0>;
-                                                pos-y=<0>;
-                                                pos-override;
-                                        };
-                                };
-                        };
-                };
         };
 
 	soc {
@@ -109,11 +93,22 @@
 	/delete-node/ cvbs-in;
 	/delete-node/ hdmi-in;
 	/delete-node/ hdmi0-out;
+	/delete-node/ hdmi-out;
 	/delete-node/ lvds-decoder;
 
 	/delete-node/ lvds;
 	/delete-node/ vga;
 	/delete-node/ vga-encoder;
+};
+
+&i2c2 {
+       i2c-switch@71 {
+               /delete-node/i2c@4;
+       };
+};
+
+&pfc {
+       /delete-node/ du;
 };
 
 /delete-node/&adsp;
@@ -155,7 +150,6 @@
 /delete-node/ &vspd2;
 /delete-node/ &du;
 /delete-node/ &hdmi0;
-/delete-node/ &adv7513_in;
 /delete-node/ &hdmi1;
 /delete-node/ &lvds0;
 /delete-node/ &pciec0;
