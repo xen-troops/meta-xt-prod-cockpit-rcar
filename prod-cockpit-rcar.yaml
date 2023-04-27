@@ -15,6 +15,9 @@ variables:
   XT_OP_TEE_FLAVOUR: "generic_dt"
   XT_DOMA_TAG: ""
   XEN_URL: "git://git@gitpct.epam.com/rec-inv/xen.git;protocol=ssh;branch=v4.16rc_cr7"
+  PRIM_DISPL: "0"
+  DISPLAY: "lvds"
+  DISPL_RES: "1920_720"
 
 common_data:
   # Sources used by all yocto-based domains
@@ -319,6 +322,9 @@ components:
         - *COMMON_CONF
         - *DOMD_DOMU_CONF
         - [MACHINE, "generic-armv8-xt"]
+        - [PRIM_DISP_DU, "%{PRIM_DISPL}"]
+        - [CLUSTER_DU, "%{PRIM_DISPL}"]
+        - [CLUSTER_DISPL_MODE, "%{DISPLAY}_%{DISPL_RES}"]
       build_target: cluster-wrapper
       layers:
         - "../poky/meta"
@@ -439,6 +445,10 @@ parameters:
     "yes":
       overrides:
         components:
+          cluster:
+            builder:
+              layers:
+                - "../meta-xt-prod-cockpit-rcar/meta-xt-native-tools"
           dom0:
             builder:
               additional_deps:
@@ -528,3 +538,26 @@ parameters:
             builder:
               additional_deps:
                 - "%{TOOLS_BUILD_DIR}/tmp/deploy/cr7-image-gen"
+  
+  PRIM_DISPL:
+    desc: Set primary display number, values 0, 1, 3
+    "0":
+      default: true
+    "1":
+      overrides:
+        variables:
+          PRIM_DISPL: "1"
+    "3":
+      overrides:
+        variables:
+          PRIM_DISPL: "3"
+  DISPLAY:
+    desc: Set display mode hdmi, lvds
+    "lvds":
+      default: true
+    "hdmi":
+      overrides:
+        variables:
+          DISPL_MODE: "hdmi"
+          DISPL_RES: "1280_720"
+

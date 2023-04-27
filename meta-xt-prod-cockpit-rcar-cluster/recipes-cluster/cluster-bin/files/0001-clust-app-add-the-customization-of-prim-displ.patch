@@ -1,0 +1,94 @@
+From 90599a8490f9aca011603cc6c3506c437bf8b9d4 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Thu, 27 Apr 2023 15:33:10 +0200
+Subject: [PATCH] clust-app: add the customization of prim-displ
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ app/2d-wow-cluster-demo/2dwow.mk         | 20 +++++++++++++++-----
+ app/2d-wow-cluster-demo/src/2dwow_main.c | 18 ++++++++++--------
+ 2 files changed, 25 insertions(+), 13 deletions(-)
+
+diff --git a/app/2d-wow-cluster-demo/2dwow.mk b/app/2d-wow-cluster-demo/2dwow.mk
+index faedb4b..7ead52a 100755
+--- a/app/2d-wow-cluster-demo/2dwow.mk
++++ b/app/2d-wow-cluster-demo/2dwow.mk
+@@ -42,17 +42,27 @@ else
+ #
+ 
+ VLIB_DEFINE     += USE_THREADED_DHD
++VLIB_DEFINE     += HDMI_DISPL
+ 
+ VLIB_VPATH += $(VLIB_ROOT)/app/2d-wow-cluster-demo/src
+ VLIB_VPATH += $(VLIB_ROOT)/app/2d-wow-cluster-demo/src/misc
+ VLIB_VPATH += $(VLIB_ROOT)/app/2d-wow-cluster-demo/src/image
+ 
+-# These contain no source but the image files
+-VLIB_VPATH += $(VLIB_ROOT)/app/2d-wow-cluster-demo/src/image/tga
+-VLIB_VPATH += $(VLIB_ROOT)/app/2d-wow-cluster-demo/src/image/tga_resize
+-VLIB_VPATH += $(VLIB_ROOT)/app/2d-wow-cluster-demo/src/image/data
+-# end of images
++ifeq  ($(PRIM_DISP_DU),$(filter $(PRIM_DISP_DU),0 1 3))
++$(info Compiling , prime display is DU$(PRIM_DISP_DU))
++VLIB_DEFINE += PRIM_DISP_DU$(PRIM_DISP_DU)
++else
++$(info Defined PRIM_DISP_DU value is $(PRIM_DISP_DU))
++$(error ERROR: Supported PRIM_DISP_DU values are: 0, 1, 3. !!!)
++endif
+ 
++#ifeq ($(CLUSTER_DU),$(filter $(CLUSTER_DU),0 1 3))
++#$(info Compiling image data from  app/2d-wow-cluster-demo/src/misc/du$(CLUSTER_DU))
++#VLIB_VPATH += $(VLIB_ROOT)/app/2d-wow-cluster-demo/src/misc/du$(CLUSTER_DU)
++#else
++#$(info Defined CLUSTER_DU value is $(CLUSTER_DU))
++#$(error ERROR: Supported Cluster DU values are: 0, 1, 3. !!!)
++#endif
+ 
+ VLIB_INC   += $(VLIB_ROOT)/app/2d-wow-cluster-demo/src/misc
+ VLIB_INC   += $(VLIB_ROOT)/app/2d-wow-cluster-demo/src/image
+diff --git a/app/2d-wow-cluster-demo/src/2dwow_main.c b/app/2d-wow-cluster-demo/src/2dwow_main.c
+index a317ef4..8a6f6f0 100755
+--- a/app/2d-wow-cluster-demo/src/2dwow_main.c
++++ b/app/2d-wow-cluster-demo/src/2dwow_main.c
+@@ -71,7 +71,6 @@ extern int  demo_init(davehd_dev_t *Dev);
+ extern int  demo_render(davehd_dev_t *Dev, int first, int state);
+ extern void demo_shutdown(davehd_dev_t *Dev);
+ 
+-
+ static int32_t loc_WmInit(int32_t Disp, r_wm_Surface_t *Surf)
+ {
+     r_wm_Error_t wmErr;
+@@ -80,6 +79,7 @@ static int32_t loc_WmInit(int32_t Disp, r_wm_Surface_t *Surf)
+     uint32_t max_nr_layers;
+ 
+     /* Initialise the WM Device */
++    R_OSAL_PrintF("IHOR prime initialzation\n");
+     wmErr = R_WM_DevInit(Disp);
+     if (R_WM_ERR_SUCCESS == wmErr) {
+ 
+@@ -185,13 +185,15 @@ int32_t AppInit(void)
+     int32_t ret = 0;
+     r_prr_DevName_t dev = R_PRR_GetDevice();
+ 
+-    if ((dev == R_PRR_RCARE3) || (dev == R_PRR_RCARH3)) {
+-        /* LVDS0 */
+-        prim_dsp = R_WM_DEV_VOUT0;
+-    } else {
+-        /* HDMI0 */
+-        prim_dsp = R_WM_DEV_VOUT1;
+-    }
++#if defined(PRIM_DISP_DU0)
++    prim_dsp = R_WM_DEV_VOUT0;
++#elif defined(PRIM_DISP_DU1)
++    prim_dsp = R_WM_DEV_VOUT1;
++#elif defined(PRIM_DISP_DU3)
++    prim_dsp = R_WM_DEV_VOUT3;
++#else
++    #error "Not supported prime display."
++#endif
+ 
+     R_OSAL_PrintF("CR7 START\r\n");
+ 
+-- 
+2.25.1
+
