@@ -528,3 +528,17 @@ parameters:
             builder:
               additional_deps:
                 - "%{TOOLS_BUILD_DIR}/tmp/deploy/cr7-image-gen"
+
+  DISPLAY:
+    desc: "Build for HDMI display, default is LVDS"
+    "lvds":
+      default: true
+      overrides:
+        variables:
+          XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-lvds-domd.dtb"
+          XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-lvds-doma.dtb"
+    "hdmi":
+      overrides:
+        variables:
+          XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-hdmi-domd.dtb"
+          XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-hdmi-doma.dtb"
