@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /dts-v1/;
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
@@ -68,7 +69,6 @@
                                 };
                         };
 			display-1 {
-				display-map = <0>;
 				layers {
 					primary {
 						layer-map=<0x4>;

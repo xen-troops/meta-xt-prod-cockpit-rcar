@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0
+
+#include "r8a77951-h3ulcb-4x2g-kf-domd.dtsi"
+
+/ {
+	rvgc {
+		displays {
+			display-0 {
+				display-map = <0>;
+			};
+		};
+	};
+};

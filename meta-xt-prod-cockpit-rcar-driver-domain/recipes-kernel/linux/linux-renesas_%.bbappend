@@ -19,5 +19,7 @@ SRC_URI_append = " \
     file://0001-ulcb-kf.dtsi-Enable-Leopard-Imaging-LI-OV10640-490-G.patch \
     file://0002-max9286.c-Check-whether-a-pixel-clock-is-supplied-to.patch \
     file://0001-HACK-media-xen-front-Guess-the-size-of-camera-buffer.patch \
+    file://r8a7795-h3ulcb-4x2g-kf-doma.dtsi;subdir=git/arch/${ARCH}/boot/dts/renesas \
+    file://r8a77951-h3ulcb-4x2g-kf-domd.dtsi;subdir=git/arch/${ARCH}/boot/dts/renesas \
 "
 
