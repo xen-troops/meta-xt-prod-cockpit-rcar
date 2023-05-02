@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "r8a7795-h3ulcb-4x2g-kf-doma.dtsi"
+
+/ {
+	rvgc {
+		displays {
+			display-1 {
+				display-map = <0x0>;
+			};
+		};
+	};
+};
