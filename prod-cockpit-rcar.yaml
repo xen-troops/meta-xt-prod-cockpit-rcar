@@ -534,12 +534,22 @@ parameters:
     desc: "Build for HDMI display, default is LVDS"
     "lvds":
       default: true
-      overrides:
+      overrides:                                                                                    
+        components:                                                                                 
+          cluster:                                                                                  
+            builder:                                                                                
+              conf:                                                                                 
+                - [BRANCH_pn-cluster-wrapper, "CES-2023"]
         variables:
           XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-lvds-domd.dtb"
           XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-lvds-doma.dtb"
     "hdmi":
       overrides:
+        components:
+          cluster:
+            builder:
+              conf:
+                - [BRANCH_pn-cluster-wrapper, "vga_hdmi_kf"] 
         variables:
           XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-hdmi-domd.dtb"
           XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-hdmi-doma.dtb"
