@@ -56,6 +56,9 @@ optional arguments:
   			Build the tool (cr7-image-gen). This application
 			allows generating the source files from the list of the images 
 			required for cr7.
+  --DISPLAY {lvds, hdmi}
+                        Build image for lvds or hdmi display.
+			Default value is 'lvds'
 
 ```
 

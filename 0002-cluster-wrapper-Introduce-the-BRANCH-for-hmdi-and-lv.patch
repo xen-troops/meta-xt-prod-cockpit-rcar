@@ -1,0 +1,62 @@
+From 771cbb0add71fa3f7e5202d844e0141cb90615cb Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Tue, 2 May 2023 16:19:09 +0200
+Subject: [PATCH 2/3] cluster-wrapper: Introduce the BRANCH for hmdi and lvds
+ displays
+
+The two branches exist to build the cluster for hdmi and lvds displays.
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ .../cluster-bin/cluster-wrapper_git.bb               |  3 ++-
+ prod-cockpit-rcar.yaml                               | 12 +++++++++++-
+ 2 files changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/meta-xt-prod-cockpit-rcar-cluster/recipes-cluster/cluster-bin/cluster-wrapper_git.bb b/meta-xt-prod-cockpit-rcar-cluster/recipes-cluster/cluster-bin/cluster-wrapper_git.bb
+index 276d2d3..1217776 100644
+--- a/meta-xt-prod-cockpit-rcar-cluster/recipes-cluster/cluster-bin/cluster-wrapper_git.bb
++++ b/meta-xt-prod-cockpit-rcar-cluster/recipes-cluster/cluster-bin/cluster-wrapper_git.bb
+@@ -11,10 +11,11 @@ PLATFORM = "rcar"
+ PARALLEL_MAKE = ""
+ 
+ SRC_URI = " \
+-   git://git@gitpct.epam.com/epmd-aepr/vlib;protocol=ssh;branch=CES-2023 \
++   git://git@gitpct.epam.com/epmd-aepr/vlib;protocol=ssh;branch=${BRANCH} \
+ "
+ 
+ SRCREV = "${AUTOREV}"
++BRANCH = "CES-2023"
+ 
+ DEPENDS = " \
+     cluster-wrapper-toolchain-native \
+diff --git a/prod-cockpit-rcar.yaml b/prod-cockpit-rcar.yaml
+index e8afb3a..d9d965e 100644
+--- a/prod-cockpit-rcar.yaml
++++ b/prod-cockpit-rcar.yaml
+@@ -534,12 +534,22 @@ parameters:
+     desc: "Build for HDMI display, default is LVDS"
+     "lvds":
+       default: true
+-      overrides:
++      overrides:                                                                                    
++        components:                                                                                 
++          cluster:                                                                                  
++            builder:                                                                                
++              conf:                                                                                 
++                - [BRANCH_pn-cluster-wrapper, "CES-2023"]
+         variables:
+           XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-lvds-domd.dtb"
+           XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-lvds-doma.dtb"
+     "hdmi":
+       overrides:
++        components:
++          cluster:
++            builder:
++              conf:
++                - [BRANCH_pn-cluster-wrapper, "vga_hdmi_kf"] 
+         variables:
+           XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-hdmi-domd.dtb"
+           XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-hdmi-doma.dtb"
+-- 
+2.25.1
+

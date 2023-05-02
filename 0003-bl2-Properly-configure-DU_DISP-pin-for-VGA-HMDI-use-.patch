@@ -1,0 +1,76 @@
+From a5b2b71ae6d9fae3fb3a893b5cf6ed4aec996e7b Mon Sep 17 00:00:00 2001
+From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Date: Fri, 5 May 2023 17:51:10 +0300
+Subject: [PATCH 3/3] bl2: Properly configure DU_DISP pin for VGA->HMDI use
+ case in CR7
+
+All details are inside supplied patch.
+
+Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+---
+ .../arm-trusted-firmware_git.bbappend         |  7 ++++
+ .../0001-pfc-h3-Configure-DU_DISP-pin.patch   | 37 +++++++++++++++++++
+ 2 files changed, 44 insertions(+)
+ create mode 100644 meta-xt-prod-cockpit-rcar-driver-domain/recipes-bsp/arm-trusted-firmware/files/0001-pfc-h3-Configure-DU_DISP-pin.patch
+
+diff --git a/meta-xt-prod-cockpit-rcar-driver-domain/recipes-bsp/arm-trusted-firmware/arm-trusted-firmware_git.bbappend b/meta-xt-prod-cockpit-rcar-driver-domain/recipes-bsp/arm-trusted-firmware/arm-trusted-firmware_git.bbappend
+index 2e7bbbc..5bd1d70 100644
+--- a/meta-xt-prod-cockpit-rcar-driver-domain/recipes-bsp/arm-trusted-firmware/arm-trusted-firmware_git.bbappend
++++ b/meta-xt-prod-cockpit-rcar-driver-domain/recipes-bsp/arm-trusted-firmware/arm-trusted-firmware_git.bbappend
+@@ -10,3 +10,10 @@ SRC_URI_append = "\
+     file://0002-Change-the-security-attribute-setting-for-Cortex-R7.patch \
+     file://0003-Kick_CR7_in_bl2.patch \
+ "
++
++# This patch is required for CR7 on H3. Strictly speaking it is needed only
++# for Kingfisher board, but since prod-cockpit supports only a single board
++# put it here.
++SRC_URI_append_r8a7795 = "\
++    file://0001-pfc-h3-Configure-DU_DISP-pin.patch \
++"
+diff --git a/meta-xt-prod-cockpit-rcar-driver-domain/recipes-bsp/arm-trusted-firmware/files/0001-pfc-h3-Configure-DU_DISP-pin.patch b/meta-xt-prod-cockpit-rcar-driver-domain/recipes-bsp/arm-trusted-firmware/files/0001-pfc-h3-Configure-DU_DISP-pin.patch
+new file mode 100644
+index 0000000..a789a71
+--- /dev/null
++++ b/meta-xt-prod-cockpit-rcar-driver-domain/recipes-bsp/arm-trusted-firmware/files/0001-pfc-h3-Configure-DU_DISP-pin.patch
+@@ -0,0 +1,37 @@
++From 6da07d0fb99ec9a90f0811e95d1033e07142ad23 Mon Sep 17 00:00:00 2001
++From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
++Date: Fri, 5 May 2023 17:27:55 +0300
++Subject: [PATCH] pfc: h3: Configure DU_DISP pin
++
++According to the section "6. Pin Function Controller (PFC)"
++table "6.5 Configuration of Registers in IPSR" we need
++IP0[31:28] = H'3 for DU_DISP to be in use.
++
++This is needed for the VGA->HMDI use case (instead of LVDS) in CR7.
++Otherwise there is no DE signal from DU3 output. Looks like
++this is only relevant for Kingfisher board as for Salvator-XS
++board the said signal comes from DU_ODDF pin.
++
++Consider configuring DU_DISP there in CR7.
++
++Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
++---
++ drivers/renesas/rcar/pfc/H3/pfc_init_h3_v2.c | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/drivers/renesas/rcar/pfc/H3/pfc_init_h3_v2.c b/drivers/renesas/rcar/pfc/H3/pfc_init_h3_v2.c
++index a54b14b37..2f5541988 100644
++--- a/drivers/renesas/rcar/pfc/H3/pfc_init_h3_v2.c
+++++ b/drivers/renesas/rcar/pfc/H3/pfc_init_h3_v2.c
++@@ -635,7 +635,7 @@ void pfc_init_h3_v2(void)
++ 		      | MOD_SEL2_VIN4_A);
++ 
++ 	/* initialize peripheral function select */
++-	pfc_reg_write(PFC_IPSR0, IPSR_28_FUNC(0)
+++	pfc_reg_write(PFC_IPSR0, IPSR_28_FUNC(3)
++ 		      | IPSR_24_FUNC(0)
++ 		      | IPSR_20_FUNC(0)
++ 		      | IPSR_16_FUNC(0)
++-- 
++2.34.1
++
+-- 
+2.25.1
+
