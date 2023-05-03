@@ -107,7 +107,7 @@
        };
 };
 
-pfc {
+&pfc {
        /delete-node/ du;
 };
 
