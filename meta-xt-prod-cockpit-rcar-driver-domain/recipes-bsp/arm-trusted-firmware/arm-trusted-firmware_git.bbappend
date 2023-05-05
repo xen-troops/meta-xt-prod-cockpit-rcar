@@ -10,3 +10,10 @@ SRC_URI_append = "\
     file://0002-Change-the-security-attribute-setting-for-Cortex-R7.patch \
     file://0003-Kick_CR7_in_bl2.patch \
 "
+
+# This patch is required for CR7 on H3. Strictly speaking it is needed only
+# for Kingfisher board, but since prod-cockpit supports only a single board
+# put it here.
+SRC_URI_append_r8a7795 = "\
+    file://0001-pfc-h3-Configure-DU_DISP-pin.patch \
+"
