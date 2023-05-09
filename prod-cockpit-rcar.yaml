@@ -15,6 +15,9 @@ variables:
   XT_OP_TEE_FLAVOUR: "generic_dt"
   XT_DOMA_TAG: ""
   XEN_URL: "git://git@gitpct.epam.com/rec-inv/xen.git;protocol=ssh;branch=v4.16rc_cr7"
+  XT_PREBUILT_GSX_DIR: ""
+  XT_DOMA_DDK_KM_PREBUILT_MODULE: ""
+  XT_DOMA_SOURCE_GROUP: ""  
 
 common_data:
   # Sources used by all yocto-based domains
@@ -284,14 +287,14 @@ components:
         rev: android-12-master-evs
         manifest: doma.xml
         depth: 1
-        groups: all
+        groups: "%{XT_DOMA_SOURCE_GROUP}"
         dir: "."
     builder:
       type: android
       env:
         - "TARGET_BOARD_PLATFORM=%{SOC_FAMILY}"
         - "TARGET_PREBUILT_KERNEL=../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/Image"
-        - "DDK_KM_PREBUILT_MODULE=../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/pvrsrvkm.ko"
+        - "DDK_KM_PREBUILT_MODULE=%{XT_DOMA_DDK_KM_PREBUILT_MODULE}"
         - "KERNEL_MODULES_OUT=../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist"
       lunch_target: xenvm-userdebug
       target_images:
@@ -419,6 +422,20 @@ parameters:
         components:
           domd:
             *DDK_SOURCE_OVERRIDES
+    "yes":
+      # Folder with prebuilt graphics package, i.e. file ${SOC_NAME}_linux_gsx_binaries_gles.tar.gz
+      # is provided as XT_PREBUILT_GSX_DIR variable to components
+      default: false
+      overrides:
+        variables:
+          XT_PREBUILT_GSX_DIR: "${TOPDIR}/../../prebuilt_gsx"
+        components:
+          domd:
+            builder:
+              conf:
+                - [XT_PREBUILT_GSX_DIR, "%{XT_PREBUILT_GSX_DIR}"]
+                - [FILESEXTRAPATHS_prepend_pn-gles-user-module, "%{XT_PREBUILT_GSX_DIR}:"]
+                - [FILESEXTRAPATHS_prepend_pn-kernel-module-gles, "%{XT_PREBUILT_GSX_DIR}:"]
 
   ENABLE_MM:
     desc: "Enable Multimedia support"
@@ -553,3 +570,28 @@ parameters:
         variables:
           XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-hdmi-domd.dtb"
           XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-hdmi-doma.dtb"
+
+  ANDROID_PREBUILT_DDK:
+    desc: "Use pre-built GPU drivers for Android"
+    "no":
+      default: true
+      overrides:
+        variables:
+          XT_DOMA_DDK_KM_PREBUILT_MODULE: "../android_kernel/out/android12-5.4/staging/vendor/lib/modules/pvrsrvkm.ko"
+          XT_DOMA_SOURCE_GROUP: "all"
+    "yes":
+      overrides:
+        variables:
+          XT_DOMA_DDK_KM_PREBUILT_MODULE: "eva/pvr-km/pvrsrvkm.ko"
+          XT_DOMA_SOURCE_GROUP: "default"
+        components:
+          doma:
+            sources:
+              - type: unpack
+                file: rcar-prebuilts-graphics-xt-doma.tar.gz
+                dir: eva
+                archive_type: tar
+            builder:
+              env:
+                - "DDK_UM_PREBUILDS=eva/pvr-um"
+
