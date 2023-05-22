@@ -595,3 +595,35 @@ parameters:
               env:
                 - "DDK_UM_PREBUILDS=eva/pvr-um"
 
+  ENABLE_AOS:
+    desc: "Enable AOS"
+    "no":
+      default: true   
+    "yes":
+      overrides:
+        components:
+          domd:
+            sources:
+              - type: git 
+                url: "https://github.com/aoscloud/meta-aos"
+                rev: main
+              - type: git
+                url: "git://git.yoctoproject.org/meta-security"
+                rev: c62970fda82acf75035243766ecd195243e0f82a
+
+            builder:
+              layers:
+                - "../meta-aos"
+                - "../meta-xt-prod-cockpit-rcar/meta-aos-tune"
+                - "../meta-security"
+                - "../meta-openembedded/meta-perl"
+              conf:
+                - [DISTRO_FEATURES_append, " vis"]
+                - [DISTRO_FEATURES_append, " aos"]
+                - [DISTRO_FEATURES_append, " seccomp"]
+                - [VIS_DATA_PROVIDER, "telemetryemulatoradapter"]
+
+          doma:
+            builder:
+              env:
+                - "XT_USE_VIS_SERVER=true"
