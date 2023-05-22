@@ -17,6 +17,12 @@ IMAGE_INSTALL_append = " \
     vis-service \
     cluster-view \
     ${@bb.utils.contains('DISTRO_FEATURES', 'pvcamera', 'camerabe', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'vis', 'aos-vis', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'aos', 'aos-communicationmanager', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'aos', 'aos-provfinish', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'aos', 'aos-servicemanager', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'aos', 'aos-iamanager', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'aos', 'aos-provfirewall', '', d)} \
 "
 
 IMAGE_INSTALL_remove = " \
