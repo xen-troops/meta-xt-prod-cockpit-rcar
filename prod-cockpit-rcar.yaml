@@ -279,8 +279,8 @@ components:
     build-dir: "android"
     sources:
       - type: repo
-        url: "ssh://git@gitpct.epam.com/rec-inv/android_manifest.git"
-        rev: android-12-master
+        url: "git@github.com:xen-troops/android_manifest.git"
+        rev: android-12-prod-cockpit-rcar-master
         manifest: doma.xml
         depth: 1
         groups: "%{XT_DOMA_SOURCE_GROUP}"
