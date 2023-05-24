@@ -6,7 +6,7 @@ SRC_URI = " git://github.com/renesas-rcar/capture.git;branch=rcar_gen4;protocol=
 	file://0002-Add-support-for-LVDS-cameras.patch \
 "
 
-SRCREV = "${AUTOREV}"
+SRCREV = "3a5d7b2695c6a8f00efb58e7a63850480acc603a"
 
 DEPENDS = "libdrm"
 
