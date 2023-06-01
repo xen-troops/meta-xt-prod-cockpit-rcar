@@ -36,7 +36,7 @@ common_data:
       rev: da9485c357b041f5af6232e0a7f24bbbb3d72d56
     - type: git
       url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: REL-v2.0
+      rev: master
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -340,7 +340,7 @@ components:
         rev: 6b8a307b7843af23d189d7ffcecf32c05afac850
       - type: git
         url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: REL-v2.0
+        rev: master
     builder:
       type: yocto
       work_dir: "%{TOOLS_BUILD_DIR}"
