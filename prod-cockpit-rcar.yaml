@@ -184,7 +184,7 @@ components:
         rev: "Renesas-Yocto-v5.1-patched"
       - type: git
         url: "https://github.com/aoscloud/meta-aos"
-        rev: "4b0f4ea629db039af8cec8f9ea019bb4c9e6d0c7"
+        rev: "402877ba01c789d458992a2b578a30830a5a35c1"
     builder:
       type: yocto
       work_dir: "%{DOMD_BUILD_DIR}"
@@ -604,9 +604,6 @@ parameters:
         components:
           domd:
             sources:
-              - type: git 
-                url: "https://github.com/aoscloud/meta-aos"
-                rev: main
               - type: git
                 url: "git://git.yoctoproject.org/meta-security"
                 rev: c62970fda82acf75035243766ecd195243e0f82a
