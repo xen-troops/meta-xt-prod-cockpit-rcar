@@ -45,7 +45,7 @@ Usage: moulin prod-cockpit-rcar.yaml --MACHINE h3ulcb-4x2g-kf
                    [--ENABLE_CLUSTER yes]
 		   [--PREBUILT_DDK {no,yes}]
 		   [--ANDROID_PREBUILT_DDK {no,yes}]
-		   [--ENABLE_AOS_VIS {no, yes}]
+		   [--ENABLE_AOS {no, yes}]
        
 Config file description: Xen-Troops development setup for Renesas RCAR Gen3
 hardware
@@ -61,7 +61,7 @@ optional arguments:
                         Use pre-built GPU drivers. Default value is 'no'
   --ANDROID_PREBUILT_DDK {no,yes}
                         Use pre-built GPU drivers for Android. Default value is 'no'.
-  --ENABLE_AOS_VIS {no, yes}
+  --ENABLE_AOS {no, yes}
                         Use to add aos-vis functionality to the prodct, Default value is 'no'
 
 ```
