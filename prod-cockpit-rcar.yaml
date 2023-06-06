@@ -36,7 +36,7 @@ common_data:
       rev: da9485c357b041f5af6232e0a7f24bbbb3d72d56
     - type: git
       url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: REL-v2.0
+      rev: e61cc3988703825764458f3baffc67a530f7be72
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -340,7 +340,7 @@ components:
         rev: 6b8a307b7843af23d189d7ffcecf32c05afac850
       - type: git
         url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-        rev: REL-v2.0
+        rev: e61cc3988703825764458f3baffc67a530f7be72
     builder:
       type: yocto
       work_dir: "%{TOOLS_BUILD_DIR}"
@@ -528,17 +528,3 @@ parameters:
             builder:
               additional_deps:
                 - "%{TOOLS_BUILD_DIR}/tmp/deploy/cr7-image-gen"
-
-  DISPLAY:
-    desc: "Build for HDMI display, default is LVDS"
-    "lvds":
-      default: true
-      overrides:
-        variables:
-          XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-lvds-domd.dtb"
-          XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-lvds-doma.dtb"
-    "hdmi":
-      overrides:
-        variables:
-          XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-hdmi-domd.dtb"
-          XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-hdmi-doma.dtb"
