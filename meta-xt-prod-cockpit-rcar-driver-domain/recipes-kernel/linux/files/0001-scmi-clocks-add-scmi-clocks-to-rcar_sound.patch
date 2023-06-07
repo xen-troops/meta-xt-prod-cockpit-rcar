@@ -1,0 +1,78 @@
+From 169e0f2bc5d361057d1091ec0c4e3eb5011b2f9d Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Mon, 27 Mar 2023 23:27:52 +0200
+Subject: [PATCH] scmi clocks: add scmi clocks to rcar_sound
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ .../arm64/boot/dts/renesas/r8a77951-scmi.dtsi | 57 +++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi b/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
+index 4bac1c2047fd..1a7b17dc2018 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
+@@ -186,3 +186,60 @@ &audma1 /* dma-controller@ec720000*/
+ 	power-domains = <&scmi_power 0>;
+ };
+ 
++&rcar_sound /* sound@ec500000*/
++{
++	scmi_devid = <20>;
++
++	resets = <&scmi_reset 16>,
++		 <&scmi_reset 17>, <&scmi_reset 18>,
++		 <&scmi_reset 19>, <&scmi_reset 20>,
++		 <&scmi_reset 21>, <&scmi_reset 22>,
++		 <&scmi_reset 23>, <&scmi_reset 24>,
++		 <&scmi_reset 25>, <&scmi_reset 26>;
++
++	clocks =
++			 /* "ssi-all" */
++			 <&scmi_clock 9>,
++			 /* "ssi.9", "ssi.8" */
++			 <&scmi_clock 10>, <&scmi_clock 11>,
++			 /* "ssi.7", "ssi.6" */
++			 <&scmi_clock 12>, <&scmi_clock 13>,
++			 /* "ssi.5", "ssi.4" */
++			 <&scmi_clock 14>, <&scmi_clock 15>,
++			 /* "ssi.3", "ssi.2" */
++			 <&scmi_clock 16>, <&scmi_clock 17>,
++			 /* "ssi.1", "ssi.0" */
++			 <&scmi_clock 18>, <&scmi_clock 19>,
++			 /* "src.9", "src.8" */
++			 <&scmi_clock 25>, <&scmi_clock 26>,
++			 /* "src.7", "src.6" */
++			 <&scmi_clock 27>, <&scmi_clock 28>,
++			 /* "src.5", "src.4" */
++			 <&scmi_clock 29>, <&scmi_clock 30>,
++			 /* "src.3", "src.2" */
++			 <&scmi_clock 31>, <&scmi_clock 32>,
++			 /* "src.1", "src.0" */
++			 <&scmi_clock 33>, <&scmi_clock 34>,
++			 /* "mix.1", "mix.0" */
++			 <&scmi_clock 23>, <&scmi_clock 24>,
++			 /* "ctu.1", "ctu.0" */
++			 <&scmi_clock 23>, <&scmi_clock 24>,
++			 /* "dvc.0", "dvc.1" */
++			 <&scmi_clock 22>, <&scmi_clock 21>,
++			 /* "clk_a", "clk_b" */
++			 <&audio_clk_a>, <&cs2000>,
++			 /* "clk_c", "clk_i" */
++			 <&audio_clk_c>, <&i2c2_clk>;
++
++		clock-names = "ssi-all",
++				  "ssi.9", "ssi.8", "ssi.7", "ssi.6",
++				  "ssi.5", "ssi.4", "ssi.3", "ssi.2",
++				  "ssi.1", "ssi.0",
++				  "src.9", "src.8", "src.7", "src.6",
++				  "src.5", "src.4", "src.3", "src.2",
++				  "src.1", "src.0",
++				  "mix.1", "mix.0",
++				  "ctu.1", "ctu.0",
++				  "dvc.0", "dvc.1",
++				  "clk_a", "clk_b", "clk_c", "clk_i";
++};
+-- 
+2.25.1
+

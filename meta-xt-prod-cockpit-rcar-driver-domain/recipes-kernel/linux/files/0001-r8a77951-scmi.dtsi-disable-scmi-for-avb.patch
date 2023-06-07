@@ -1,0 +1,34 @@
+From ed2098cc92abd521f5273152e3cba775a3987a1c Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Wed, 21 Jun 2023 22:18:31 +0200
+Subject: [PATCH] r8a77951-scmi.dtsi: disable scmi for avb
+
+It is not supposed to restart the domd so
+no needs to implement the scmi for the network.
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi b/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
+index 4bac1c2047fd..943622870fec 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
+@@ -73,13 +73,6 @@ for the corresponding clock in DomD.
+ 	};
+ };
+ 
+-&avb {
+-	scmi_devid = <0>;
+-	clocks = <&scmi_clock 0>;
+-	power-domains = <&scmi_power 0>;
+-	resets = <&scmi_reset 0>;
+-};
+-
+ &hdmi0 {
+ 	scmi_devid = <1>;
+ 	resets = <&scmi_reset 1>;
+-- 
+2.25.1
+

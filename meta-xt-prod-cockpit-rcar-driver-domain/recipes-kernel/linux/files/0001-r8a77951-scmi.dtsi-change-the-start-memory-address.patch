@@ -1,0 +1,62 @@
+From a825067fe982600ccc3a625f272701c3c596f26b Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Fri, 3 Mar 2023 11:54:20 +0100
+Subject: [PATCH] r8a77951-scmi.dtsi: change the start memory address
+
+The scmi range sets had the conflicts with the memory ranges in DomA.
+To avoid - teh new memory slot has been allocated for scmi channels.
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ .../arm64/boot/dts/renesas/r8a77951-scmi.dtsi | 20 +++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi b/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
+index 3cb90ed20092..4bac1c2047fd 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
+@@ -9,21 +9,21 @@
+  */
+ 
+ / {
+-	cpu_scp_shm: scp-shmem@0x53FF0000 {
++	cpu_scp_shm: scp-shmem@57000000/*0x1FF0000*/ {
+ 		compatible = "arm,scmi-shmem";
+-		reg = <0x0 0x53FF0000 0x0 0x1000>;
++		reg = <0x0 0x57000000 0x0 0x1000>;
+ 	};
+-	scp-shmem@0x53FF1000 {
++	scp-shmem@57001000 {
+ 		compatible = "arm,scmi-shmem";
+-		reg = <0x00 0x53ff1000 0x00 0x1000>;
++		reg = <0x00 0x57001000 0x00 0x1000>;
+ 	};
+-	scp-shmem@0x53FF2000 {
++	scp-shmem@57002000 {
+ 		compatible = "arm,scmi-shmem";
+-		reg = <0x00 0x53ff2000 0x00 0x1000>;
++		reg = <0x00 0x57002000 0x00 0x1000>;
+ 	};
+-	scp-shmem@0x53FF3000 {
++	scp-shmem@0x57003000 {
+ 		compatible = "arm,scmi-shmem";
+-		reg = <0x00 0x53ff3000 0x00 0x1000>;
++		reg = <0x00 0x57003000 0x00 0x1000>;
+ 		phandle = <0x19>;
+ 	};
+ 
+@@ -54,9 +54,9 @@ scmi_reset: protocol@16 {
+ 
+ 	reserved-memory {
+ 		/* reserved region for scmi channels*/
+-		scmi_memory: linux,scmi_mem@53FF0000 {
++		scmi_memory: linux,scmi_mem@57000000 {
+ 			no-map;
+-			reg = <0x0 0x53FF0000 0x0 0x10000>;
++			reg = <0x0 0x57000000 0x0 0x4000>;
+ 		};
+ 	};
+ };
+-- 
+2.25.1
+
