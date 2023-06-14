@@ -583,7 +583,7 @@ parameters:
       overrides:
         variables:
           XT_DOMA_DDK_KM_PREBUILT_MODULE: "eva/pvr-km/pvrsrvkm.ko"
-          XT_DOMA_SOURCE_GROUP: "default,notdefault"
+          XT_DOMA_SOURCE_GROUP: "default"
         components:
           doma:
             sources:
