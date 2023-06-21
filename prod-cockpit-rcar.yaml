@@ -17,6 +17,7 @@ variables:
   XEN_URL: "git://git@gitpct.epam.com/rec-inv/xen.git;protocol=ssh;branch=v4.16rc_cr7"
   XT_PREBUILT_GSX_DIR: ""
   XT_DOMA_DDK_KM_PREBUILT_MODULE: ""
+  XT_DOMA_KERNEL_BUILD_CONFIG: "build.config.xenvm"
   XT_DOMA_SOURCE_GROUP: ""  
 
 common_data:
@@ -264,7 +265,7 @@ components:
       type: android_kernel
       env:
         - "TARGET_BOARD_PLATFORM=%{SOC_FAMILY}"
-        - "BUILD_CONFIG=common/build.config.xenvm"
+        - "BUILD_CONFIG=common/%{XT_DOMA_KERNEL_BUILD_CONFIG}"
         - "SKIP_MRPROPER=1"
       target_images:
         - "out/android12-5.4/dist/Image"
@@ -584,6 +585,7 @@ parameters:
         variables:
           XT_DOMA_DDK_KM_PREBUILT_MODULE: "eva/pvr-km/pvrsrvkm.ko"
           XT_DOMA_SOURCE_GROUP: "default"
+          XT_DOMA_KERNEL_BUILD_CONFIG: "build.config.xenvm.no_graphics"
         components:
           doma:
             sources:
