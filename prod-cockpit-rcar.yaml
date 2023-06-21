@@ -18,7 +18,7 @@ variables:
   XT_PREBUILT_GSX_DIR: ""
   XT_DOMA_DDK_KM_PREBUILT_MODULE: ""
   XT_DOMA_KERNEL_BUILD_CONFIG: "build.config.xenvm"
-  XT_DOMA_KERNEL_INTERNAL_OUT_DIR: "out/android12-5.4/dist"
+  XT_DOMA_KERNEL_INTERNAL_OUT_DIR: "out/android13-5.10/dist"
   XT_DOMA_KERNEL_OUT_DIR: "../%{ANDROID_KERNEL_DIR}/%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}"
   XT_DOMA_SOURCE_GROUP: ""  
 
@@ -258,7 +258,7 @@ components:
     sources:
       - type: repo
         url: https://github.com/xen-troops/android_kernel_manifest.git
-        rev: common-android12-5.4-cr7-master
+        rev: common-android13-5.10-cr7-master
         manifest: default.xml
         depth: 1
         groups: "%{XT_DOMA_SOURCE_GROUP}"
@@ -266,6 +266,7 @@ components:
     builder:
       type: android_kernel
       env:
+        - "MMNGR_CONFIG=MMNGR_SALVATORX"
         - "TARGET_BOARD_PLATFORM=%{SOC_FAMILY}"
         - "BUILD_CONFIG=common/%{XT_DOMA_KERNEL_BUILD_CONFIG}"
         - "SKIP_MRPROPER=1"
@@ -283,7 +284,7 @@ components:
     sources:
       - type: repo
         url: "git@github.com:xen-troops/android_manifest.git"
-        rev: android-12-prod-cockpit-rcar-master
+        rev: android-14-prod-cockpit-rcar-master
         manifest: doma.xml
         depth: 1
         groups: "%{XT_DOMA_SOURCE_GROUP}"
@@ -495,12 +496,12 @@ parameters:
               boot_a:
                 gpt_type: 49A4D17F-93A3-45C1-A0DE-F50B2EBE2599 # Android boot 1
                 type: raw_image
-                size: 30 MiB
+                size: 40 MiB
                 image_path: "android/out/target/product/xenvm/boot.img"
               boot_b:
                 gpt_type: 20117F86-E985-4357-B9EE-374BC1D8487D # Android boot 2
                 type: empty
-                size: 30 MiB
+                size: 40 MiB
               vbmeta_a:
                 gpt_type: 19A710A2-B3CA-11E4-B026-10604B889DCF # Android meta
                 type: raw_image
