@@ -176,7 +176,31 @@
 /delete-node/ &vdd_cam_a_2;
 /delete-node/ &vdd_cam_a_3;
 
+&ehci0 {
+	dr_mode = "host";
+};
+
+&ohci0 {
+	dr_mode = "host";
+};
+
+&hsusb {
+	dr_mode = "host";
+};
+
 /* These USB controllers are used by DomA/U. */
+
+&usb2_phy0 {
+	compatible = "xen-troops,passthrough";
+};
+
+&ohci0 {
+	compatible = "xen-troops,passthrough";
+};
+
+&ehci0 {
+	compatible = "xen-troops,passthrough";
+};
 
 &usb2_phy1 {
 	compatible = "xen-troops,passthrough";
