@@ -259,7 +259,7 @@ components:
         rev: common-android12-5.4-cr7-master
         manifest: default.xml
         depth: 1
-        groups: all
+        groups: "%{XT_DOMA_SOURCE_GROUP}"
         dir: "."
     builder:
       type: android_kernel
