@@ -4,8 +4,10 @@
 #include <QtGui>
 #include <string.h>
 #include <qqml.h>
+#include <functional>
 #include "visclient.h"
 #include "commandline.h"
+#include "ActivatedEvent.h"
 
 int main(int argc, char *argv[])
 {
@@ -35,5 +37,8 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty())
         return -1;
 
+    std::invoke( []() { ActivatedEvent();} );
+        
     return app.exec();
 }
+

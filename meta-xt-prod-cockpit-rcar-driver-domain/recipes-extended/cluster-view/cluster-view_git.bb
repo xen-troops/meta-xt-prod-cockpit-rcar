@@ -11,6 +11,8 @@ SRC_URI = " \
       file://visclient.cpp \
       file://commandline.cpp \
       file://commandline.h \
+      file://ActivatedEvent.cpp \
+      file://ActivatedEvent.h \
       file://main.qml \
       file://qml.qrc \
       file://images/100_MPH.png \
