@@ -18,6 +18,8 @@ variables:
   XT_PREBUILT_GSX_DIR: ""
   XT_DOMA_DDK_KM_PREBUILT_MODULE: ""
   XT_DOMA_KERNEL_BUILD_CONFIG: "build.config.xenvm"
+  XT_DOMA_KERNEL_INTERNAL_OUT_DIR: "out/android12-5.4/dist"
+  XT_DOMA_KERNEL_OUT_DIR: "../%{ANDROID_KERNEL_DIR}/%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}"
   XT_DOMA_SOURCE_GROUP: ""  
 
 common_data:
@@ -268,13 +270,13 @@ components:
         - "BUILD_CONFIG=common/%{XT_DOMA_KERNEL_BUILD_CONFIG}"
         - "SKIP_MRPROPER=1"
       target_images:
-        - "out/android12-5.4/dist/Image"
-        - "out/android12-5.4/dist/pvrsrvkm.ko"
-        - "out/android12-5.4/dist/mmngr.ko"
-        - "out/android12-5.4/dist/mmngrbuf.ko"
-        - "out/android12-5.4/dist/uvcs_drv.ko"
-        - "out/android12-5.4/dist/vspm.ko"
-        - "out/android12-5.4/dist/vspm_if.ko"
+        - "%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}/Image"
+        - "%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}/pvrsrvkm.ko"
+        - "%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}/mmngr.ko"
+        - "%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}/mmngrbuf.ko"
+        - "%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}/uvcs_drv.ko"
+        - "%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}/vspm.ko"
+        - "%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}/vspm_if.ko"
 
   doma:
     build-dir: "android"
@@ -290,9 +292,9 @@ components:
       type: android
       env:
         - "TARGET_BOARD_PLATFORM=%{SOC_FAMILY}"
-        - "TARGET_PREBUILT_KERNEL=../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/Image"
+        - "TARGET_PREBUILT_KERNEL=%{XT_DOMA_KERNEL_OUT_DIR}/Image"
         - "DDK_KM_PREBUILT_MODULE=%{XT_DOMA_DDK_KM_PREBUILT_MODULE}"
-        - "KERNEL_MODULES_OUT=../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist"
+        - "KERNEL_MODULES_OUT=%{XT_DOMA_KERNEL_OUT_DIR}"
       lunch_target: xenvm-userdebug
       target_images:
         - "out/target/product/xenvm/boot.img"
@@ -300,13 +302,13 @@ components:
         - "out/target/product/xenvm/userdata.img"
         - "out/target/product/xenvm/vbmeta.img"
       additional_deps:
-        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/Image"
-        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/pvrsrvkm.ko"
-        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/mmngr.ko"
-        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/mmngrbuf.ko"
-        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/uvcs_drv.ko"
-        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/vspm.ko"
-        - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/vspm_if.ko"
+        - "%{XT_DOMA_KERNEL_OUT_DIR}/Image"
+        - "%{XT_DOMA_KERNEL_OUT_DIR}/pvrsrvkm.ko"
+        - "%{XT_DOMA_KERNEL_OUT_DIR}/mmngr.ko"
+        - "%{XT_DOMA_KERNEL_OUT_DIR}/mmngrbuf.ko"
+        - "%{XT_DOMA_KERNEL_OUT_DIR}/uvcs_drv.ko"
+        - "%{XT_DOMA_KERNEL_OUT_DIR}/vspm.ko"
+        - "%{XT_DOMA_KERNEL_OUT_DIR}/vspm_if.ko"
 
   cluster:
     build-dir: "%{YOCTOS_WORK_DIR}"
@@ -578,7 +580,7 @@ parameters:
       default: true
       overrides:
         variables:
-          XT_DOMA_DDK_KM_PREBUILT_MODULE: "../android_kernel/out/android12-5.4/staging/vendor/lib/modules/pvrsrvkm.ko"
+          XT_DOMA_DDK_KM_PREBUILT_MODULE: "%{XT_DOMA_KERNEL_OUT_DIR}/pvrsrvkm.ko"
           XT_DOMA_SOURCE_GROUP: "all"
     "yes":
       overrides:
