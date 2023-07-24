@@ -1,0 +1,36 @@
+From 5c19eb47545ac6d81d7794e47fb9e9f2cd04b99a Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Mon, 24 Jul 2023 22:32:34 +0200
+Subject: [PATCH] scmi, i2c2: add scmi clock.
+
+Motivation is to support the doma restart.
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi b/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
+index 943622870fec..439de08c1718 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77951-scmi.dtsi
+@@ -83,6 +83,16 @@ &i2c4 {
+ 	resets = <&scmi_reset 7>;
+ };
+ 
++&i2c2 /* i2c@e6510000*/ 
++{
++        scmi_devid = <5>;
++        resets = <&scmi_reset 5>;
++        clocks = <&scmi_clock 37>;
++        /delete-property/power-domains;
++        /delete-property/dmas;
++        /delete-property/dma-names;
++};
++
+ &usb_dmac2 /* dma-controller@e6460000*/
+ {
+ 	scmi_devid = <15>;
+-- 
+2.25.1
+

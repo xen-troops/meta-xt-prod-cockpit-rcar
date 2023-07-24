@@ -734,7 +734,7 @@
 		i2c2: i2c@e6510000 {
 			#address-cells = <1>;
 			#size-cells = <0>;
-			scmi_devid = <23>;
+			/* scmi_devid = <23>; */
 			compatible = "renesas,i2c-r8a7795","renesas,rcar-gen3-i2c";
 			reg = <0 0xe6510000 0 0x40>;
 			interrupts = <GIC_SPI 286 IRQ_TYPE_LEVEL_HIGH>;
@@ -891,6 +891,7 @@
 {
 	scmi_devid = <5>;
 	resets = <&scmi_reset 5>;
+        clocks = <&scmi_clock 37>;
 	/delete-property/power-domains;
 	/delete-property/dmas;
 	/delete-property/dma-names;

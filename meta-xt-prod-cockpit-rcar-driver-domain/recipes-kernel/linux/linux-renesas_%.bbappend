@@ -15,5 +15,6 @@ SRC_URI_append = " \
     file://0001-device-tree-Introduce-scmi-nodes-to-work-with-clocks.patch \
     file://0001-r8a77951-scmi.dtsi-change-the-start-memory-address.patch \
     file://0001-r8a77951-scmi.dtsi-disable-scmi-for-avb.patch \
+    file://0001-scmi-i2c2-add-scmi-clock.patch \
 "
 
