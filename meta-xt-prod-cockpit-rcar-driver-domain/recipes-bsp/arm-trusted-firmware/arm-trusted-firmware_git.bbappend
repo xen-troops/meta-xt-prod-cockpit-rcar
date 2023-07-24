@@ -19,6 +19,7 @@ SRC_URI_append = "\
     file://0010-rcar-scmi-add-physical-resources-to-SCMI-devices.patch \
     file://0011-bldcmd.sh-build-scmi-platform-by-default.patch \
     file://0001-rcar_scmi_clocks.c-fix-build-error-no-returned-value.patch \
+    file://0001-scmi-i2c-add-scmi-clock-to-i2c2.patch \
 "
 
 # This patch is required for CR7 on H3. Strictly speaking it is needed only
