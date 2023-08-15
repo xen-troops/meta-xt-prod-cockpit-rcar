@@ -296,9 +296,11 @@ components:
       lunch_target: xenvm-userdebug
       target_images:
         - "out/target/product/xenvm/boot.img"
+        - "out/target/product/xenvm/init_boot.img"
         - "out/target/product/xenvm/super.img"
         - "out/target/product/xenvm/userdata.img"
         - "out/target/product/xenvm/vbmeta.img"
+        - "out/target/product/xenvm/vendor_boot.img"
       additional_deps:
         - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/Image"
         - "../%{ANDROID_KERNEL_DIR}/out/android12-5.4/dist/pvrsrvkm.ko"
@@ -493,10 +495,28 @@ parameters:
               boot_a:
                 gpt_type: 49A4D17F-93A3-45C1-A0DE-F50B2EBE2599 # Android boot 1
                 type: raw_image
-                size: 30 MiB
+                size: 40 MiB
                 image_path: "android/out/target/product/xenvm/boot.img"
               boot_b:
                 gpt_type: 20117F86-E985-4357-B9EE-374BC1D8487D # Android boot 2
+                type: empty
+                size: 40 MiB
+              init_boot_a:
+                gpt_type: DF24E5ED-8C96-4B86-B00B-79667DC6DE11 # Android sparse 1
+                type: raw_image
+                size: 10 MiB
+                image_path: "android/out/target/product/xenvm/init_boot.img"
+              vendor_boot_b:
+                gpt_type: 7C29D3AD-78B9-452E-9DEB-D098D542F092 # Android sparse 2
+                type: empty
+                size: 10 MiB
+              vendor_boot_a:
+                gpt_type: DF24E5ED-8C96-4B86-B00B-79667DC6DE11 # Android sparse 1
+                type: raw_image
+                size: 30 MiB
+                image_path: "android/out/target/product/xenvm/vendor_boot.img"
+              vendor_boot_b:
+                gpt_type: 7C29D3AD-78B9-452E-9DEB-D098D542F092 # Android sparse 2
                 type: empty
                 size: 30 MiB
               vbmeta_a:
