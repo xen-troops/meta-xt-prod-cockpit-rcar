@@ -597,3 +597,20 @@ parameters:
               env:
                 - "DDK_UM_PREBUILDS=eva/pvr-um"
 
+  ANDROID_EVS_ENABLED:
+    desc: "Build Android with EVS services support"
+    "no":
+      default: true
+      overrides:
+        components:
+          doma:
+            builder:
+              env:
+                - "ANDROID_EVS_ENABLED=false"
+    "yes":
+      overrides:
+        components:
+          doma:
+            builder:
+              env:
+                - "ANDROID_EVS_ENABLED=true"
