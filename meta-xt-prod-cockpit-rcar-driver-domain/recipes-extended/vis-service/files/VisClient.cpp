@@ -38,19 +38,19 @@ const std::vector<AosVisParameter> aosVisParameters {
     {"Signal.Drivetrain.Transmission.Gear", CLUSTER_GEAR, not_defined_value, VisClient::getValue},
     {"Signal.Drivetrain.InternalCombustionEngine.Engine.Speed", CLUSTER_RPM, not_defined_value, VisClient::getValue},
     {"Signal.Traffic.Turn.Direction", CLUSTER_TURN, not_defined_value, VisClient::getTurnDirection},
-    {"Signal.Cabin.Door.Row1.Left.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getBool},
-    {"Signal.Cabin.Door.Row1.Right.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getBool},
-    {"Signal.Cabin.Door.Row2.Left.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getBool},
-    {"Signal.Cabin.Door.Row2.Right.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getBool},
+    {"Signal.Cabin.Door.Row1.Left.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getValue},
+    {"Signal.Cabin.Door.Row1.Right.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getValue},
+    {"Signal.Cabin.Door.Row2.Left.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getValue},
+    {"Signal.Cabin.Door.Row2.Right.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getValue},
     {"Signal.Body.Trunk.IsOpen", CLUSTER_DOOR_OPEN, not_defined_value, VisClient::getBool},
     {"Signal.Cabin.Seat.Row1.Pos1.IsBelted", CLUSTER_SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
     {"Signal.Cabin.Seat.Row1.Pos2.IsBelted", CLUSTER_SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
     {"Signal.Cabin.Seat.Row2.Pos1.IsBelted", CLUSTER_SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
     {"Signal.Cabin.Seat.Row2.Pos2.IsBelted", CLUSTER_SEAT_BELT, not_defined_value, VisClient::getBeltStatus},
-    {"Signal.Body.Lights.IsLowBeamOn", CLUSTER_LOW_BEAMS_LIGHTS, not_defined_value, VisClient::getBool},
-    {"Signal.Body.Lights.IsHighBeamOn", CLUSTER_HIGH_BEAMS_LIGHT, not_defined_value, VisClient::getBool},
-    {"Signal.Body.Lights.IsFrontFogOn", CLUSTER_FOG_LIGHTS_FRONT, not_defined_value, VisClient::getBool},
-    {"Signal.Body.Lights.IsRearFogOn", CLUSTER_FOG_LIGHTS_BACK, not_defined_value, VisClient::getBool},
+    {"Signal.Body.Lights.IsLowBeamOn", CLUSTER_LOW_BEAMS_LIGHTS, not_defined_value, VisClient::getValue},
+    {"Signal.Body.Lights.IsHighBeamOn", CLUSTER_HIGH_BEAMS_LIGHT, not_defined_value, VisClient::getValue},
+    {"Signal.Body.Lights.IsFrontFogOn", CLUSTER_FOG_LIGHTS_FRONT, not_defined_value, VisClient::getValue},
+    {"Signal.Body.Lights.IsRearFogOn", CLUSTER_FOG_LIGHTS_BACK, not_defined_value, VisClient::getValue},
     {"Signal.Chassis.Axle.Row1.Wheel.Left.Tire.Pressure", CLUSTER_LOW_TIRE_PRESSURE, not_defined_value, VisClient::getTireStatus},
 };
 
@@ -191,7 +191,7 @@ void VisClient::onTextMessageReceived(const QString &message)
                     {
                         data.value = value;
                         data.ioctl_cmd = param.ctlIOId;
-                        write(mFdept, &data, sizeof(data));
+                        auto res = ioctl(mFdept, data.ioctl_cmd, data.value);
                     }
                     else 
                     {

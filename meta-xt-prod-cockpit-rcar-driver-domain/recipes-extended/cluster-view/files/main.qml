@@ -88,6 +88,7 @@ Window {
         }
 
         SpeedLimitInfo{
+            visible: false
             x:{
                 if(cmdLine.getMode() == 1)
                 {
