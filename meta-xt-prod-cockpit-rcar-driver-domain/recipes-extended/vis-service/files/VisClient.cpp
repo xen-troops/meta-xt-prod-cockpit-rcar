@@ -229,7 +229,7 @@ int VisClient::getTurnDirection(const QString & propId, const QString & message)
 
 QString VisClient::getStringValue(const QString & propId, const QString & message)
 {
-    QString res;
+    /*QString res;
     QByteArray br = message.toUtf8();
     QJsonDocument doc = QJsonDocument::fromJson(br);
     QJsonObject obj = doc.object();
@@ -239,7 +239,14 @@ QString VisClient::getStringValue(const QString & propId, const QString & messag
            res = v.toObject().value(propId).toString();
        }
     }
-    return res;
+    return res;*/
+    QByteArray br = message.toUtf8();
+    QJsonDocument doc = QJsonDocument::fromJson(br);
+    if(doc["value"].isObject() && doc["value"][propId].isBool())
+    {
+        return doc["value"][propId].toBool();
+    }
+    return "";
 }
 
 int VisClient::getBool(const QString & propId, const QString & message)
