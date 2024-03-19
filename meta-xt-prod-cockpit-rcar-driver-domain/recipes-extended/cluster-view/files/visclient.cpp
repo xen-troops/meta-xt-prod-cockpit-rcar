@@ -6,13 +6,31 @@
 #include <QTimer>
 #include <limits>
 
+#include <QList>
+#include <functional>
 #include "visclient.h"
+#include "QtVisSocket.h"
 
 QT_USE_NAMESPACE
 
 const unsigned long visClientTimeout = 1000;
 
 const int not_defined_value = std::numeric_limits<int>::max();
+
+typedef std::function<void (VisClient * visClient, QVariant value)> set_func_type;
+
+struct PropertyMapper {
+    QString propName;
+    set_func_type set;
+};
+
+static const QList<PropertyMapper> requiredProperties ({
+    {"Signal.Vehicle.Speed", [](VisClient * visClient, QVariant value ){visClient->setSpeedValue(value);}},
+    {"Signal.Drivetrain.Transmission.Gear", [](VisClient * visClient, QVariant value ){visClient->setGearValue(value);}},
+    {"Signal.Drivetrain.InternaCombustionEngine.Engine.Speed", [](VisClient * visClient, QVariant value ){visClient->setRpmValue(value);}},
+    {"Signal.Drivetrain.BatteryManagement.BatteryCapacity", [](VisClient * visClient, QVariant value ){visClient->setBatteryValue(value);}},
+    {"Signal.Traffic.Turn.Direction", [](VisClient * visClient, QVariant value ){visClient->setTurnValue(value);}},
+});
 
 VisClient::VisClient(QObject *parent):
     QObject(parent),
@@ -22,46 +40,52 @@ VisClient::VisClient(QObject *parent):
     rpm(0),
     gear(0),
     isConnected(false),
+    mWebSocket(new QtVisSocket),
     mState(SubscrState::StateInit)
 {
-    connect(&mWebSocket,
-    QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error),
-            this,
-            &VisClient::onError);
-    connect(&mWebSocket, &QWebSocket::sslErrors, this, &VisClient::onSslErrors);
-    connect(&mWebSocket, &QWebSocket::connected, this, &VisClient::onConnected);
-    connect(&mWebSocket, &QWebSocket::disconnected, this, &VisClient::onDisconnected);
-    connect(&mWebSocket, &QWebSocket::textMessageReceived, this, &VisClient::onTextMessageReceived);
+    connect(mWebSocket.data(), &VisWebSocket::connected, this, &VisClient::onConnected);
+    connect(mWebSocket.data(), &VisWebSocket::disconnected, this, &VisClient::onDisconnected);
+    connect(mWebSocket.data(), &VisWebSocket::textMessageReceived, this, &VisClient::onTextMessageReceived);
+}
+VisClient::VisClient(QSharedPointer<VisWebSocket> socket):
+    QObject(nullptr),
+    battery(100),
+    turn(-1),
+    speed(0),
+    rpm(0),
+    gear(0),
+    isConnected(false),
+    mWebSocket(socket),
+    mState(SubscrState::StateInit)
+{
+    connect(mWebSocket.data(), &VisWebSocket::connected, this, &VisClient::onConnected);
+    connect(mWebSocket.data(), &VisWebSocket::disconnected, this, &VisClient::onDisconnected);
+    connect(mWebSocket.data(), &VisWebSocket::textMessageReceived, this, &VisClient::onTextMessageReceived);
 }
 VisClient::~VisClient()
 {
-    mWebSocket.close();
+    mWebSocket->close();
 }
 
 void VisClient::connectTo()
 {
     qDebug() << "Connect to:" << mUrl;
 
-    mWebSocket.open(QUrl(mUrl));
+    mWebSocket->open(QUrl(mUrl));
 }
 
 void VisClient::disconnect()
 {
     qDebug() << "Disconnect";
 
-    mWebSocket.close();
+    mWebSocket->close();
 }
-/*
-bool VisClient::isConnected()const
-{
-    return (mWebSocket.state() == QAbstractSocket::ConnectedState);
-}*/
 
 void VisClient::sendMessage(const QString &message)
 {
     qDebug() << "Send message:" << message;
 
-    mWebSocket.sendTextMessage(message);
+    mWebSocket->sendTextMessage(message);
 }
 
 void VisClient::onConnected()
@@ -80,48 +104,8 @@ void VisClient::onDisconnected()
     setConnectedValue(false);
 }
 
-void VisClient::onSslErrors(const QList<QSslError> &errors)
-{
-    Q_FOREACH (QSslError error, errors) {
-        if (error.error() == QSslError::SelfSignedCertificate
-            || error.error() == QSslError::SelfSignedCertificateInChain) {
-            mWebSocket.ignoreSslErrors();
-            return;
-        }
-    }
-}
-
-void VisClient::onError(QAbstractSocket::SocketError error)
-{
-    Q_UNUSED(error)
-
-    qDebug() << "Error:" << mWebSocket.errorString();
-
-    if(connectedValue())
-    {
-        disconnect();
-    }
-
-    Q_EMIT VisClient::error(mWebSocket.errorString());
-}
-
 void VisClient::onTextMessageReceived(const QString &message)
 {
-    qDebug() << "Receive message:" << message;
-
-    QFile file("/var/vis-response-3.txt");
-
-    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-          // We're going to streaming text to the file
-          QTextStream stream(&file);
-
-          stream << message;
-
-          file.close();
-          qDebug() << "Writing finished\n";
-    }
-
     qDebug() << "mState: " << mState;
 
     switch(mState)
@@ -146,59 +130,14 @@ void VisClient::onTextMessageReceived(const QString &message)
           auto sId = getSubscriptionId(message);
           if(sId == mSubscriptionId)
           {
-             auto value = getSpeed(message);
-             qDebug() << " getSpeed " << value;
-
-             if(value != not_defined_value)
-             {
-                setSpeedValue(value);
-             }
-             else
-             {
-                qDebug() << "No speed value in the message";
-             }
-
-             value = getGearSelect(message);
-             qDebug() << " getGear " << value;
-             if(value != GearPosition::GUNDEFINED)
-             {
-                setGearValue((int)value);
-             }
-             else
-             {
-                qDebug() << "No Gear value in the message";
-             }
-             value = getRpm(message);
-             qDebug() << " getRpm " << value;
-             if(value != not_defined_value)
-             {
-                 setRpmValue(value);
-             }
-             else
-             {
-                qDebug() << "No RPM value in the message";
-             }
-             value = getBattery(message);
-             qDebug() << " getBattery " << value;
-             if(value != not_defined_value)
-             {
-                 setBatteryValue(value);
-             }
-             else
-             {
-                 qDebug() << "No Battery value in the message";
-             }
-             value = getTurnDirection("Signal.Traffic.Turn.Direction", message);
-             qDebug() << " getTurnDirection " << value;
-             if(value != not_defined_value)
-             {
-                 setTurnValue(value);
-             }
-             else
-             {
-                 setTurnValue(-1);
-                 qDebug() << "No Turn value in the message";
-             }
+              for(auto &prop: requiredProperties)
+              {
+                  auto v = getQValue(prop.propName, message);
+                  if(v.isValid())
+                  {
+                      prop.set(this, v);
+                  }
+              };
         }
         else
         {
@@ -219,49 +158,35 @@ int VisClient::turnValue()const
     return turn;
 }
 
-void VisClient::setTurnValue(int turn)
+void VisClient::setTurnValue(QVariant input)
 {
-    if(this->turn != turn)
+    if(!input.canConvert<QString>())
+        return; // skip value
+
+    static const QString values[] = {"right", "left", "end"};
+    auto value = input.toString();
+    int turn = -1;
+    const QString *p= &values[0];
+    QString tmp {input.toString()};
+    do
+    {
+        if(*p == tmp)
+        {
+            turn = p - values + 1;
+            break;
+        }
+        ++p;
+    }
+    while((*p != "end"));
+
+    if(this->turn != turn && turn != -1)
     {
         this->turn = turn;
         emit turnValueChanged();
     }
 }
 
-int VisClient::getSpeed(const QString &message)const
-{
-    int res = getValue("Signal.Vehicle.Speed", message);
-    return res == not_defined_value ? not_defined_value : (int)(res/1000);
-}
-
-VisClient::GearPosition VisClient::getGearSelect(const QString & message)const
-{
-    int val = getValue("Signal.Drivetrain.Transmission.Gear", message);
-    GearPosition res = GearPosition::GUNDEFINED;
-    switch(val)
-    {
-    case 0:
-    res = GearPosition::PARK;
-    break;
-    case 2:
-    res = GearPosition::NEUTRAL;
-    break;
-    case 3:
-    res = GearPosition::DRIVE;
-    break;
-    case -1:
-    res = GearPosition::REVERSE;
-    break;
-    }
-    return res;
-}
-
-int VisClient::getRpm(const QString & message)const
-{
-    return getValue("Signal.Drivetrain.InternalCombustionEngine.Engine.Speed", message);
-}
-
-QString VisClient::getStringValue(const QString & propId, const QString & message)const
+QVariant VisClient::getQValue(const QString & propId, const QString & message)const
 {
     QString res;
     QByteArray br = message.toUtf8();
@@ -270,29 +195,10 @@ QString VisClient::getStringValue(const QString & propId, const QString & messag
     QJsonArray arr = obj.value("value").toArray();
     foreach(const QJsonValue &v, arr){
         if(v.toObject().contains(propId)) {
-           res = v.toObject().value(propId).toString();
-           qDebug()<< propId  << " = " << res;
+           return v.toObject().value(propId);
        }
-
     }
-    return res;
-}
-
-int VisClient::getValue(const QString & propId, const QString & message)const
-{
-    int res = not_defined_value;
-    QByteArray br = message.toUtf8();
-    QJsonDocument doc = QJsonDocument::fromJson(br);
-    QJsonObject obj = doc.object();
-    QJsonArray arr = obj.value("value").toArray();
-    foreach(const QJsonValue &v, arr){
-        if(v.toObject().contains(propId)) {
-           res = (int)(v.toObject().value(propId).toInt());
-       qDebug()<< propId  << " = " << res;
-       }
-
-    }
-    return res;
+    return QVariant{};
 }
 
 QString VisClient::getSubscriptionId(const QString &message)const
@@ -314,8 +220,12 @@ int VisClient::speedValue()const
 {
     return speed;
 }
-void VisClient::setSpeedValue(int speed)
+void VisClient::setSpeedValue(QVariant input)
 {
+    if(!input.canConvert<int>())
+        return; // skip value
+
+    auto speed {input.toInt()/1000};
     if(this->speed == speed)
         return;
     this->speed = speed;
@@ -325,8 +235,13 @@ int VisClient::rpmValue()const
 {
     return rpm;
 }
-void VisClient::setRpmValue(int rpm)
+void VisClient::setRpmValue(QVariant input)
 {
+    if(!input.canConvert<int>())
+        return; // skip value
+
+    auto rpm {input.toInt()};
+
     if(this->rpm == rpm)
         return;
     this->rpm = rpm;
@@ -336,11 +251,33 @@ int VisClient::gearValue()const
 {
     return gear;
 }
-void VisClient::setGearValue(int gear)
+void VisClient::setGearValue(QVariant input)
 {
-    qDebug() << "Gear position " << gear;
+    if(!input.canConvert<int>())
+        return; // skip value
+
+    auto tmp {input.toInt()};
+
+    GearPosition gear = GearPosition::GUNDEFINED;
+    switch(tmp)
+    {
+    case 0:
+    gear = GearPosition::PARK;
+    break;
+    case 2:
+    gear = GearPosition::NEUTRAL;
+    break;
+    case 3:
+    gear = GearPosition::DRIVE;
+    break;
+    case -1:
+    gear = GearPosition::REVERSE;
+    break;
+    }
+
     if(this->gear == gear)
         return;
+
     this->gear = gear;
     emit gearValueChanged();
 }
@@ -374,25 +311,17 @@ void VisClient::setConnectedValue(bool connected)
     emit connectedValueChanged();
 }
 
-int VisClient::getBattery(const QString & message)const
+void VisClient::setBatteryValue(QVariant input)
 {
-    int res = not_defined_value;
-    QByteArray br = message.toUtf8();
-    QJsonDocument doc = QJsonDocument::fromJson(br);
+    if(!input.canConvert<int>())
+        return; // skip value
 
-    if(doc["value"].isObject() && !doc["value"].isUndefined() &&
-            !doc["value"]["Signal.Drivetrain.BatteryManagement.BatteryCapacity"].isUndefined())
-    {
-        res = doc["value"]["Signal.Drivetrain.BatteryManagement.BatteryCapacity"].toInt();
-    }
-    return res;
-}
+    auto tmp {input.toInt()};
 
-void VisClient::setBatteryValue(int level)
-{
-    if(this->battery == level)
+    if(this->battery == tmp)
         return;
-    this->battery = level;
+
+    this->battery = tmp;
     emit batteryValueChanged();
 }
 
@@ -400,18 +329,3 @@ int VisClient::batteryValue()const
 {
     return battery;
 }
-
-int VisClient::getTurnDirection(const QString & propId, const QString & message)
-{
-    auto value = getStringValue(/*"Signal.Traffic.Turn.Direction"*/propId, message);
-    if(value == "right")
-    {
-       return 1;
-    }
-    else if(value == "left")
-    {
-        return 2;
-    }
-    return not_defined_value;
-}
-

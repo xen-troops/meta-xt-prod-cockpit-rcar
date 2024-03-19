@@ -8,6 +8,9 @@
 #include <QtWebSockets/QWebSocket>
 #include <QtNetwork/QSslError>
 #include <QUuid>
+#include <QVariant>
+#include <QSharedPointer>
+#include "VisSocket.h"
 
 class VisClient: public QObject
 {
@@ -30,25 +33,26 @@ public:
     };
 
     explicit VisClient(QObject *parent = nullptr);
+    explicit VisClient(QSharedPointer<VisWebSocket> socket);
     ~VisClient();
 
     int speedValue()const;
-    void setSpeedValue(int speed);
+    void setSpeedValue(QVariant input);
 
     int rpmValue()const;
-    void setRpmValue(int rpm);
+    void setRpmValue(QVariant input);
 
     QString urlValue()const;
-    void setUrlValue(QString url);
+    void setUrlValue(QString input);
 
     int gearValue()const;
-    void setGearValue(int rpm);
+    void setGearValue(QVariant input);
 
     int batteryValue()const;
-    void setBatteryValue(int battery);
+    void setBatteryValue(QVariant input);
 
     int turnValue()const;
-    void setTurnValue(int battery);
+    void setTurnValue(QVariant input);
 
     bool connectedValue()const;
     void setConnectedValue(bool connected);
@@ -56,10 +60,6 @@ public:
     Q_INVOKABLE void connectTo();
     Q_INVOKABLE void disconnect();
     Q_INVOKABLE void sendMessage(const QString &message);
-    //Q_INVOKABLE bool IsConnected()const;
-
-protected:
-    int getTurnDirection(const QString & propId, const QString & message);
 
 Q_SIGNALS:
     void connected();
@@ -71,8 +71,6 @@ private Q_SLOTS:
 
     void onConnected();
     void onDisconnected();
-    void onError(QAbstractSocket::SocketError error);
-    void onSslErrors(const QList<QSslError> &errors);
     void onTextMessageReceived(const QString &message);
 
 signals:
@@ -93,22 +91,17 @@ private: // methods
         GUNDEFINED 	= 10,
     };
     QString getSubscriptionId(const QString &message)const;
-    int getSpeed(const QString &message)const;
-    GearPosition getGearSelect(const QString &message)const;
-    int getRpm(const QString & message)const;
-    int getValue(const QString & propId, const QString & message)const;
-    QString getStringValue(const QString & propId, const QString & message)const;
-    int getBattery(const QString & message)const;
+    QVariant getQValue(const QString & propId, const QString & message)const;
 
 private:
-    int turn;
     int battery;
+    int turn;
     int speed;
     int rpm;
     int gear;
     bool isConnected;
     QString mUrl;
-    QWebSocket mWebSocket;
+    QSharedPointer<VisWebSocket> mWebSocket;
     QUuid mID;
     SubscrState mState;
     QString mSubscriptionId;
