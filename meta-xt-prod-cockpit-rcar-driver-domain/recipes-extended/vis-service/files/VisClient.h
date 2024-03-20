@@ -8,6 +8,9 @@
 #include <QtWebSockets/QWebSocket>
 #include <QtNetwork/QSslError>
 #include <QUuid>
+#include <QVariant>
+
+#include "Consumers.h"
 
 enum SubscrState {
 	StateInit = 0,
@@ -20,16 +23,9 @@ class VisClient : public QObject
 {
     Q_OBJECT
 public:
-    VisClient(QObject *parent, const QString &url, const QString& rpmsg);
+    VisClient(QObject *parent, const QString &url);
     virtual ~VisClient();
-
-    static int getBool(const QString & propId, const QString & message);
-    static int getTurnDirection(const QString & propId, const QString & message);
-    static int getValue(const QString & propId, const QString & message);
-    static int getTireStatus(const QString & propId, const QString & message);
-    static int getBeltStatus(const QString & propId, const QString & message);
-
-    static QString getStringValue(const QString & propId, const QString & message);
+    QVariant getQValue(const QString &message);
     static QString getSubscriptionId(const QString &message);
 
     Q_INVOKABLE void connectTo();
@@ -53,10 +49,10 @@ private Q_SLOTS:
 private:
     QString mUrl;
     QWebSocket mWebSocket;
-    int mFdept;
     QUuid mID;
     SubscrState mState;
     QString mSubscriptionId;
+    ConsumerDispatcher consumer;
 };    
 
 #endif // VIS_CLIENT_H
