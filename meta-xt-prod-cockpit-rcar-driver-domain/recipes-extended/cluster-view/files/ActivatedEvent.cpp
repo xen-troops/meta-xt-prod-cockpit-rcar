@@ -5,7 +5,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
-#ifndef UNIT_TEST
+#ifndef CLUSTER_UNIT_TEST
 #include <linux/r_taurus_cluster_protocol.h>
 #endif
 #include "ActivatedEvent.h"

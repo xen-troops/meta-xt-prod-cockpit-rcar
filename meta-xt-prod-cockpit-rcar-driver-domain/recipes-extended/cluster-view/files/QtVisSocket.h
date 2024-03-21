@@ -4,10 +4,14 @@
 
 #include <QObject>
 #include <QString>
+#ifndef CLUSTER_UNIT_TEST
 #include <qqml.h>
+#endif
 #include <QtCore/QObject>
+#ifndef CLUSTER_UNIT_TEST
 #include <QtWebSockets/QWebSocket>
 #include <QtNetwork/QSslError>
+#endif
 #include <QUuid>
 #include <QVariant>
 
