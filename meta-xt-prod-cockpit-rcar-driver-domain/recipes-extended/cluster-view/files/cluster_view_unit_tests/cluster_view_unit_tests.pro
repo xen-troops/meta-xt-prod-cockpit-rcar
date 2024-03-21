@@ -1,8 +1,10 @@
-QT += testlib quick websockets
+QT += testlib
 QT -= gui
 
 CONFIG += qt console warn_on depend_includepath testcase
 CONFIG -= app_bundle
+
+DEFINES += CLUSTER_UNIT_TEST=1
 
 TEMPLATE = app
 
@@ -10,9 +12,9 @@ SOURCES +=  \
     tst_cluster_view_input.cpp \
     ../VisSocket.cpp \
     ../visclient.cpp \
-    ../QtVisSocket.cpp
+    ../Consumers.cpp
 
 HEADERS += \
     ../visclient.h \
     ../VisSocket.h \
-    ../QtVisSocket.h
+    ../Consumers.h

@@ -4,6 +4,7 @@ QT += quick websockets
 DEFINES -= QT_NO_SSL
 
 SOURCES += \
+    Consumers.cpp \
     QtVisSocket.cpp \
     VisSocket.cpp \
     commandline.cpp \
@@ -18,6 +19,7 @@ OTHER_FILES += \
     doc/src/*.*
 
 HEADERS += \
+    Consumers.h \
     QtVisSocket.h \
     VisSocket.h \
     commandline.h \

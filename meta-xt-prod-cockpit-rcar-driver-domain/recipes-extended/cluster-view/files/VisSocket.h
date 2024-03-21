@@ -18,7 +18,7 @@ Q_SIGNALS:
     void disconnected();
     void textMessageReceived(const QString &message);
 
-private Q_SLOTS:
+protected Q_SLOTS:
 
     void onConnected();
     void onDisconnected();
@@ -28,6 +28,7 @@ protected:
     virtual void onOpen(const QUrl &url) = 0;
     virtual void onClose() = 0;
     virtual void onSendTextMessage(const QString &message)= 0;
+    virtual void onTextMessage(const QString &message) = 0;
 };
 
 
