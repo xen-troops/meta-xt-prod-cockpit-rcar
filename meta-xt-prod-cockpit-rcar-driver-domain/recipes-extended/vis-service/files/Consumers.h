@@ -4,24 +4,16 @@
 #include <QObject>
 #include <QString>
 #include <QVariant>
+#include <tuple>
 
-class ConsumerDispatcher: public QObject
-{
-    Q_OBJECT
-public:
-    ConsumerDispatcher();
-public Q_SLOTS:
-    void onMessageReceived(const QString &message);
-
-Q_SIGNALS:
-    void messageReceived(const QString &message);
-    void on();
-    void off();
-};
+class ConsumerDispatcher;
 
 class BaseConsumer: public QObject
 {
     Q_OBJECT
+
+public:
+    virtual void init(class ConsumerDispatcher& );
 public Q_SLOTS:
     void onMessageReceived(const QString &message);
     virtual void off() = 0;
@@ -104,4 +96,30 @@ public:
     void off() override;
     void on() override;
 };
+
+class ConsumerDispatcher: public QObject
+{
+    Q_OBJECT
+public:
+    ConsumerDispatcher();
+public Q_SLOTS:
+    void onMessageReceived(const QString &message);
+
+Q_SIGNALS:
+    void messageReceived(const QString &message);
+    void on();
+    void off();
+
+private:
+    std::tuple<SpeedConsumer,
+            RpmConsumer,
+            GearConsumer,
+            TurnConsumer,
+            DoorConsumer,
+            TrunkConsumer,
+            BeltConsumer,
+            LightsConsumer,
+            TireConsumer> consumers;
+};
+
 #endif // MSGPRODUCER_H

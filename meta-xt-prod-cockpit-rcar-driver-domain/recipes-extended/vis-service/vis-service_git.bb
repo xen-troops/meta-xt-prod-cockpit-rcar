@@ -5,6 +5,8 @@ SRC_URI = "file://vis-service.pro \
            file://main.cpp \
            file://VisClient.h \
            file://VisClient.cpp \
+	   file://Consumers.h \
+	   file://Consumers.cpp \
            file://vis-service.service \
 "
 

@@ -91,6 +91,13 @@ QVariant BaseConsumer::getQValue(const QString &msg, const QString& prop)
     return QVariant{};
 }
 
+void BaseConsumer::init(class ConsumerDispatcher& disp)
+{
+    connect(&disp, &ConsumerDispatcher::messageReceived, this, &BaseConsumer::onMessageReceived);
+    connect(&disp, &ConsumerDispatcher::on, this, &BaseConsumer::on);
+    connect(&disp, &ConsumerDispatcher::off, this, &BaseConsumer::off);
+}
+
 void SpeedConsumer::onMessage(const QString &message)
 {
     static const QString propName {"Signal.Vehicle.Speed"};
@@ -320,29 +327,16 @@ void TireConsumer::on()
     send(CLUSTER_LOW_TIRE_PRESSURE, 1);
 }
 
-
-// consumers
-static const QVector<QSharedPointer<BaseConsumer>> consumers {
-    QSharedPointer<BaseConsumer>(new SpeedConsumer()),
-    QSharedPointer<BaseConsumer>(new GearConsumer()),
-    QSharedPointer<BaseConsumer>(new RpmConsumer()),
-    QSharedPointer<BaseConsumer>(new TurnConsumer()),
-    QSharedPointer<BaseConsumer>(new DoorConsumer()),
-    QSharedPointer<BaseConsumer>(new TrunkConsumer()),
-    QSharedPointer<BaseConsumer>(new BeltConsumer()),
-    QSharedPointer<BaseConsumer>(new LightsConsumer()),
-    QSharedPointer<BaseConsumer>(new TireConsumer())
-};
-
-
 ConsumerDispatcher::ConsumerDispatcher()
 {
-    for(auto iter = consumers.begin(); iter != consumers.end();++iter)
-    {
-        connect(this, &ConsumerDispatcher::messageReceived, (*iter).data(), &BaseConsumer::onMessageReceived);
-        connect(this, &ConsumerDispatcher::on, (*iter).data(), &BaseConsumer::on);
-        connect(this, &ConsumerDispatcher::off, (*iter).data(), &BaseConsumer::off);
-    }
+    std::get<SpeedConsumer>(consumers).init(*this);
+    std::get<RpmConsumer>(consumers).init(*this);
+    std::get<GearConsumer>(consumers).init(*this);
+    std::get<DoorConsumer>(consumers).init(*this);
+    std::get<TrunkConsumer>(consumers).init(*this);
+    std::get<BeltConsumer>(consumers).init(*this);
+    std::get<LightsConsumer>(consumers).init(*this);
+    std::get<TireConsumer>(consumers).init(*this);
 }
 
 void ConsumerDispatcher::onMessageReceived(const QString &message)
