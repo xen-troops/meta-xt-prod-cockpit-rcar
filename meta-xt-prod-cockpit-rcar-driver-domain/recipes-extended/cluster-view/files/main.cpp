@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QtGui>
+#include <QVariant>
 #include <string.h>
 #include <qqml.h>
 #include <functional>
