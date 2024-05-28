@@ -1,7 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 
-SRCREV = "${AUTOREV}"
+SRCREV = "09cd8fd14a541181413eb57ed04fe05f58e80e06"
 
 SRC_URI_append = " \
     file://0001-CR7_mfis_as_in_v5.10.41.patch \
