@@ -14,7 +14,7 @@ SRC_URI = " \
    git://git@gitpct.epam.com/epmd-aepr/vlib;protocol=ssh;branch=${BRANCH} \
 "
 
-SRCREV = "${AUTOREV}"
+SRCREV = "d5d52c4baf782aaef287efa3450046ac4f22dacf"
 BRANCH = "CES-2023"
 
 DEPENDS = " \

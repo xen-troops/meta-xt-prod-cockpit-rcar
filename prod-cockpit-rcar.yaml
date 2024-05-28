@@ -36,13 +36,13 @@ common_data:
       rev: beea119eb529b4a11f266004aee8b548427aea39
     - type: git
       url: "https://github.com/xen-troops/meta-xt-common.git"
-      rev: be26ff13057f8aaa503db8ef4f3826a4b483f35b
+      rev: dunfell-v0.1.0
     - type: git
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
-      rev: da9485c357b041f5af6232e0a7f24bbbb3d72d56
+      rev: dunfell-v0.1.0
     - type: git
       url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: master
+      rev: v1.0.0
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -180,7 +180,7 @@ components:
         rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
       - type: git
         url: "https://github.com/xen-troops/meta-renesas.git"
-        rev: Renesas-Yocto-v5.9-patched
+        rev: b379ca61c3cc8919b4bbd1008c65f21a39638f26
       - type: git
         url: "https://github.com/aoscloud/meta-aos"
         rev: "4b0f4ea629db039af8cec8f9ea019bb4c9e6d0c7"
@@ -258,7 +258,7 @@ components:
     sources:
       - type: repo
         url: https://github.com/xen-troops/android_kernel_manifest.git
-        rev: common-android13-5.10-cr7-master
+        rev: 0631eb20d34c8f367424e84bdb0670ef920beb11
         manifest: default.xml
         depth: 1
         groups: "%{XT_DOMA_SOURCE_GROUP}"
@@ -284,7 +284,7 @@ components:
     sources:
       - type: repo
         url: "git@github.com:xen-troops/android_manifest.git"
-        rev: android-14-prod-cockpit-rcar-master
+        rev: 46eba98b316598dae17f7f1036843aa55a774b68
         manifest: doma.xml
         depth: 1
         groups: "%{XT_DOMA_SOURCE_GROUP}"
@@ -404,7 +404,7 @@ parameters:
             sources:
               - type: git
                 url: "https://github.com/xen-troops/meta-rcar.git"
-                rev: Renesas-Yocto-v5.9-patched
+                rev: 3e30e043d28e98934e40d66cdda6c1dc8a8b6a09
             builder:
               layers:
                 - "../meta-rcar/meta-rcar-gen3-adas"
