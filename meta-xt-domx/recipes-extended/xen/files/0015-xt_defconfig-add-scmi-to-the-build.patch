@@ -1,0 +1,24 @@
+From 44428a45c5a8d331325f56bd8e541d5b58a927b5 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor.usyk@gmail.com>
+Date: Thu, 9 Feb 2023 15:35:42 +0100
+Subject: [PATCH 15/18] xt_defconfig: add scmi to the build
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ xen/arch/arm/configs/xt_defconfig | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/xen/arch/arm/configs/xt_defconfig b/xen/arch/arm/configs/xt_defconfig
+index 379bd5b324..88e7a5ed69 100644
+--- a/xen/arch/arm/configs/xt_defconfig
++++ b/xen/arch/arm/configs/xt_defconfig
+@@ -4,3 +4,6 @@ CONFIG_OPTEE=y
+ CONFIG_IPMMU_VMSA=y
+ CONFIG_IOREQ_SERVER=y
+ CONFIG_EXPERT=y
++CONFIG_ARM_SCI=y
++CONFIG_SCMI_SMC=y
++CONFIG_HOST_DTB_EXPORT=y
+-- 
+2.25.1
+

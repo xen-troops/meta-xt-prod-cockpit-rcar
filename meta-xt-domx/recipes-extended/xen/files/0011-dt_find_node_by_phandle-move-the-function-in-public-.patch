@@ -1,0 +1,49 @@
+From 4b5fd97cb16369a9a3341292f23a6024b1bab733 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Thu, 9 Feb 2023 15:21:30 +0100
+Subject: [PATCH 11/18] dt_find_node_by_phandle: move the function in public
+ section.
+
+The function is used in scmi_smc.c
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ xen/common/device_tree.c      | 2 +-
+ xen/include/xen/device_tree.h | 8 ++++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/xen/common/device_tree.c b/xen/common/device_tree.c
+index 03d25a81ce..c2e33b9983 100644
+--- a/xen/common/device_tree.c
++++ b/xen/common/device_tree.c
+@@ -986,7 +986,7 @@ int dt_for_each_range(const struct dt_device_node *dev,
+  *
+  * Returns a node pointer.
+  */
+-static struct dt_device_node *dt_find_node_by_phandle(dt_phandle handle)
++struct dt_device_node *dt_find_node_by_phandle(dt_phandle handle)
+ {
+     struct dt_device_node *np;
+ 
+diff --git a/xen/include/xen/device_tree.h b/xen/include/xen/device_tree.h
+index b02696be94..40b6fd30b7 100644
+--- a/xen/include/xen/device_tree.h
++++ b/xen/include/xen/device_tree.h
+@@ -776,6 +776,14 @@ int dt_count_phandle_with_args(const struct dt_device_node *np,
+                                const char *list_name,
+                                const char *cells_name);
+ 
++/**
++ * dt_find_node_by_phandle - Find a node given a phandle
++ * @handle: phandle of the node to find
++ *
++ * Returns a node pointer.
++ */
++struct dt_device_node *dt_find_node_by_phandle(dt_phandle handle);
++
+ #ifdef CONFIG_DEVICE_TREE_DEBUG
+ #define dt_dprintk(fmt, args...)  \
+     printk(XENLOG_DEBUG fmt, ## args)
+-- 
+2.25.1
+

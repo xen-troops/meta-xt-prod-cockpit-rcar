@@ -1,0 +1,159 @@
+From 531f4cc0c4956b1a506301fe9c2a2308733ea55c Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Wed, 21 Jun 2023 22:30:28 +0200
+Subject: [PATCH 18/18] rcar3.c: introduce the communication protocol with 
+ cluster.
+
+The following approach is used to communicate with cluster
+IRQ: IRQ_MFIS_ARIICR7 (263)
+Message: IMBR(7)
+
+Message format
+
+Bits 0-3: domain identifier
+0x1 - domd
+0x2 - doma
+
+Bits 30-31: command
+bit 30 is set - domain is removed
+bit 31 is set - domain is created
+bit 30 and 31 are set - CR7 reinitialized
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ xen/arch/arm/platforms/rcar3.c | 92 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 91 insertions(+), 1 deletion(-)
+
+diff --git a/xen/arch/arm/platforms/rcar3.c b/xen/arch/arm/platforms/rcar3.c
+index 4b1136c266..c92e8affb4 100644
+--- a/xen/arch/arm/platforms/rcar3.c
++++ b/xen/arch/arm/platforms/rcar3.c
+@@ -25,6 +25,8 @@
+ 
+ #include <public/arch-arm.h>
+ 
++#include <xen/delay.h>
++
+ #define MFIS_MAX_CHANNELS 8
+ #define MFIS_IICR(n) (0x0400 + n * 0x8)
+ #define MFIS_EICR(n) (0x0404 + n * 0x8)
+@@ -55,6 +57,40 @@
+ 
+ #define RPROC_SMC_ERR_NOT_AVAILABLE      0x01
+ 
++/*
++* The set of macroses to set the information about the operation
++* made with domain. The information is necessary to inform the cluster_wrapper
++* about the domain status
++* The bits from 0-3 are to save the domain ID
++* The bits from 30-31 are to save the command
++* Bit 30 value 1 - domain is removed
++* Bit 31 value 1 - domain is created
++* */
++#define SET_BIT(v,n) v |= 1UL << n
++#define IS_BIT_SET(v,n) (v >> n) & 1U
++#define RESET_BIT(v,n) v ^= 1UL << n;
++
++#define NO_OPERATION(v) (!(IS_BIT_SET(v,30)) && !(IS_BIT_SET(v,31)))
++
++#define SET_DOMAIN_CREATE(v) SET_BIT(v,31)
++#define SET_DOMAIN_REMOVE(v) SET_BIT(v,30)
++
++#define RESET_DOMAIN_CREATE(v) RESET_BIT(v,31)
++#define RESET_DOMAIN_REMOVE(v) RESET_BIT(v,30)
++
++#define SET_DOMD(v) SET_BIT(v,0)
++#define SET_DOMA(v) SET_BIT(v,1)
++
++#define RESET_DOMD(v) RESET_BIT(v,0)
++#define RESET_DOMA(v) RESET_BIT(v,1)
++
++#define IS_DOMD_SET(v) IS_BIT_SET(v,0)
++#define IS_DOMA_SET(v) IS_BIT_SET(v,1)
++
++#define IS_DOMAIN_CREATE(v) IS_BIT_SET(v,31)
++#define IS_DOMAIN_REMOVE(v) IS_BIT_SET(v,30)
++#define IS_DOMAIN_REMOVED(v) IS_BIT_SET(v,30) && IS_BIT_SET(v,31)
++
+ struct mfis_data
+ {
+     void *base;
+@@ -125,6 +161,8 @@ static const char *const rcar3_dt_compat[] __initconst =
+     NULL
+ };
+ 
++static spinlock_t remove_domain_lock = SPIN_LOCK_UNLOCKED;
++
+ static void mfis_irq_handler(int irq, void *dev_id, struct cpu_user_regs *regs)
+ {
+     int i;
+@@ -177,13 +215,65 @@ static int mfis_add_domain(struct domain* d, int chan)
+ 
+ static int mfis_remove_domain(int chan)
+ {
++    uint32_t msg = 0x0;
++    uint32_t timeout = 10;/* time ut to wait a feedback from cr7*/
++    int ret = 0;
+ 
+     if ( chan >= mfis_data->chan_cnt )
+         return -EINVAL;
+ 
+     mfis_data->domains[chan] = NULL;
+ 
+-    return 0;
++    spin_lock(&remove_domain_lock);
++
++    /* generate the irq to inform cluster_wrapper that domain is */
++    /* destroyed and it is necessary to re-init the virtio queues */
++    /* for the taurus */
++
++    /* set bit of operation: remove domain*/
++    SET_DOMAIN_REMOVE(msg);
++
++    /* domain id is the 'channel number' + 1, */
++    /* set the first 2 bits*/
++    msg |= (chan + 1);
++
++    /* send message to remove the domain*/
++    writel(msg, mfis_data->base + MFIS_IMBR(7));
++
++    /* generate the IRQ to read the message*/
++    writel(0x1, mfis_data->base + MFIS_IICR(7));
++
++    /* wait tfor end of the domain de-initialization */
++    do
++    {
++            mdelay(1);
++	    msg = readl(mfis_data->base + MFIS_EICR(7));
++	    --timeout;
++    }
++    while ( timeout && !msg );
++    
++    if(msg)
++    {
++	msg = readl(mfis_data->base + MFIS_IMBR(7));
++	if((msg & 0x3) != chan + 1 || !(IS_DOMAIN_REMOVED(msg)))
++	{
++            printk(XENLOG_ERR"The destroying of domain is not confirmed, expected domain %d - provided %d, is removed %d .\n",
++			    chan+1, (msg & 0x3), (IS_DOMAIN_REMOVED(msg)));
++            ret = -ENOENT;
++	}
++    }
++    else
++    {
++        printk(XENLOG_ERR"The destroying of domain is not confirmed, timeout is over.\n");
++	ret = -ENOENT;
++    }
++    
++    writel(0x0, mfis_data->base + MFIS_EICR(7));
++    writel(0x0, mfis_data->base + MFIS_IMBR(7));
++
++    spin_unlock(&remove_domain_lock);
++
++    return ret;
+ }
+ 
+ static int mfis_trigger_chan(struct domain *d)
+-- 
+2.25.1
+

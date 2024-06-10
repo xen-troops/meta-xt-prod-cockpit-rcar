@@ -1,0 +1,44 @@
+From c84b5b1adfa084f9ed42644858365a0c4099d3df Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Thu, 9 Feb 2023 14:26:45 +0100
+Subject: [PATCH 14/18] iommu: iommu_do_domctl change initial ret value.
+
+There are some code wrapped in the blocks #ifdef..#endif, inside of the blocks
+the ret value is compared with '-ENOSYS' and if it is, start the code execution.
+It means that in the code below, function iommu_do_dt_domctl can not be executed
+if CONFIG_HAS_PCI not defined
+
+int ret = -ENOSYS;
+
+if ( !is_iommu_enabled(d) )
+    return -EOPNOTSUPP;
+
+ret = iommu_do_pci_domctl(domctl, d, u_domctl);
+
+if ( ret == -ENOSYS )
+   ret = iommu_do_dt_domctl(domctl, d, u_domctl);
+
+So, it is reasonable to have '-ENOSYS' as initial value.
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ xen/drivers/passthrough/iommu.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/xen/drivers/passthrough/iommu.c b/xen/drivers/passthrough/iommu.c
+index c80ad21de1..2a7a8c7cc1 100644
+--- a/xen/drivers/passthrough/iommu.c
++++ b/xen/drivers/passthrough/iommu.c
+@@ -515,8 +515,7 @@ int iommu_do_domctl(
+     struct xen_domctl *domctl, struct domain *d,
+     XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
+ {
+-    int ret = -ENODEV;
+-
++    int ret = -ENOSYS;
+ 
+     if ( !is_iommu_enabled(d) )
+         return -EOPNOTSUPP;
+-- 
+2.25.1
+
