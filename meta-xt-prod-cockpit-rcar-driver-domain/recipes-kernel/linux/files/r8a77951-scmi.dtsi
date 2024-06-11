@@ -1,0 +1,156 @@
+/*
+ * Device Tree scmi configuration.
+ *
+ * Copyright (C) 2021 EPAM Systems.
+ *
+ * This file is licensed under the terms of the GNU General Public License
+ * version 2.  This program is licensed "as is" without any warranty of any
+ * kind, whether express or implied.
+ */
+
+/ {
+	cpu_scp_shm: scp-shmem@57000000/*0x1FF0000*/ {
+		compatible = "arm,scmi-shmem";
+		reg = <0x0 0x57000000 0x0 0x1000>;
+	};
+	scp-shmem@57001000 {
+		compatible = "arm,scmi-shmem";
+		reg = <0x00 0x57001000 0x00 0x1000>;
+	};
+	scp-shmem@57002000 {
+		compatible = "arm,scmi-shmem";
+		reg = <0x00 0x57002000 0x00 0x1000>;
+	};
+	scp-shmem@0x57003000 {
+		compatible = "arm,scmi-shmem";
+		reg = <0x00 0x57003000 0x00 0x1000>;
+		phandle = <0x19>;
+	};
+
+	firmware {
+		scmi {
+			compatible = "arm,scmi-smc";
+			arm,smc-id = <0x82000002>;
+			shmem = <&cpu_scp_shm>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			scmi_power: protocol@11 {
+				reg = <0x11>;
+				#power-domain-cells = <1>;
+			};
+
+			scmi_clock: protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
+
+			scmi_reset: protocol@16 {
+				reg = <0x16>;
+				#reset-cells = <1>;
+			};
+		};
+	};
+
+	reserved-memory {
+		/* reserved region for scmi channels*/
+		scmi_memory: linux,scmi_mem@57000000 {
+			no-map;
+			reg = <0x0 0x57000000 0x0 0x4000>;
+		};
+	};
+};
+
+&soc {
+	i2c2_clk: i2c2_clk {
+		compatible = "fixed-clock";
+		/*
+		The value "133333328" was taken from /sys/kernel/debug/clk/clk_summary
+		for the corresponding clock in DomD.
+		*/
+		clock-frequency = <133333328>;
+		#clock-cells = <0>;
+	};
+};
+
+&usb_dmac2 /* dma-controller@e6460000*/
+{
+	scmi_devid = <15>;
+	clocks = <&scmi_clock 7>;
+	resets = <&scmi_reset 14>;
+	power-domains = <&scmi_power 0>;
+};
+
+&usb_dmac3 /* dma-controller@e6470000*/
+{
+	scmi_devid = <16>;
+	clocks = <&scmi_clock 8>;
+	resets = <&scmi_reset 15>;
+	power-domains = <&scmi_power 0>;
+};
+
+&usb_dmac0 /* dma-controller@e65a0000*/
+{
+	scmi_devid = <13>;
+	clocks = <&scmi_clock 5>;
+	resets = <&scmi_reset 12>;
+	power-domains = <&scmi_power 0>;
+};
+
+&usb_dmac1 /* dma-controller@e65b0000*/
+{
+	scmi_devid = <14>;
+	clocks = <&scmi_clock 6>;
+	resets = <&scmi_reset 13>;
+	power-domains = <&scmi_power 0>;
+};
+
+&hsusb /* usb@e6590000*/
+{
+	scmi_devid = <19>;
+	clocks = <&scmi_clock 3>, <&scmi_clock 2>;
+	resets = <&scmi_reset 10>, <&scmi_reset 9>;
+	power-domains = <&scmi_power 0>;
+};
+
+&xhci0 /* usb@ee000000*/
+{
+	scmi_devid = <8>;
+	clocks = <&scmi_clock 1>;
+	resets = <&scmi_reset 8>;
+	power-domains = <&scmi_power 0>;
+};
+
+&ohci0 /* usb@ee080000*/
+{
+	scmi_devid = <9>;
+	clocks = <&scmi_clock 2>, <&scmi_clock 3>;
+	resets = <&scmi_reset 9>, <&scmi_reset 10>;
+	power-domains = <&scmi_power 0>;
+};
+
+&ehci0 /* usb@ee080100*/
+{
+	scmi_devid = <10>;
+	clocks = <&scmi_clock 2>, <&scmi_clock 3>;
+	resets = <&scmi_reset 9>, <&scmi_reset 10>;
+	power-domains = <&scmi_power 0>;
+};
+
+&ohci1 /* usb@ee0a0000*/
+{
+	scmi_devid = <11>;
+	clocks = <&scmi_clock 4>;
+	resets = <&scmi_reset 11>;
+	power-domains = <&scmi_power 0>;
+};
+
+&ehci1 /* usb@ee0a0100*/
+{
+	scmi_devid = <12>;
+	clocks = <&scmi_clock 4>;
+	resets = <&scmi_reset 11>;
+	power-domains = <&scmi_power 0>;
+};
+
+

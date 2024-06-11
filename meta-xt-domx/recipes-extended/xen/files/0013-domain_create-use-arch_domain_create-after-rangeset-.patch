@@ -1,0 +1,44 @@
+From 35029c8f665e4cbbbcb770c211ef290864a457c0 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Thu, 9 Feb 2023 14:17:48 +0100
+Subject: [PATCH 13/18] domain_create: use arch_domain_create after rangeset
+ initialization.
+
+arch_domain_create calls sci_domain_init that uses the range set.
+The rangesets must be firstly initialized and just after that used.
+Before, there was situation when rangeset usage was before initialization.
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ xen/common/domain.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/xen/common/domain.c b/xen/common/domain.c
+index 2953830c54..3a86e0b472 100644
+--- a/xen/common/domain.c
++++ b/xen/common/domain.c
+@@ -635,10 +635,6 @@ struct domain *domain_create(domid_t domid,
+         radix_tree_init(&d->pirq_tree);
+     }
+ 
+-    if ( (err = arch_domain_create(d, config)) != 0 )
+-        goto fail;
+-    init_status |= INIT_arch;
+-
+     if ( !is_idle_domain(d) )
+     {
+         watchdog_domain_init(d);
+@@ -697,6 +693,10 @@ struct domain *domain_create(domid_t domid,
+ 
+         memcpy(d->handle, config->handle, sizeof(d->handle));
+     }
++    
++    if ( (err = arch_domain_create(d, config)) != 0 )
++        goto fail;                                                                                                                                                                                        
++    init_status |= INIT_arch;
+ 
+     return d;
+ 
+-- 
+2.25.1
+

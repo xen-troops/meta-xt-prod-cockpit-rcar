@@ -10,5 +10,9 @@ SRC_URI_append = " \
     file://boot-options.dtsi;subdir=git/arch/${ARCH}/boot/dts/renesas \
     file://r8a7795-h3ulcb-4x2g-kf-doma.dtsi;subdir=git/arch/${ARCH}/boot/dts/renesas \
     file://r8a77951-h3ulcb-4x2g-kf-domd.dtsi;subdir=git/arch/${ARCH}/boot/dts/renesas \
+    file://0001-PM-clk-make-PM-clock-layer-compatible-with-clocks-th.patch \
+    file://0002-firmware-arm_scmi-Add-clock-management-to-the-SCMI-p.patch \
+    file://r8a77951-scmi.dtsi;subdir=git/arch/${ARCH}/boot/dts/renesas \
+    file://0001-include-r8a77951-scmi.dtsi.patch \
 "
 

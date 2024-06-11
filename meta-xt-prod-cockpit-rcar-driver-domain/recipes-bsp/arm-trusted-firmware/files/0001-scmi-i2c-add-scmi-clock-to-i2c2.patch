@@ -1,0 +1,79 @@
+From c3697bf4498c11ca79ecf877e73288b9c3da7b74 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Mon, 24 Jul 2023 22:53:16 +0200
+Subject: [PATCH] scmi, i2c: add scmi clock to i2c2
+
+Motivation is to support scmi clock for success doma restart.
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ plat/renesas/common/include/rcar_scmi_resources.h |  1 +
+ plat/renesas/rcar/rcar_scmi_clocks.c              | 13 +++++++++++++
+ plat/renesas/rcar/rcar_scmi_devices.c             |  2 +-
+ 3 files changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/plat/renesas/common/include/rcar_scmi_resources.h b/plat/renesas/common/include/rcar_scmi_resources.h
+index d31fe2dc0..455cd072c 100644
+--- a/plat/renesas/common/include/rcar_scmi_resources.h
++++ b/plat/renesas/common/include/rcar_scmi_resources.h
+@@ -129,6 +129,7 @@ enum rcar_scmi_clk {
+ 	RCAR_SCMICLK_SCU_SRC0,	/* 34 */
+ 	RCAR_SCMICLK_AUDMAC1,	/* 35 */
+ 	RCAR_SCMICLK_AUDMAC0,	/* 36 */
++	RCAR_SCMICLK_I2C2,
+ 	RCAR_SCMICLK_HDMI,
+ 	RCAR_SCMICLK_HDMI0,
+ 	RCAR_SCMICLK_HDMI1,
+diff --git a/plat/renesas/rcar/rcar_scmi_clocks.c b/plat/renesas/rcar/rcar_scmi_clocks.c
+index 51b52de6d..583e77ba6 100644
+--- a/plat/renesas/rcar/rcar_scmi_clocks.c
++++ b/plat/renesas/rcar/rcar_scmi_clocks.c
+@@ -40,12 +40,14 @@
+ #define SMSTPCR5  0x144
+ #define SMSTPCR7  0x14C
+ #define SMSTPCR8  0x990
++#define SMSTPCR9  0x994
+ #define SMSTPCR10 0x998
+ 
+ #define MSTPSR3  0x048
+ #define MSTPSR5  0x03C
+ #define MSTPSR7  0x1C4
+ #define MSTPSR8  0x9A0
++#define MSTPSR9  0x9A4
+ #define MSTPSR10 0x9A8
+ 
+ enum scmi_message_id {
+@@ -491,6 +493,17 @@ struct scmi_clk rcar_clocks[RCAR_CLK_MAX] = {
+ 			.init = MSSR_OFF,
+ 		}
+ 	},
++	[RCAR_SCMICLK_I2C2] = {
++                .name = "_i2c2",
++                .parent = RCAR_CLK_S3D2,
++                .type = CLK_TYPE_MSSR,
++                .clk.mssr = {
++                         .cr = SMSTPCR9,
++                        .st = MSTPSR9, 
++                        .bit = 29,
++                        .init = MSSR_OFF,
++               } 
++        },
+ 	[RCAR_SCMICLK_HDMI] = {
+ 		.name = "_hdmi",
+ 		.parent = -1, /*TODO: div6 clocks support */
+diff --git a/plat/renesas/rcar/rcar_scmi_devices.c b/plat/renesas/rcar/rcar_scmi_devices.c
+index 93cc7d197..9bdfc7cd0 100644
+--- a/plat/renesas/rcar/rcar_scmi_devices.c
++++ b/plat/renesas/rcar/rcar_scmi_devices.c
+@@ -61,7 +61,7 @@ const struct scmi_device rcar_devices[RCAR_SCMIDEV_MAX] = {
+ 	},
+ 	[RCAR_SCMIDEV_I2C2] = {
+ 		.rsts = (int[]){RCAR_SCMIRST_I2C2,-1},
+-		.clks = (int[]){-1},
++		.clks = (int[]){RCAR_SCMICLK_I2C2,-1},
+ 	},
+ 	[RCAR_SCMIDEV_I2C3] = {
+ 		.rsts = (int[]){RCAR_SCMIRST_I2C3,-1},
+-- 
+2.25.1
+

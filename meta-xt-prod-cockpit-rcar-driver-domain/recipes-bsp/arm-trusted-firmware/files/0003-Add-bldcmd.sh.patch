@@ -1,0 +1,37 @@
+From 66c2d5a77e00ed07ff895bc55f3e297d0fb94599 Mon Sep 17 00:00:00 2001
+From: Sergiy Kibrik <sakib@darkstar.site>
+Date: Fri, 14 May 2021 12:14:59 +0000
+Subject: [PATCH 03/11] Add bldcmd.sh
+
+---
+ bldcmd.sh | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+ create mode 100644 bldcmd.sh
+
+diff --git a/bldcmd.sh b/bldcmd.sh
+new file mode 100644
+index 000000000..ec0bc44cf
+--- /dev/null
++++ b/bldcmd.sh
+@@ -0,0 +1,18 @@
++make -j17 \
++ARCH=aarch64 \
++CROSS_COMPILE=aarch64-linux-gnu- \
++CC=aarch64-linux-gnu-gcc \
++PLAT=rcar \
++MBEDTLS_COMMON_MK=1 \
++LSI=H3 \
++LOG_LEVEL=40 \
++RCAR_DRAM_SPLIT=1 \
++RCAR_GEN3_ULCB=1 \
++PMIC_LEVEL_MODE=0 \
++RCAR_DRAM_LPDDR4_MEMCONF=1 \
++RCAR_LOSSY_ENABLE=1 \
++RCAR_BL33_EXECUTION_EL=1  \
++RCAR_RPC_HYPERFLASH_LOCKED=0 \
++DEBUG=1 \
++SPD=opteed \
++bl2 bl31 rcar
+-- 
+2.25.1
+

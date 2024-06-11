@@ -1,0 +1,239 @@
+From bc7b6841d9e8e196058b51a450c3685d1a423888 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Tue, 31 Jan 2023 18:51:47 +0100
+Subject: [PATCH 08/18] tools/arm: Introduce force_assign_without_iommu option
+ to xl.cfg
+
+If set, Xen is allowed to assign the devices even if they are not under
+IOMMU.
+Can be confugired from dom.cfg in the following format:
+force_assign_without_iommu = 1
+
+This parameter has the same purpose as xen,force-assign-without-iommu
+property in dom0less archtecture.
+
+Signed-off-by: Oleksii Moisieiev <oleksii_moisieiev@epam.com>
+Signed-off-by: Ihor Usyk <ihor.usyk@gmail.com>
+---
+ docs/man/xl.cfg.5.pod.in              |  9 +++++++++
+ tools/golang/xenlight/helpers.gen.go  |  5 +++++
+ tools/golang/xenlight/types.gen.go    |  1 +
+ tools/libs/light/libxl_arm.c          |  3 +++
+ tools/libs/light/libxl_types.idl      |  1 +
+ tools/xl/xl_parse.c                   |  2 ++
+ xen/common/domain.c                   |  2 +-
+ xen/drivers/passthrough/device_tree.c | 18 ++++++++++++++++--
+ xen/drivers/passthrough/iommu.c       |  5 ++++-
+ xen/include/public/domctl.h           |  5 ++++-
+ xen/include/xen/iommu.h               |  3 +++
+ 11 files changed, 49 insertions(+), 5 deletions(-)
+
+diff --git a/docs/man/xl.cfg.5.pod.in b/docs/man/xl.cfg.5.pod.in
+index 6ff1793417..8d33238d15 100644
+--- a/docs/man/xl.cfg.5.pod.in
++++ b/docs/man/xl.cfg.5.pod.in
+@@ -1623,6 +1623,15 @@ Specifies OS ID.
+ 
+ =back
+ 
++=over 4
++
++=item B<force_assign_without_iommu=BOOLEAN>
++
++If set, Xen allows to assign a devices even if it is not behind an IOMMU.
++This renders your platform *unsafe* if the device is DMA-capable.
++
++=back
++
+ =back
+ 
+ =head2 Paravirtualised (PV) Guest Specific Options
+diff --git a/tools/golang/xenlight/helpers.gen.go b/tools/golang/xenlight/helpers.gen.go
+index 4c60d27a9c..bb4444263b 100644
+--- a/tools/golang/xenlight/helpers.gen.go
++++ b/tools/golang/xenlight/helpers.gen.go
+@@ -1087,6 +1087,11 @@ if err := x.DmRestrict.fromC(&xc.dm_restrict);err != nil {
+ return fmt.Errorf("converting field DmRestrict: %v", err)
+ }
+ x.Tee = TeeType(xc.tee)
++
++if err := x.ForceAssignWithoutIommu.fromC(&xc.force_assign_without_iommu);err != nil {
++return fmt.Errorf("converting field ForceAssignWithoutIommu: %v", err)
++}
++
+ x.Type = DomainType(xc._type)
+ switch x.Type{
+ case DomainTypeHvm:
+diff --git a/tools/golang/xenlight/types.gen.go b/tools/golang/xenlight/types.gen.go
+index cb13002fdb..558e4b8416 100644
+--- a/tools/golang/xenlight/types.gen.go
++++ b/tools/golang/xenlight/types.gen.go
+@@ -507,6 +507,7 @@ NestedHvm Defbool
+ Apic Defbool
+ DmRestrict Defbool
+ Tee TeeType
++ForceAssignWithoutIommu Defbool
+ Type DomainType
+ TypeUnion domainBuildInfoTypeUnion
+ ArchArm struct {
+diff --git a/tools/libs/light/libxl_arm.c b/tools/libs/light/libxl_arm.c
+index 1cf60c5844..757edd37c6 100644
+--- a/tools/libs/light/libxl_arm.c
++++ b/tools/libs/light/libxl_arm.c
+@@ -192,6 +192,9 @@ int libxl__arch_domain_prepare_config(libxl__gc *gc,
+         return ERROR_FAIL;
+     }
+ 
++    if (libxl_defbool_val(d_config->b_info.force_assign_without_iommu))
++        config->iommu_opts |= XEN_DOMCTL_IOMMU_force_iommu;
++
+     if (d_config->num_vgsxs) {
+         libxl_device_vgsx *vgsx;
+ 
+diff --git a/tools/libs/light/libxl_types.idl b/tools/libs/light/libxl_types.idl
+index ad91f5ded5..6b9558d045 100644
+--- a/tools/libs/light/libxl_types.idl
++++ b/tools/libs/light/libxl_types.idl
+@@ -572,6 +572,7 @@ libxl_domain_build_info = Struct("domain_build_info",[
+     ("apic",             libxl_defbool),
+     ("dm_restrict",      libxl_defbool),
+     ("tee",              libxl_tee_type),
++    ("force_assign_without_iommu", libxl_defbool),
+     ("u", KeyedUnion(None, libxl_domain_type, "type",
+                 [("hvm", Struct(None, [("firmware",         string),
+                                        ("bios",             libxl_bios_type),
+diff --git a/tools/xl/xl_parse.c b/tools/xl/xl_parse.c
+index 4786b78000..c9097438fb 100644
+--- a/tools/xl/xl_parse.c
++++ b/tools/xl/xl_parse.c
+@@ -3089,6 +3089,8 @@ skip_usbdev:
+     else
+         b_info->arch_arm.rproc = -1;
+ 
++    xlu_cfg_get_defbool(config, "force_assign_without_iommu",
++	&b_info->force_assign_without_iommu, 0);
+     parse_vkb_list(config, d_config);
+     parse_vgsx_list(config, d_config);
+     parse_vcamera_list(config, d_config);
+diff --git a/xen/common/domain.c b/xen/common/domain.c
+index cdda0d1f29..2953830c54 100644
+--- a/xen/common/domain.c
++++ b/xen/common/domain.c
+@@ -494,7 +494,7 @@ static int sanitise_domain_config(struct xen_domctl_createdomain *config)
+ 
+     if ( iommu )
+     {
+-        if ( config->iommu_opts & ~XEN_DOMCTL_IOMMU_no_sharept )
++        if ( config->iommu_opts >> XEN_DOMCTL_IOMMU_MAX )
+         {
+             dprintk(XENLOG_INFO, "Unknown IOMMU options %#x\n",
+                     config->iommu_opts);
+diff --git a/xen/drivers/passthrough/device_tree.c b/xen/drivers/passthrough/device_tree.c
+index 999b831d90..1701cb5434 100644
+--- a/xen/drivers/passthrough/device_tree.c
++++ b/xen/drivers/passthrough/device_tree.c
+@@ -209,6 +209,7 @@ int iommu_do_dt_domctl(struct xen_domctl *domctl, struct domain *d,
+ {
+     int ret;
+     struct dt_device_node *dev;
++    struct domain_iommu *hd = dom_iommu(d);
+ 
+     switch ( domctl->cmd )
+     {
+@@ -249,6 +250,15 @@ int iommu_do_dt_domctl(struct xen_domctl *domctl, struct domain *d,
+             return -EINVAL;
+ 
+         ret = iommu_add_dt_device(dev);
++
++	 /*
++         * iommu_add_dt_device returns 1 if iommu is disabled or device don't
++         * have iommus property
++         */
++        if ( (ret == 1) && (hd->force_assign_iommu) ) {
++            ret = -ENOSYS;
++            break;
++        }
+         /*
+          * Ignore "-EEXIST" error code as it would mean that the device is
+          * already added to the IOMMU (positive result). Such happens after
+@@ -291,10 +301,14 @@ int iommu_do_dt_domctl(struct xen_domctl *domctl, struct domain *d,
+ 
+         ret = iommu_deassign_dt_device(d, dev);
+ 
+-        if ( ret )
+-            printk(XENLOG_G_ERR "XEN_DOMCTL_assign_dt_device: assign \"%s\""
++        if ( ret ) {
++            if ( hd->force_assign_iommu )
++                ret = -ENOSYS;
++            else
++                printk(XENLOG_G_ERR "XEN_DOMCTL_assign_dt_device: assign \"%s\""
+                    " to dom%u failed (%d)\n",
+                    dt_node_full_name(dev), d->domain_id, ret);
++	}
+         break;
+ 
+     default:
+diff --git a/xen/drivers/passthrough/iommu.c b/xen/drivers/passthrough/iommu.c
+index 879d238bcd..c80ad21de1 100644
+--- a/xen/drivers/passthrough/iommu.c
++++ b/xen/drivers/passthrough/iommu.c
+@@ -174,6 +174,8 @@ int iommu_domain_init(struct domain *d, unsigned int opts)
+     hd->node = NUMA_NO_NODE;
+ #endif
+ 
++    hd->force_assign_iommu = opts & XEN_DOMCTL_IOMMU_force_iommu;
++
+     ret = arch_iommu_domain_init(d);
+     if ( ret )
+         return ret;
+@@ -515,6 +517,7 @@ int iommu_do_domctl(
+ {
+     int ret = -ENODEV;
+ 
++
+     if ( !is_iommu_enabled(d) )
+         return -EOPNOTSUPP;
+ 
+@@ -523,7 +526,7 @@ int iommu_do_domctl(
+ #endif
+ 
+ #ifdef CONFIG_HAS_DEVICE_TREE
+-    if ( ret == -ENODEV )
++    if ( ret == -ENOSYS )
+         ret = iommu_do_dt_domctl(domctl, d, u_domctl);
+ #endif
+ 
+diff --git a/xen/include/public/domctl.h b/xen/include/public/domctl.h
+index d2608dd280..f95d9d7ec7 100644
+--- a/xen/include/public/domctl.h
++++ b/xen/include/public/domctl.h
+@@ -79,8 +79,11 @@ struct xen_domctl_createdomain {
+ #define _XEN_DOMCTL_IOMMU_no_sharept  0
+ #define XEN_DOMCTL_IOMMU_no_sharept   (1U << _XEN_DOMCTL_IOMMU_no_sharept)
+ 
++#define _XEN_DOMCTL_IOMMU_force_iommu 1
++#define XEN_DOMCTL_IOMMU_force_iommu  (1U << _XEN_DOMCTL_IOMMU_force_iommu)
++
+ /* Max XEN_DOMCTL_IOMMU_* constant.  Used for ABI checking. */
+-#define XEN_DOMCTL_IOMMU_MAX XEN_DOMCTL_IOMMU_no_sharept
++#define XEN_DOMCTL_IOMMU_MAX XEN_DOMCTL_IOMMU_force_iommu
+ 
+     uint32_t iommu_opts;
+ 
+diff --git a/xen/include/xen/iommu.h b/xen/include/xen/iommu.h
+index 4f0e5ac622..e40cec44ae 100644
+--- a/xen/include/xen/iommu.h
++++ b/xen/include/xen/iommu.h
+@@ -326,6 +326,9 @@ struct domain_iommu {
+      * necessarily imply this is true.
+      */
+     bool need_sync;
++
++    /* Do not return error if the device without iommu is assigned */
++    bool force_assign_iommu;
+ };
+ 
+ #define dom_iommu(d)              (&(d)->iommu)
+-- 
+2.25.1
+

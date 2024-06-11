@@ -1,0 +1,24 @@
+From 4427885bbdd5b1701fd911ac3e97909b30d96999 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor.usyk@gmail.com>
+Date: Mon, 27 May 2024 20:22:30 +0200
+Subject: [PATCH] include r8a77951-scmi.dtsi
+
+---
+ arch/arm64/boot/dts/renesas/r8a77951-ulcb.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77951-ulcb.dts b/arch/arm64/boot/dts/renesas/r8a77951-ulcb.dts
+index fe4c0396fab4..32daf541f898 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77951-ulcb.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77951-ulcb.dts
+@@ -9,6 +9,7 @@
+ /dts-v1/;
+ #include "r8a77951.dtsi"
+ #include "ulcb.dtsi"
++#include "r8a77951-scmi.dtsi" 
+ 
+ / {
+ 	model = "Renesas H3ULCB board based on r8a77951";
+-- 
+2.25.1
+

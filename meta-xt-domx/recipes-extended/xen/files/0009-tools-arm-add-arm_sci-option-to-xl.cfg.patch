@@ -1,0 +1,164 @@
+From d63b7bfbc4719981e3f95905eb79cd984ba42d6c Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor.usyk@gmail.com>
+Date: Thu, 9 Feb 2023 15:06:18 +0100
+Subject: [PATCH 09/18] tools/arm: add "arm_sci" option to xl.cfg
+
+This enumeration sets SCI type for the domain. Currently there is
+two possible options: either 'none' or 'scmi_smc'.
+
+'none' is the default value and it disables SCI support at all.
+
+'scmi_smc' enables access to the Firmware from the domains using SCMI
+protocol and SMC as transport.
+
+Signed-off-by: Oleksii Moisieiev <oleksii_moisieiev@epam.com>
+---
+ docs/man/xl.cfg.5.pod.in             | 20 ++++++++++++++++++++
+ tools/golang/xenlight/helpers.gen.go |  2 ++
+ tools/golang/xenlight/types.gen.go   |  7 +++++++
+ tools/include/libxl.h                |  5 +++++
+ tools/libs/light/libxl_types.idl     |  6 ++++++
+ tools/xl/xl_parse.c                  |  9 +++++++++
+ 6 files changed, 49 insertions(+)
+
+diff --git a/docs/man/xl.cfg.5.pod.in b/docs/man/xl.cfg.5.pod.in
+index 8d33238d15..0c5ebe5b74 100644
+--- a/docs/man/xl.cfg.5.pod.in
++++ b/docs/man/xl.cfg.5.pod.in
+@@ -1623,8 +1623,28 @@ Specifies OS ID.
+ 
+ =back
+ 
++=item B<arm_sci="STRING">
++
++B<Arm only> Set ARM_SCI type for the guest. ARM_SCI is System Control Protocol
++allows domain to manage various functions that are provided by HW platform.
++
+ =over 4
+ 
++=item B<none>
++
++Don't allow guest to use ARM_SCI if present on the platform. This is the
++default value.
++
++=item B<scmi_smc>
++
++Enables SCMI_SMC support for the guest. SCMI is System Control Management
++Inferface - allows domain to manage various functions that are provided by HW
++platform, such as clocks, resets and power-domains. Xen will mediate access to
++clocks, power-domains and resets between Domains and ATF. Disabled by default.
++SCP is used as transport.
++
++=back
++
+ =item B<force_assign_without_iommu=BOOLEAN>
+ 
+ If set, Xen allows to assign a devices even if it is not behind an IOMMU.
+diff --git a/tools/golang/xenlight/helpers.gen.go b/tools/golang/xenlight/helpers.gen.go
+index bb4444263b..7a66949d6d 100644
+--- a/tools/golang/xenlight/helpers.gen.go
++++ b/tools/golang/xenlight/helpers.gen.go
+@@ -1087,6 +1087,7 @@ if err := x.DmRestrict.fromC(&xc.dm_restrict);err != nil {
+ return fmt.Errorf("converting field DmRestrict: %v", err)
+ }
+ x.Tee = TeeType(xc.tee)
++x.ArmSci = ArmSciType(xc.arm_sci)
+ 
+ if err := x.ForceAssignWithoutIommu.fromC(&xc.force_assign_without_iommu);err != nil {
+ return fmt.Errorf("converting field ForceAssignWithoutIommu: %v", err)
+@@ -1426,6 +1427,7 @@ if err := x.DmRestrict.toC(&xc.dm_restrict); err != nil {
+ return fmt.Errorf("converting field DmRestrict: %v", err)
+ }
+ xc.tee = C.libxl_tee_type(x.Tee)
++xc.arm_sci = C.libxl_arm_sci_type(x.ArmSci)
+ xc._type = C.libxl_domain_type(x.Type)
+ switch x.Type{
+ case DomainTypeHvm:
+diff --git a/tools/golang/xenlight/types.gen.go b/tools/golang/xenlight/types.gen.go
+index 558e4b8416..67cc564bfe 100644
+--- a/tools/golang/xenlight/types.gen.go
++++ b/tools/golang/xenlight/types.gen.go
+@@ -440,6 +440,12 @@ TeeTypeNone TeeType = 0
+ TeeTypeOptee TeeType = 1
+ )
+ 
++type ArmSciType int
++const(
++ArmSciTypeNone ArmSciType = 0
++ArmSciTypeScmi ArmSciType = 1
++)
++
+ type RdmReserve struct {
+ Strategy RdmReserveStrategy
+ Policy RdmReservePolicy
+@@ -507,6 +513,7 @@ NestedHvm Defbool
+ Apic Defbool
+ DmRestrict Defbool
+ Tee TeeType
++ArmSci ArmSciType
+ ForceAssignWithoutIommu Defbool
+ Type DomainType
+ TypeUnion domainBuildInfoTypeUnion
+diff --git a/tools/include/libxl.h b/tools/include/libxl.h
+index 86f1065f03..7d085e23da 100644
+--- a/tools/include/libxl.h
++++ b/tools/include/libxl.h
+@@ -278,6 +278,11 @@
+  */
+ #define LIBXL_HAVE_BUILDINFO_ARCH_ARM_TEE 1
+ 
++/*
++ * libxl_domain_build_info has the arch_arm.sci field.
++ */
++#define LIBXL_HAVE_BUILDINFO_ARCH_ARM_SCI 1
++
+ /*
+  * LIBXL_HAVE_SOFT_RESET indicates that libxl supports performing
+  * 'soft reset' for domains and there is 'soft_reset' shutdown reason
+diff --git a/tools/libs/light/libxl_types.idl b/tools/libs/light/libxl_types.idl
+index 6b9558d045..c412e18554 100644
+--- a/tools/libs/light/libxl_types.idl
++++ b/tools/libs/light/libxl_types.idl
+@@ -488,6 +488,11 @@ libxl_tee_type = Enumeration("tee_type", [
+     (1, "optee")
+     ], init_val = "LIBXL_TEE_TYPE_NONE")
+ 
++libxl_arm_sci_type = Enumeration("arm_sci_type", [
++    (0, "none"),
++    (1, "scmi_smc")
++    ], init_val = "LIBXL_ARM_SCI_TYPE_NONE")
++
+ libxl_rdm_reserve = Struct("rdm_reserve", [
+     ("strategy",    libxl_rdm_reserve_strategy),
+     ("policy",      libxl_rdm_reserve_policy),
+@@ -572,6 +577,7 @@ libxl_domain_build_info = Struct("domain_build_info",[
+     ("apic",             libxl_defbool),
+     ("dm_restrict",      libxl_defbool),
+     ("tee",              libxl_tee_type),
++    ("arm_sci",          libxl_arm_sci_type),
+     ("force_assign_without_iommu", libxl_defbool),
+     ("u", KeyedUnion(None, libxl_domain_type, "type",
+                 [("hvm", Struct(None, [("firmware",         string),
+diff --git a/tools/xl/xl_parse.c b/tools/xl/xl_parse.c
+index c9097438fb..75aca9f1c4 100644
+--- a/tools/xl/xl_parse.c
++++ b/tools/xl/xl_parse.c
+@@ -3089,6 +3089,15 @@ skip_usbdev:
+     else
+         b_info->arch_arm.rproc = -1;
+ 
++    if (!xlu_cfg_get_string (config, "arm_sci", &buf, 1)) {
++        e = libxl_arm_sci_type_from_string(buf, &b_info->arm_sci);
++        if (e) {
++            fprintf(stderr,
++                    "Unknown arm_sci \"%s\" specified\n", buf);
++            exit(-ERROR_FAIL);
++        }
++    }
++
+     xlu_cfg_get_defbool(config, "force_assign_without_iommu",
+ 	&b_info->force_assign_without_iommu, 0);
+     parse_vkb_list(config, d_config);
+-- 
+2.25.1
+

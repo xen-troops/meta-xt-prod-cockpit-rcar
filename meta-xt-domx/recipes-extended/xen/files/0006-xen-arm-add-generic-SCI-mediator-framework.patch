@@ -1,0 +1,650 @@
+From 3ab84cf9312c89325859bf8b61aa4f396391da81 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Tue, 31 Jan 2023 18:30:02 +0100
+Subject: [PATCH 06/18] xen/arm: add generic SCI mediator framework
+
+This patch adds the basic framework for SCI mediator.
+SCI is System Control Interface, which is designed to redirect
+requests from the Domains to Firmware. This will allow the devices,
+passed-through to the different Domains, to access to the System Controls
+(such as clocks/resets etc) by sending requests to the firmware.
+Xen mediates requests between the Domains and the Firmware, also it is
+responsible for permission handling during Domain crateion.
+
+SCI mediator register itself with REGISTER_SCI_MEDIATOR() macro.
+
+At run-time, during initialization, framework calls probe for the first
+matching device in the device-tree. When no device-tree is present - the
+first registered mediator should be probed.
+
+Signed-off-by: Oleksii Moisieiev <oleksii_moisieiev@epam.com>
+Signed-off-by: Ihor Usyk <ihor.usyk@gmail.com>
+---
+ MAINTAINERS                   |   6 ++
+ xen/arch/arm/Kconfig          |   9 ++
+ xen/arch/arm/Makefile         |   1 +
+ xen/arch/arm/domain.c         |  21 +++++
+ xen/arch/arm/domain_build.c   |  11 +++
+ xen/arch/arm/sci/Makefile     |   2 +
+ xen/arch/arm/sci/sci.c        | 152 +++++++++++++++++++++++++++++++
+ xen/arch/arm/setup.c          |   1 +
+ xen/arch/arm/vsmc.c           |   5 +-
+ xen/arch/arm/xen.lds.S        |   7 ++
+ xen/include/asm-arm/domain.h  |   3 +
+ xen/include/asm-arm/sci/sci.h | 163 ++++++++++++++++++++++++++++++++++
+ xen/include/public/arch-arm.h |  15 ++++
+ 13 files changed, 395 insertions(+), 1 deletion(-)
+ create mode 100644 xen/arch/arm/sci/Makefile
+ create mode 100644 xen/arch/arm/sci/sci.c
+ create mode 100644 xen/include/asm-arm/sci/sci.h
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d46b08a0d2..d6d5a7a407 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -486,6 +486,12 @@ S:	Supported
+ F:	xen/arch/arm/tee/
+ F:	xen/include/asm-arm/tee
+ 
++SCI MEDIATORS
++M:	Oleksii Moisieiev <oleksii_moisieiev@epam.com>
++S:	Supported
++F:	xen/arch/arm/sci
++F:	xen/include/asm-arm/sci
++
+ TOOLSTACK
+ M:	Ian Jackson <iwj@xenproject.org>
+ M:	Wei Liu <wl@xen.org>
+diff --git a/xen/arch/arm/Kconfig b/xen/arch/arm/Kconfig
+index 895016b21e..ab07833582 100644
+--- a/xen/arch/arm/Kconfig
++++ b/xen/arch/arm/Kconfig
+@@ -114,6 +114,15 @@ config TEE
+ 
+ source "arch/arm/tee/Kconfig"
+ 
++config ARM_SCI
++	bool "Enable ARM_SCI mediators support"
++	depends on ARM
++	default n
++	help
++	  This option enables generic ARM_SCI (System Control Interface) mediators
++	  support. It allows guests to control system resourcess via one of
++	  ARM_SCI mediators implemented in XEN.
++
+ endmenu
+ 
+ menu "ARM errata workaround via the alternative framework"
+diff --git a/xen/arch/arm/Makefile b/xen/arch/arm/Makefile
+index 19cd378da8..bdc8b769c0 100644
+--- a/xen/arch/arm/Makefile
++++ b/xen/arch/arm/Makefile
+@@ -6,6 +6,7 @@ ifneq ($(CONFIG_NO_PLAT),y)
+ obj-y += platforms/
+ endif
+ obj-$(CONFIG_TEE) += tee/
++obj-$(CONFIG_ARM_SCI) += sci/
+ obj-$(CONFIG_HOST_DTB_EXPORT) += host_dtb_export.o
+ 
+ obj-$(CONFIG_HAS_ALTERNATIVE) += alternative.o
+diff --git a/xen/arch/arm/domain.c b/xen/arch/arm/domain.c
+index daa23c048e..1e571cc9af 100644
+--- a/xen/arch/arm/domain.c
++++ b/xen/arch/arm/domain.c
+@@ -34,6 +34,7 @@
+ #include <asm/platform.h>
+ #include <asm/procinfo.h>
+ #include <asm/regs.h>
++#include <asm/sci/sci.h>
+ #include <asm/tee/tee.h>
+ #include <asm/vfp.h>
+ #include <asm/vgic.h>
+@@ -681,6 +682,13 @@ int arch_sanitise_domain_config(struct xen_domctl_createdomain *config)
+         return -EINVAL;
+     }
+ 
++    if ( config->arch.arm_sci_type != XEN_DOMCTL_CONFIG_ARM_SCI_NONE &&
++         config->arch.arm_sci_type != sci_get_type() )
++    {
++        dprintk(XENLOG_INFO, "Unsupported ARM_SCI type\n");
++        return -EINVAL;
++    }
++
+     return 0;
+ }
+ 
+@@ -759,6 +767,13 @@ int arch_domain_create(struct domain *d,
+             BUG();
+     }
+ 
++    if ( config->arch.arm_sci_type != XEN_DOMCTL_CONFIG_ARM_SCI_NONE )
++    {
++	if ( (rc = sci_domain_init(d, config->arch.arm_sci_type,
++		&config->arch)) != 0)
++		goto fail;
++    }
++
+     /*
+      * Virtual UART is only used by linux early printk and decompress code.
+      * Only use it for the hardware domain because the linux kernel may not
+@@ -788,6 +803,7 @@ void arch_domain_destroy(struct domain *d)
+     domain_vgic_free(d);
+     domain_vuart_free(d);
+     free_xenheap_page(d->shared_info);
++    sci_domain_destroy(d);
+ #ifdef CONFIG_ACPI
+     free_xenheap_pages(d->arch.efi_acpi_table,
+                        get_order_from_bytes(d->arch.efi_acpi_len));
+@@ -986,6 +1002,7 @@ enum {
+     PROG_xen,
+     PROG_page,
+     PROG_mapping,
++    PROG_sci,
+     PROG_done,
+ };
+ 
+@@ -1041,6 +1058,10 @@ int domain_relinquish_resources(struct domain *d)
+         ret = relinquish_p2m_mapping(d);
+         if ( ret )
+             return ret;
++    PROGRESS(sci):
++        ret = sci_relinquish_resources(d);
++        if ( ret )
++            return ret;
+ 
+     PROGRESS(done):
+         break;
+diff --git a/xen/arch/arm/domain_build.c b/xen/arch/arm/domain_build.c
+index 9cc4441af0..10e805498f 100644
+--- a/xen/arch/arm/domain_build.c
++++ b/xen/arch/arm/domain_build.c
+@@ -22,6 +22,7 @@
+ #include <asm/kernel.h>
+ #include <asm/setup.h>
+ #include <asm/tee/tee.h>
++#include <asm/sci/sci.h>
+ #include <asm/platform.h>
+ #include <asm/psci.h>
+ #include <asm/setup.h>
+@@ -1386,6 +1387,10 @@ static int __init handle_device(struct domain *d, struct dt_device_node *dev,
+                 return res;
+             }
+         }
++
++        res = sci_add_dt_device(d, dev);
++        if ( res < 0 )
++            return res;
+     }
+ 
+     res = handle_device_interrupts(d, dev, need_mapping);
+@@ -2564,6 +2569,10 @@ static int __init construct_dom0(struct domain *d)
+     if ( rc < 0 )
+         return rc;
+ 
++    rc = sci_domain_init(d, sci_get_type(), NULL);
++    if ( rc < 0 )
++        return rc;
++
+     if ( acpi_disabled )
+         rc = prepare_dtb_hwdom(d, &kinfo);
+     else
+@@ -2597,6 +2606,8 @@ struct domain* __init create_dom0(void)
+     dom0_cfg.arch.tee_type = tee_get_type();
+     dom0_cfg.max_vcpus = dom0_max_vcpus();
+ 
++    dom0_cfg.arch.arm_sci_type = sci_get_type();
++
+     if ( iommu_enabled )
+         dom0_cfg.flags |= XEN_DOMCTL_CDF_iommu;
+ 
+diff --git a/xen/arch/arm/sci/Makefile b/xen/arch/arm/sci/Makefile
+new file mode 100644
+index 0000000000..67f2611872
+--- /dev/null
++++ b/xen/arch/arm/sci/Makefile
+@@ -0,0 +1,2 @@
++obj-y += sci.o
++obj-$(CONFIG_SCMI_SMC) += scmi_smc.o
+diff --git a/xen/arch/arm/sci/sci.c b/xen/arch/arm/sci/sci.c
+new file mode 100644
+index 0000000000..05c948a071
+--- /dev/null
++++ b/xen/arch/arm/sci/sci.c
+@@ -0,0 +1,152 @@
++/*
++ * xen/arch/arm/sci/sci.c
++ *
++ * Generic part of SCI mediator driver
++ *
++ * Oleksii Moisieiev <oleksii_moisieiev@epam.com>
++ * Copyright (C) 2021, EPAM Systems.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <xen/acpi.h>
++#include <xen/errno.h>
++#include <xen/init.h>
++#include <xen/sched.h>
++#include <xen/types.h>
++
++#include <asm/sci/sci.h>
++
++extern const struct sci_mediator_desc _sscimediator[], _escimediator[];
++static const struct sci_mediator_desc __read_mostly *cur_mediator;
++
++bool sci_handle_call(struct domain *d, void *args)
++{
++    if ( unlikely(!cur_mediator) )
++        return false;
++
++    return cur_mediator->ops->handle_call(d, args);
++}
++
++int sci_domain_init(struct domain *d, uint16_t sci_type,
++                    struct xen_arch_domainconfig *config)
++{
++    if ( sci_type == XEN_DOMCTL_CONFIG_ARM_SCI_NONE )
++        return 0;
++
++    if ( !cur_mediator )
++        return -ENODEV;
++
++    if ( cur_mediator->sci_type != sci_type )
++        return -EINVAL;
++
++    return cur_mediator->ops->domain_init(d, config);
++}
++
++void sci_domain_destroy(struct domain *d)
++{
++    if ( !cur_mediator )
++        return;
++
++    cur_mediator->ops->domain_destroy(d);
++}
++
++int sci_relinquish_resources(struct domain *d)
++{
++    if ( !cur_mediator )
++        return 0;
++
++    return cur_mediator->ops->relinquish_resources(d);
++}
++
++
++int sci_add_dt_device(struct domain *d, struct dt_device_node *dev)
++{
++    if ( !cur_mediator )
++        return 0;
++
++    return cur_mediator->ops->add_dt_device(d, dev);
++}
++
++uint16_t sci_get_type(void)
++{
++    if ( !cur_mediator )
++        return XEN_DOMCTL_CONFIG_ARM_SCI_NONE;
++
++    return cur_mediator->sci_type;
++}
++
++int sci_do_domctl(
++    struct xen_domctl *domctl, struct domain *d,
++    XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
++{
++    int rc = -EINVAL;
++    struct dt_device_node *dev;
++
++    switch ( domctl->cmd )
++    {
++    case XEN_DOMCTL_assign_device:
++        if ( domctl->u.assign_device.dev != XEN_DOMCTL_DEV_DT )
++            break;
++
++        rc = dt_find_node_by_gpath(domctl->u.assign_device.u.dt.path,
++                               domctl->u.assign_device.u.dt.size,
++                               &dev);
++        if ( rc )
++            return rc;
++
++        rc = sci_add_dt_device(d, dev);
++
++        break;
++    default:
++        rc = -ENOSYS;
++        break;
++    }
++
++    return rc;
++}
++
++static int __init sci_init(void)
++{
++    const struct sci_mediator_desc *desc;
++    struct dt_device_node *dt = NULL;
++
++
++    for ( desc = _sscimediator; desc != _escimediator; desc++ )
++    {
++        if ( acpi_disabled )
++        {
++            dt = dt_find_matching_node(dt_host, desc->dt_match);
++            if ( !dt )
++                continue;
++        }
++
++        if ( desc->ops->probe(dt) )
++        {
++            printk(XENLOG_INFO "Using SCI mediator for %s\n", desc->name);
++            cur_mediator = desc;
++            return 0;
++        }
++    }
++
++    return 0;
++}
++
++__initcall(sci_init);
++
++/*
++ * Local variables:
++ * mode: C
++ * c-file-style: "BSD"
++ * c-basic-offset: 4
++ * indent-tabs-mode: nil
++ * End:
++ */
+diff --git a/xen/arch/arm/setup.c b/xen/arch/arm/setup.c
+index df3c4e08b9..44b1248121 100644
+--- a/xen/arch/arm/setup.c
++++ b/xen/arch/arm/setup.c
+@@ -50,6 +50,7 @@
+ #include <asm/cpufeature.h>
+ #include <asm/platform.h>
+ #include <asm/procinfo.h>
++#include <asm/sci/sci.h>
+ #include <asm/setup.h>
+ #include <xsm/xsm.h>
+ #include <asm/acpi.h>
+diff --git a/xen/arch/arm/vsmc.c b/xen/arch/arm/vsmc.c
+index a36db15fff..c68482fbd8 100644
+--- a/xen/arch/arm/vsmc.c
++++ b/xen/arch/arm/vsmc.c
+@@ -22,6 +22,7 @@
+ #include <asm/cpufeature.h>
+ #include <asm/monitor.h>
+ #include <asm/regs.h>
++#include <asm/sci/sci.h>
+ #include <asm/smccc.h>
+ #include <asm/tee/tee.h>
+ #include <asm/traps.h>
+@@ -275,7 +276,9 @@ static bool vsmccc_handle_call(struct cpu_user_regs *regs)
+             handled = handle_sssc(regs);
+             break;
+         case ARM_SMCCC_OWNER_SIP:
+-            handled = platform_smc(regs);
++            handled = sci_handle_call(current->domain, regs);
++            if ( !handled )
++                handled = platform_smc(regs);
+             break;
+         case ARM_SMCCC_OWNER_TRUSTED_APP ... ARM_SMCCC_OWNER_TRUSTED_APP_END:
+         case ARM_SMCCC_OWNER_TRUSTED_OS ... ARM_SMCCC_OWNER_TRUSTED_OS_END:
+diff --git a/xen/arch/arm/xen.lds.S b/xen/arch/arm/xen.lds.S
+index fc1d39a886..6b6d6ce9dc 100644
+--- a/xen/arch/arm/xen.lds.S
++++ b/xen/arch/arm/xen.lds.S
+@@ -142,6 +142,13 @@ SECTIONS
+       _eteemediator = .;
+   } :text
+ 
++  . = ALIGN(8);
++  .scimediator.info : {
++      _sscimediator = .;
++      *(.scimediator.info)
++      _escimediator = .;
++  } :text
++
+   . = ALIGN(PAGE_SIZE);             /* Init code and data */
+   __init_begin = .;
+   .init.text : {
+diff --git a/xen/include/asm-arm/domain.h b/xen/include/asm-arm/domain.h
+index d3d108ac09..c16c705e3c 100644
+--- a/xen/include/asm-arm/domain.h
++++ b/xen/include/asm-arm/domain.h
+@@ -89,6 +89,9 @@ struct arch_domain
+ #ifdef CONFIG_TEE
+     void *tee;
+ #endif
++#ifdef CONFIG_ARM_SCI
++    void *sci;
++#endif
+ 
+     /* OSID used by virtual GSX device */
+     uint8_t vgsx_osid;
+diff --git a/xen/include/asm-arm/sci/sci.h b/xen/include/asm-arm/sci/sci.h
+new file mode 100644
+index 0000000000..2c7b1783ed
+--- /dev/null
++++ b/xen/include/asm-arm/sci/sci.h
+@@ -0,0 +1,163 @@
++/*
++ * xen/include/asm-arm/sci/sci.h
++ *
++ * Generic part of the SCI (System Control Interface) subsystem.
++ *
++ * Oleksii Moisieiev <oleksii_moisieiev@epam.com>
++ * Copyright (C) 2021, EPAM Systems.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#ifndef __ASM_ARM_SCI_H
++#define __ASM_ARM_SCI_H
++
++#include <xen/lib.h>
++#include <xen/types.h>
++#include <xen/device_tree.h>
++#include <public/domctl.h>
++#include <xen/errno.h>
++
++#ifdef CONFIG_ARM_SCI
++
++struct sci_mediator_ops {
++
++    /*
++     * Probe for SCI. Should return true if SCI found and
++     * mediator is initialized.
++     */
++    bool (*probe)(struct dt_device_node *scmi_node);
++
++    /*
++     * Called during domain construction if toolstack requests to enable
++     * SCI support so mediator can inform SCP-firmware about new
++     * guest and create own structures for the new domain.
++     */
++    int (*domain_init)(struct domain *d, struct xen_arch_domainconfig *config);
++
++    /*
++     * Called during domain destruction, releases all resources, that
++     * were allocated by the mediator.
++     */
++    void (*domain_destroy)(struct domain *d);
++
++    /*
++     * Called during parsing partial device-sci for the domain.
++     * Passing device_node so mediator could process the device and
++     * mark the device as related to the domain if needed.
++     */
++    int (*add_dt_device)(struct domain *d, struct dt_device_node *dev);
++
++    /*
++     * Called during domain destruction to relinquish resources used
++     * by mediator itself. This function can return -ERESTART to indicate
++     * that it does not finished work and should be called again.
++     */
++    int (*relinquish_resources)(struct domain *d);
++
++    /* Handle call for current domain */
++    bool (*handle_call)(struct domain *d, void *regs);
++};
++
++struct sci_mediator_desc {
++    /* Printable name of the SCI. */
++    const char *name;
++
++    /* Mediator callbacks as described above. */
++    const struct sci_mediator_ops *ops;
++
++    /*
++     * ID of SCI. Corresponds to xen_arch_domainconfig.sci_type.
++     * Should be one of XEN_DOMCTL_CONFIG_ARM_SCI_xxx
++     */
++    uint16_t sci_type;
++
++    /* Match structure to init mediator */
++    const struct dt_device_match *dt_match;
++
++};
++
++int sci_domain_init(struct domain *d, uint16_t sci_type,
++                    struct xen_arch_domainconfig *config);
++void sci_domain_destroy(struct domain *d);
++int sci_add_dt_device(struct domain *d, struct dt_device_node *dev);
++int sci_relinquish_resources(struct domain *d);
++bool sci_handle_call(struct domain *d, void *args);
++uint16_t sci_get_type(void);
++int sci_do_domctl(
++    struct xen_domctl *domctl, struct domain *d,
++    XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl);
++
++#define REGISTER_SCI_MEDIATOR(_name, _namestr, _type, _match, _ops) \
++static const struct sci_mediator_desc __sci_desc_##_name __used     \
++__section(".scimediator.info") = {                                  \
++    .name = _namestr,                                               \
++    .ops = _ops,                                                    \
++    .sci_type = _type,                                              \
++    .dt_match = _match                                              \
++}
++
++#else
++
++static inline int sci_domain_init(struct domain *d, uint16_t sci_type,
++                    struct xen_arch_domainconfig *config)
++{
++    if ( likely(sci_type == XEN_DOMCTL_CONFIG_ARM_SCI_NONE) )
++        return 0;
++
++    return -ENODEV;
++}
++
++static inline void sci_domain_destroy(struct domain *d)
++{
++}
++
++static inline int sci_add_dt_device(struct domain *d,
++                                    struct dt_device_node *dev)
++{
++    return 0;
++}
++
++static inline int sci_relinquish_resources(struct domain *d)
++{
++    return 0;
++}
++
++static inline bool sci_handle_call(struct domain *d, void *args)
++{
++    return false;
++}
++
++static inline uint16_t sci_get_type(void)
++{
++    return XEN_DOMCTL_CONFIG_ARM_SCI_NONE;
++}
++
++static inline int sci_do_domctl(
++    struct xen_domctl *domctl, struct domain *d,
++    XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
++{
++    return -ENOSYS;
++}
++
++
++#endif  /* CONFIG_ARM_SCI */
++
++#endif /* __ASM_ARM_SCI_H */
++
++/*
++ * Local variables:
++ * mode: C
++ * c-file-style: "BSD"
++ * c-basic-offset: 4
++ * indent-tabs-mode: nil
++ * End:
++ */
+diff --git a/xen/include/public/arch-arm.h b/xen/include/public/arch-arm.h
+index 6cf511f63c..f3a2c2df72 100644
+--- a/xen/include/public/arch-arm.h
++++ b/xen/include/public/arch-arm.h
+@@ -310,12 +310,17 @@ DEFINE_XEN_GUEST_HANDLE(vcpu_guest_context_t);
+ #define XEN_DOMCTL_CONFIG_TEE_NONE      0
+ #define XEN_DOMCTL_CONFIG_TEE_OPTEE     1
+ 
++#define XEN_DOMCTL_CONFIG_ARM_SCI_NONE      0
++#define XEN_DOMCTL_CONFIG_ARM_SCI_SCMI_SMC  1
++
+ struct xen_arch_domainconfig {
+     /* IN/OUT */
+     uint8_t gic_version;
+     /* IN */
+     uint16_t tee_type;
+     /* IN */
++    uint16_t arm_sci_type;
++    /* IN */
+     uint32_t nr_spis;
+     /*
+      * IN
+@@ -336,6 +341,12 @@ struct xen_arch_domainconfig {
+      *
+      */
+     uint32_t clock_frequency;
++
++    /* Sets shared address to sw domains.
++     * This information is needed to set correct channel in Domain partial
++     * device-tree
++     */
++    uint64_t arm_sci_agent_paddr;
+ };
+ #endif /* __XEN__ || __XEN_TOOLS__ */
+ 
+@@ -427,6 +438,10 @@ typedef uint64_t xen_callback_t;
+ #define GUEST_ACPI_BASE xen_mk_ullong(0x20000000)
+ #define GUEST_ACPI_SIZE xen_mk_ullong(0x02000000)
+ 
++/* SCMI shared memory address */
++#define GUEST_SCI_SHMEM_BASE   xen_mk_ullong(0x05ff0000)
++#define GUEST_SCI_SHMEM_SIZE   xen_mk_ullong(0x01000)
++
+ /* PL011 mappings */
+ #define GUEST_PL011_BASE    xen_mk_ullong(0x22000000)
+ #define GUEST_PL011_SIZE    xen_mk_ullong(0x00001000)
+-- 
+2.25.1
+
