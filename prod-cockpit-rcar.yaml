@@ -41,8 +41,8 @@ common_data:
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
       rev: dunfell-v0.1.0
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: v1.0.0
+      url: "https://github.com/iusyk/meta-xt-prod-cockpit-rcar.git"
+      rev: scmi-usb
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -259,8 +259,8 @@ components:
     build-dir: "%{ANDROID_KERNEL_DIR}"
     sources:
       - type: repo
-        url: https://github.com/xen-troops/android_kernel_manifest.git
-        rev: 0631eb20d34c8f367424e84bdb0670ef920beb11
+        url: https://github.com/iusyk/android_kernel_manifest.git
+        rev: common-android13-5.10-cr7-master
         manifest: default.xml
         depth: 1
         groups: "%{XT_DOMA_SOURCE_GROUP}"
