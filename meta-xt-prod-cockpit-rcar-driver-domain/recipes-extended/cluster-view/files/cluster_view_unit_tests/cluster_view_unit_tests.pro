@@ -11,10 +11,10 @@ TEMPLATE = app
 SOURCES +=  \
     tst_cluster_view_input.cpp \
     ../VisSocket.cpp \
-    ../visclient.cpp \
+    ../Model.cpp \
     ../Consumers.cpp
 
 HEADERS += \
-    ../visclient.h \
+    ../Model.h \
     ../VisSocket.h \
     ../Consumers.h

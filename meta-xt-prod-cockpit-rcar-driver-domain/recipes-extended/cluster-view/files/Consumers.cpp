@@ -130,22 +130,22 @@ void BatteryConsumer::onMessage(const QString &message)
     }
 }
 
-ConsumerDispatcher::ConsumerDispatcher()
+ConsumerBroker::ConsumerBroker()
 {
-    connect(this, &ConsumerDispatcher::messageReceived, &std::get<SpeedConsumer>(consumers), &SpeedConsumer::onMessageReceived);
-    connect(this, &ConsumerDispatcher::messageReceived, &std::get<GearConsumer>(consumers), &GearConsumer::onMessageReceived);
-    connect(this, &ConsumerDispatcher::messageReceived, &std::get<RpmConsumer>(consumers), &RpmConsumer::onMessageReceived);
-    connect(this, &ConsumerDispatcher::messageReceived, &std::get<TurnConsumer>(consumers), &TurnConsumer::onMessageReceived);
-    connect(this, &ConsumerDispatcher::messageReceived, &std::get<BatteryConsumer>(consumers), &BatteryConsumer::onMessageReceived);
+    connect(this, &ConsumerBroker::messageReceived, &std::get<SpeedConsumer>(consumers), &SpeedConsumer::onMessageReceived);
+    connect(this, &ConsumerBroker::messageReceived, &std::get<GearConsumer>(consumers), &GearConsumer::onMessageReceived);
+    connect(this, &ConsumerBroker::messageReceived, &std::get<RpmConsumer>(consumers), &RpmConsumer::onMessageReceived);
+    connect(this, &ConsumerBroker::messageReceived, &std::get<TurnConsumer>(consumers), &TurnConsumer::onMessageReceived);
+    connect(this, &ConsumerBroker::messageReceived, &std::get<BatteryConsumer>(consumers), &BatteryConsumer::onMessageReceived);
 
-    connect(&std::get<SpeedConsumer>(consumers), &SpeedConsumer::speedValueChanged, this, &ConsumerDispatcher::speedValueChanged);
-    connect(&std::get<GearConsumer>(consumers), &GearConsumer::gearValueChanged, this, &ConsumerDispatcher::gearValueChanged);
-    connect(&std::get<RpmConsumer>(consumers), &RpmConsumer::rpmValueChanged, this, &ConsumerDispatcher::rpmValueChanged);
-    connect(&std::get<TurnConsumer>(consumers), &TurnConsumer::turnValueChanged, this, &ConsumerDispatcher::turnValueChanged);
-    connect(&std::get<BatteryConsumer>(consumers), &BatteryConsumer::batteryValueChanged, this, &ConsumerDispatcher::batteryValueChanged);
+    connect(&std::get<SpeedConsumer>(consumers), &SpeedConsumer::speedValueChanged, this, &ConsumerBroker::speedValueChanged);
+    connect(&std::get<GearConsumer>(consumers), &GearConsumer::gearValueChanged, this, &ConsumerBroker::gearValueChanged);
+    connect(&std::get<RpmConsumer>(consumers), &RpmConsumer::rpmValueChanged, this, &ConsumerBroker::rpmValueChanged);
+    connect(&std::get<TurnConsumer>(consumers), &TurnConsumer::turnValueChanged, this, &ConsumerBroker::turnValueChanged);
+    connect(&std::get<BatteryConsumer>(consumers), &BatteryConsumer::batteryValueChanged, this, &ConsumerBroker::batteryValueChanged);
 }
 
-void ConsumerDispatcher::onMessageReceived(const QString &message)
+void ConsumerBroker::onMessageReceived(const QString &message)
 {
     messageReceived(message);
 }

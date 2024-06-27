@@ -88,11 +88,11 @@ signals:
     void batteryValueChanged();
 };
 
-class ConsumerDispatcher: public QObject
+class ConsumerBroker: public QObject
 {
     Q_OBJECT
 public:
-     ConsumerDispatcher();
+     ConsumerBroker();
 
      template<typename T>
      QVariant getValue()const

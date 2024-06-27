@@ -1,6 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
-import VisClient 1.0
+import Model 1.0
 import "./qml/"
 
 Window {
@@ -11,10 +11,8 @@ Window {
     color: "transparent"
     flags: Qt.FramelessWindowHint
 
-    VisClient{
-        id: vis
-        urlValue: cmdLine.urlValue
-        
+    Connections{
+        target: model
         onUrlValueChanged: {
             console.log("NEW Url " + urlValue)
         }
@@ -22,17 +20,12 @@ Window {
         onGearValueChanged: {
             for(var i= 0; i < footer.gear.length;++i)
             {
-                console.log(" SRC Gear Value " + vis.gearValue + " comparing with " + footer.gear[i].gear)
-                if(vis.gearValue == footer.gear[i].gear){
+                if(model.gearValue == footer.gear[i].gear){
                     footer.currentGear = i;
                     return;
                 }
             }
         }
-    }
-
-    Connections{
-        target: cmdLine
     }
 
     Item {
@@ -50,7 +43,7 @@ Window {
                   bottom: parent.bottom
                 }
                 source: {
-                    if(cmdLine.modeValue == 2) {
+                    if(model.modeValue == 2) {
                         return "images/sport_bckg.png"
                     }
                     return "images/cluster-bkg.png"
@@ -69,7 +62,7 @@ Window {
             width: 448
             height: 602
             opacity: 1
-            visible: cmdLine.getMode() == 1 && cmdLine.firstStart == 1
+            visible: model.modeValue == 1 && model.isFirstStart
         }
 
          TimeInfo{
@@ -90,14 +83,14 @@ Window {
         SpeedLimitInfo{
             visible: false
             x:{
-                if(cmdLine.getMode() == 1)
+                if(model.modeValue == 1)
                 {
                     return 580
                 }
                 return 284
             }
             y:{
-                if(cmdLine.getMode() == 1)
+                if(mode.modeValue == 1)
                 {
                     return 83
                 }
@@ -108,26 +101,26 @@ Window {
         Footer {
             id: footer
             visible: true
-            sport: cmdLine.getMode() == 2
-            ready: vis.connectedValue
-            turn: vis.turnValue
+            sport: model.modeValue == 2
+            ready: model.connectedValue
+            turn: model.turnValue
         }
 
         NormalSpeedInfo {
             id: speedInfo
-            speed: vis.speedValue
-            visible: cmdLine.getMode() == 1
+            speed: mdel.speedValue
+            visible: model.modeValue == 1
         }
 
         SportSpeedInfo{
             id:sportSpeedInfo
-            speed: vis.speedValue
-            visible: cmdLine.getMode() == 2
+            speed: model.speedValue
+            visible: model.modeValue == 2
         }
 
         Range{
             id: rangeInfo
-            rangeValue: Math.round(300*vis.batteryValue/100)
+            rangeValue: Math.round(300*model.batteryValue/100)
         }
 
         Battery {
@@ -140,9 +133,9 @@ Window {
 
         PowerChargeInfo {
             id: powerChargeInfo
-            powerValue: 100*vis.speedValue/150//vis.batteryValue
-            chargeValue: vis.batteryValue
-            visible: cmdLine.getMode() == 2
+            powerValue: 100*model.speedValue/150
+            chargeValue: model.batteryValue
+            visible: model.modeValue == 2
         }
 
         property var timeUpdated: 0
@@ -156,7 +149,7 @@ Window {
 
         Timer {
             id: epamTimer
-            interval: 450; repeat: false; running: cmdLine.getMode() == 1 && cmdLine.firstStart == 1 && epam.opacity != 0
+            interval: 450; repeat: false; running: model.modeValue == 1 && model.isFirstStart == 1 && epam.opacity != 0
 
             onTriggered: {
                 epam.opacity -= 0.01
@@ -170,10 +163,10 @@ Window {
         }
 
         Timer {
-            interval: 2000; running: !vis.connectedValue; repeat: true
+            interval: 2000; running: !model.connectedValue; repeat: true
             onTriggered: {
-                if(!vis.connectedValue){
-                    vis.connectTo()
+                if(!model.connectedValue){
+                    model.connectTo()
                 }
             }
         }

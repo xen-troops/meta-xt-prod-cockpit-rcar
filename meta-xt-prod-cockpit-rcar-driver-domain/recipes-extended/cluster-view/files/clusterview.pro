@@ -7,10 +7,9 @@ SOURCES += \
     Consumers.cpp \
     QtVisSocket.cpp \
     VisSocket.cpp \
-    commandline.cpp \
     main.cpp \
-    visclient.cpp \
-    ActivatedEvent.cpp 
+    ActivatedEvent.cpp  \
+    Model.cpp
 
 RESOURCES += \
     qml.qrc
@@ -22,9 +21,8 @@ HEADERS += \
     Consumers.h \
     QtVisSocket.h \
     VisSocket.h \
-    commandline.h \
-    visclient.h \
-    ActivatedEvent.h
+    ActivatedEvent.h \
+    Model.h
 
 
 

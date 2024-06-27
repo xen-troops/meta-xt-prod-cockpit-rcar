@@ -16,7 +16,7 @@
 #include "VisSocket.h"
 #include "Consumers.h"
 
-class VisClient: public QObject
+class Model: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int speedValue READ speedValue NOTIFY speedValueChanged)
@@ -26,13 +26,15 @@ class VisClient: public QObject
     Q_PROPERTY(bool connectedValue READ connectedValue NOTIFY connectedValueChanged)
     Q_PROPERTY(int batteryValue READ batteryValue NOTIFY batteryValueChanged)
     Q_PROPERTY(int turnValue READ turnValue NOTIFY turnValueChanged)
+    Q_PROPERTY(int modeValue READ modeValue WRITE setModeValue NOTIFY modeValueChanged)
+    Q_PROPERTY(bool isFirstStart READ isFirstStart WRITE setFirstStart NOTIFY firstStartChanged)
 
 public:
 #ifndef CLUSTER_UNIT_TEST
-    explicit VisClient(QObject *parent = nullptr);
+    explicit Model(QObject *parent = nullptr);
 #endif
-    explicit VisClient(QSharedPointer<VisWebSocket> socket);
-    ~VisClient();
+    explicit Model(QSharedPointer<VisWebSocket> socket);
+    ~Model();
 
     int speedValue()const;
     int rpmValue()const;
@@ -44,10 +46,14 @@ public:
 
     bool connectedValue()const;
     void setConnectedValue(bool connected);
+    void setModeValue(bool mode);
+    void setFirstStart(bool started);
 
     Q_INVOKABLE void connectTo();
     Q_INVOKABLE void disconnect();
     Q_INVOKABLE void sendMessage(const QString &message);
+    Q_INVOKABLE int  modeValue() const;
+    Q_INVOKABLE bool isFirstStart() const;
 
 protected:
     void init_signals();
@@ -72,6 +78,8 @@ signals:
     void gearValueChanged();
     void urlValueChanged();
     void connectedValueChanged();
+    void modeValueChanged();
+    void firstStartChanged();
 
 private: // methods
     QString getSubscriptionId(const QString &message)const;
@@ -79,8 +87,10 @@ private: // methods
 private:
     bool isConnected;
     QString mUrl;
+    int mMode;
+    bool mFirstStart;
     QSharedPointer<VisWebSocket> mWebSocket;
-    ConsumerDispatcher consumerDispatcher;
+    ConsumerBroker consumerBroker;
 };
 
 #endif // VISCLIENT_H

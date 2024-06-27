@@ -6,8 +6,7 @@
 #include <string.h>
 #include <qqml.h>
 #include <functional>
-#include "visclient.h"
-#include "commandline.h"
+#include "Model.h"
 #include "ActivatedEvent.h"
 
 int main(int argc, char *argv[])
@@ -21,18 +20,18 @@ int main(int argc, char *argv[])
     }
     QQmlApplicationEngine engine;
 
-    qmlRegisterType<VisClient>("VisClient", 1, 0, "VisClient");
+    Model model;
 
-    CommandLine cmd;
-    cmd.setUrlValue("wss://wwwivi:443");
-    cmd.setModeValue((argc > 2 && !strcmp(argv[2], "2"))?2:1);
-
-    if(argc > 1){
-        cmd.setUrlValue(argv[1]);
+    if(argc > 1)
+    {
+        model.setUrlValue(argv[1]);
     }
-
-    engine.rootContext()->setContextProperty("cmdLine", &cmd);
-
+    else
+    {
+        model.setUrlValue("wss://wwwivi:443");
+    }
+    model.setModeValue((argc > 2 && !strcmp(argv[2], "2"))?2:1);
+    engine.rootContext()->setContextProperty("model", &model);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     if (engine.rootObjects().isEmpty())

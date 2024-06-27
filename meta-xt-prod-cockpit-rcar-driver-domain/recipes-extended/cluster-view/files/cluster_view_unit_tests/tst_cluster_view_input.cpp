@@ -1,7 +1,7 @@
 #include <QtTest>
 #include <QObject>
 #include <QSharedPointer>
-#include "../visclient.h"
+#include "../Model.h"
 #include "../VisSocket.h"
 
 class UnitTestSocket : public VisWebSocket
@@ -138,12 +138,12 @@ cluster_view_input::~cluster_view_input()
 void cluster_view_input::test_set_speed()
 {
     QSharedPointer<UnitTestSocket> socket(new UnitTestSocket());
-    VisClient client(socket);
-    client.setUrlValue("http://fake.com");
+    Model model(socket);
+    model.setUrlValue("http://fake.com");
     socket->receivedText(msg_subscr);// just initial communication
     socket->receivedText(msg_subscr);
     socket->receivedText(msg_speed);
-    auto speed = client.speedValue();
+    auto speed = model.speedValue();
     QCOMPARE(speed, 21);
     socket->close();
 }
@@ -151,25 +151,25 @@ void cluster_view_input::test_set_speed()
 void cluster_view_input::cluster_view_input::test_set_gear()
 {
     QSharedPointer<UnitTestSocket> socket(new UnitTestSocket());
-    VisClient client(socket);
-    client.setUrlValue("http://fake.com");
+    Model model(socket);
+    model.setUrlValue("http://fake.com");
     socket->receivedText(msg_subscr);// just initial communication
     socket->receivedText(msg_subscr);
     socket->receivedText(msg_gear);
 
-    auto gear = client.gearValue();
+    auto gear = model.gearValue();
     QCOMPARE(gear, 3);
 
     socket->receivedText(msg_gear_park);
-    gear = client.gearValue();
+    gear = model.gearValue();
     QCOMPARE(gear, 0);
 
     socket->receivedText(msg_gear_neutral);
-    gear = client.gearValue();
+    gear = model.gearValue();
     QCOMPARE(gear, 2);
 
     socket->receivedText(msg_gear_rev);
-    gear = client.gearValue();
+    gear = model.gearValue();
     QCOMPARE(gear, 5);
 
     socket->close();
@@ -178,13 +178,13 @@ void cluster_view_input::cluster_view_input::test_set_gear()
 void cluster_view_input::test_set_rpm()
 {
     QSharedPointer<UnitTestSocket> socket(new UnitTestSocket());
-    VisClient client(socket);
-    client.setUrlValue("http://fake.com");
+    Model model(socket);
+    model.setUrlValue("http://fake.com");
     socket->receivedText(msg_subscr);// just initial communication
     socket->receivedText(msg_subscr);
     socket->receivedText(msg_rpm);
 
-    auto rpm = client.rpmValue();
+    auto rpm = model.rpmValue();
     QCOMPARE(rpm, 3000);
     socket->close();
 }
@@ -192,13 +192,13 @@ void cluster_view_input::test_set_rpm()
 void cluster_view_input::test_set_battery()
 {
     QSharedPointer<UnitTestSocket> socket(new UnitTestSocket());
-    VisClient client(socket);
-    client.setUrlValue("http://fake.com");
+    Model model(socket);
+    model.setUrlValue("http://fake.com");
     socket->receivedText(msg_subscr);// just initial communication
     socket->receivedText(msg_subscr);
     socket->receivedText(msg_battery);
 
-    auto battery = client.batteryValue();
+    auto battery = model.batteryValue();
     QCOMPARE(battery, 70);
     socket->close();
 }
@@ -208,17 +208,17 @@ void cluster_view_input::test_set_turn()
     // 1: right
     // 2: left
     QSharedPointer<UnitTestSocket> socket(new UnitTestSocket());
-    VisClient client(socket);
-    client.setUrlValue("http://fake.com");
+    Model model(socket);
+    model.setUrlValue("http://fake.com");
     socket->receivedText(msg_subscr);// just initial communication
     socket->receivedText(msg_subscr);
     socket->receivedText(msg_turn_left);
 
-    auto turn = client.turnValue();
+    auto turn = model.turnValue();
     QCOMPARE(turn, 2);
 
     socket->receivedText(msg_turn_right);
-    turn = client.turnValue();
+    turn = model.turnValue();
     QCOMPARE(turn, 1);
 
     socket->close();
@@ -227,41 +227,41 @@ void cluster_view_input::test_set_turn()
 void cluster_view_input::test_set_all()
 {
     QSharedPointer<UnitTestSocket> socket(new UnitTestSocket());
-    VisClient client(socket);
-    client.setUrlValue("http://fake.com");
+    Model model(socket);
+    model.setUrlValue("http://fake.com");
     socket->receivedText(msg_subscr);// just initial communication
     socket->receivedText(msg_subscr);
     socket->receivedText(msg_all);
 
-    auto turn = client.turnValue();
+    auto turn = model.turnValue();
     QCOMPARE(turn, 1);
 
-    auto battery = client.batteryValue();
+    auto battery = model.batteryValue();
     QCOMPARE(battery, 70);
 
-    auto gear = client.gearValue();
+    auto gear = model.gearValue();
     QCOMPARE(gear, 3);
 
-    auto rpm = client.rpmValue();
+    auto rpm = model.rpmValue();
     QCOMPARE(rpm, 3000);
 
-    auto speed = client.speedValue();
+    auto speed = model.speedValue();
     QCOMPARE(speed, 21);
     socket->close();
 }
 void cluster_view_input::test_slots()
 {
         QSharedPointer<UnitTestSocket> socket(new UnitTestSocket());
-        VisClient client(socket);
-        connect(&client, &VisClient::turnValueChanged, this, &cluster_view_input::turnValueChanged);
-        connect(&client, &VisClient::batteryValueChanged, this, &cluster_view_input::batteryValueChanged);
-        connect(&client, &VisClient::speedValueChanged, this, &cluster_view_input::speedValueChanged);
-        connect(&client, &VisClient::rpmValueChanged, this, &cluster_view_input::rpmValueChanged);
-        connect(&client, &VisClient::gearValueChanged, this, &cluster_view_input::gearValueChanged);
-        connect(&client, &VisClient::urlValueChanged, this, &cluster_view_input::urlValueChanged);
+        Model model(socket);
+        connect(&model, &Model::turnValueChanged, this, &cluster_view_input::turnValueChanged);
+        connect(&model, &Model::batteryValueChanged, this, &cluster_view_input::batteryValueChanged);
+        connect(&model, &Model::speedValueChanged, this, &cluster_view_input::speedValueChanged);
+        connect(&model, &Model::rpmValueChanged, this, &cluster_view_input::rpmValueChanged);
+        connect(&model, &Model::gearValueChanged, this, &cluster_view_input::gearValueChanged);
+        connect(&model, &Model::urlValueChanged, this, &cluster_view_input::urlValueChanged);
 
         resetSlotState();
-        client.setUrlValue("http://fake.com");
+        model.setUrlValue("http://fake.com");
         socket->receivedText(msg_subscr);// just initial communication
         socket->receivedText(msg_subscr);
         socket->receivedText(msg_all);
