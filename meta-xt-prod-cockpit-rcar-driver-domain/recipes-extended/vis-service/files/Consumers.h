@@ -6,14 +6,14 @@
 #include <QVariant>
 #include <tuple>
 
-class ConsumerDispatcher;
+class ConsumerBroker;
 
 class BaseConsumer: public QObject
 {
     Q_OBJECT
 
 public:
-    virtual void init(class ConsumerDispatcher& );
+    virtual void init(class ConsumerBroker& );
 public Q_SLOTS:
     void onMessageReceived(const QString &message);
     virtual void off() = 0;
@@ -97,11 +97,11 @@ public:
     void on() override;
 };
 
-class ConsumerDispatcher: public QObject
+class ConsumerBroker: public QObject
 {
     Q_OBJECT
 public:
-    ConsumerDispatcher();
+    ConsumerBroker();
 public Q_SLOTS:
     void onMessageReceived(const QString &message);
 

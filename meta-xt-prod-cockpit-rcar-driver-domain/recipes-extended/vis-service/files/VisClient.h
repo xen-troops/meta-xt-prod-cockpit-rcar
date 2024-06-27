@@ -52,7 +52,7 @@ private:
     QUuid mID;
     SubscrState mState;
     QString mSubscriptionId;
-    ConsumerDispatcher consumer;
+    ConsumerBroker broker;
 };    
 
 #endif // VIS_CLIENT_H

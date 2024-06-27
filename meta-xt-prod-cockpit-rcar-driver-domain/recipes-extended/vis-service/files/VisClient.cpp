@@ -37,9 +37,9 @@ VisClient::VisClient(QObject *parent, const QString &url):QObject(parent),
     connect(&mWebSocket, &QWebSocket::disconnected, this, &VisClient::onDisconnected);
     connect(&mWebSocket, &QWebSocket::textMessageReceived, this, &VisClient::onTextMessageReceived);
     // initialize consumers to get the messages
-    connect(this, &VisClient::messageReceived, &consumer, &ConsumerDispatcher::onMessageReceived);
+    connect(this, &VisClient::messageReceived, &broker, &ConsumerBroker::onMessageReceived);
     // hide the icons at the dispaly
-    consumer.off();
+    broker.off();
 
     qDebug() << "Create VIS client - send 0 to reset";
 }

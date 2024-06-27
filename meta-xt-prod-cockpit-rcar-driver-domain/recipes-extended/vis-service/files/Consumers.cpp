@@ -91,11 +91,11 @@ QVariant BaseConsumer::getQValue(const QString &msg, const QString& prop)
     return QVariant{};
 }
 
-void BaseConsumer::init(class ConsumerDispatcher& disp)
+void BaseConsumer::init(class ConsumerBroker& broker)
 {
-    connect(&disp, &ConsumerDispatcher::messageReceived, this, &BaseConsumer::onMessageReceived);
-    connect(&disp, &ConsumerDispatcher::on, this, &BaseConsumer::on);
-    connect(&disp, &ConsumerDispatcher::off, this, &BaseConsumer::off);
+    connect(&broker, &ConsumerBroker::messageReceived, this, &BaseConsumer::onMessageReceived);
+    connect(&broker, &ConsumerBroker::on, this, &BaseConsumer::on);
+    connect(&broker, &ConsumerBroker::off, this, &BaseConsumer::off);
 }
 
 void SpeedConsumer::onMessage(const QString &message)
@@ -327,7 +327,7 @@ void TireConsumer::on()
     send(CLUSTER_LOW_TIRE_PRESSURE, 1);
 }
 
-ConsumerDispatcher::ConsumerDispatcher()
+ConsumerBroker::ConsumerBroker()
 {
     std::get<SpeedConsumer>(consumers).init(*this);
     std::get<RpmConsumer>(consumers).init(*this);
@@ -339,7 +339,7 @@ ConsumerDispatcher::ConsumerDispatcher()
     std::get<TireConsumer>(consumers).init(*this);
 }
 
-void ConsumerDispatcher::onMessageReceived(const QString &message)
+void ConsumerBroker::onMessageReceived(const QString &message)
 {
     messageReceived(message);
 }
