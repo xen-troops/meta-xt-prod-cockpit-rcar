@@ -4,10 +4,12 @@ QT += quick websockets
 DEFINES -= QT_NO_SSL
 
 SOURCES += \
-    commandline.cpp \
+    Consumers.cpp \
+    QtVisSocket.cpp \
+    VisSocket.cpp \
     main.cpp \
-    visclient.cpp \
-    ActivatedEvent.cpp 
+    ActivatedEvent.cpp  \
+    Model.cpp
 
 RESOURCES += \
     qml.qrc
@@ -16,9 +18,11 @@ OTHER_FILES += \
     doc/src/*.*
 
 HEADERS += \
-    commandline.h \
-    visclient.h \
-    ActivatedEvent.h
+    Consumers.h \
+    QtVisSocket.h \
+    VisSocket.h \
+    ActivatedEvent.h \
+    Model.h
 
 
 
