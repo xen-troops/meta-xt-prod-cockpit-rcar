@@ -1,6 +1,6 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-RDEPENDS_${PN} += "backend-ready"
+RDEPENDS:${PN} += "backend-ready"
 
 SRC_URI += "\
     file://doma-vdevices.cfg \
@@ -10,13 +10,16 @@ SRC_URI += "\
     file://doma-pvcamera.cfg \
 "
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     ${libdir}/xen/bin/doma-set-root \
     ${sysconfdir}/systemd/system/doma.service.d/doma-set-root.conf \
     ${@bb.utils.contains('DISTRO_FEATURES', 'pvcamera', '${sysconfdir}/systemd/system/doma.service.d/doma-pvcamera.conf', '', d)} \
 "
 
-do_install_append() {
+RDEPENDS:${PN}:remove = "u-boot-android-bazel"
+RDEPENDS:${PN}:append = " u-boot-android"
+
+do_install:append() {
     cat ${WORKDIR}/doma-vdevices.cfg >> ${D}${sysconfdir}/xen/doma.cfg
 
     # Install doma-set-root script and the drop-in file to run it

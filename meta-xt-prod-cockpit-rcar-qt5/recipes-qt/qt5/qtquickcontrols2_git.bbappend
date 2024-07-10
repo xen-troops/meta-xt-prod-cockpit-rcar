@@ -1,6 +1,6 @@
 require qt5-xt-git.inc
 
-SRC_URI_remove = " \
+SRC_URI:remove = " \
     file://0001-Revert-Get-the-scale-of-the-popup-item-when-setting-.patch \
 "
 

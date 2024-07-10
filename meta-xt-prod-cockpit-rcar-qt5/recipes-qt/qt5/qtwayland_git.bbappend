@@ -1,6 +1,6 @@
 require qt5-xt-git.inc
 
-PACKAGECONFI_remove = " \
+PACKAGECONFI:remove = " \
     ${@bb.utils.contains('DISTRO_FEATURES', 'opengl wayland', 'wayland-egl', '', d)} \
 "
 

@@ -1,3 +1,3 @@
 inherit nativesdk packagegroup
 
-RDEPENDS_${PN}_remove = " nativesdk-qtdeclarative-tools"
+RDEPENDS:${PN}:remove = " nativesdk-qtdeclarative-tools"

@@ -70,5 +70,5 @@ python populate_packages_append () {
             postrm += d.getVar('mime_xdg_postrm')
             d.setVar('pkg_postrm_%s' % pkg, postrm)
             bb.note("adding desktop-file-utils dependency to %s" % pkg)
-            d.appendVar('RDEPENDS_' + pkg, " " + d.getVar('MLPREFIX')+"desktop-file-utils")
+            d.appendVar('RDEPENDS:' + pkg, " " + d.getVar('MLPREFIX')+"desktop-file-utils")
 }

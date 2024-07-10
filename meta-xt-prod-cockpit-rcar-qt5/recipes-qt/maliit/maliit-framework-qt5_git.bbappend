@@ -1,8 +1,8 @@
-pkg_postinst_ontarget_${PN} () {
+pkg_postinst_ontarget:${PN} () {
      ;
 }
 
-pkg_postinst_${PN} () {
+pkg_postinst:${PN} () {
 #!/bin/sh
 # should run online
 if [ "x$D" != "x" ]; then
@@ -12,7 +12,7 @@ echo "export QT_IM_MODULE=Maliit" >> /etc/xprofile
 ln -s /usr/share/applications/maliit-server.desktop /etc/xdg/autostart/maliit-server.desktop
 }
 
-pkg_postrm_${PN} () {
+pkg_postrm:${PN} () {
 #!/bin/sh
 # should run online
 if [ "x$D" = "x" ]; then

@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SUMMARY = "QT Cluster application"
 LICENSE = "CLOSED"
@@ -24,7 +24,7 @@ S = "${WORKDIR}"
 
 inherit pkgconfig qmake5 
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     ${bindir}/clusterapp \
     ${systemd_system_unitdir}/clusterapp.service \
 "
