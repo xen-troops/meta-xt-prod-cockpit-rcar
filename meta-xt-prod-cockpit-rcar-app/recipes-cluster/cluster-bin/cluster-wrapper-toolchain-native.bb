@@ -14,7 +14,7 @@ SRC_URI[sha256sum] = "21134caa478bbf5352e239fbc6e2da3038f8d2207e089efc96c3b55f1e
 SRC_URI[md5sum] = "8312c4c91799885f222f663fc81f9a31"
 
 
-FILES_${PN} = "${datadir} ${bindir}"
+FILES:${PN} = "${datadir} ${bindir}"
 
 do_install() {
 
@@ -24,7 +24,7 @@ do_install() {
     install -d ${D}${bindir}
     # Symlink all executables into bindir
     for f in ${D}${datadir}/bin/arm-none-eabi-*; do
-        lnr $f ${D}${bindir}/$(basename $f)
+    	 ln --relative --symbolic $f ${D}${bindir}/$(basename $f)
     done
 }
 

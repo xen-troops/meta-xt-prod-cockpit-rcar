@@ -6,7 +6,7 @@ SRC_URI = " \
      file://dejavu-ttf-1.15.tar.gz;unpack=1 \
 "
 
-RDEPENDS_${PN} =+ "bash perl perl-modules"
+RDEPENDS:${PN} =+ "bash perl perl-modules"
 
 do_install(){
      # Create the opt folder into the final image, ${D} is ${WORKDIR}/image
@@ -17,6 +17,6 @@ do_install(){
 }
 
 # Very important to specify what you installed in (do_install)
-FILES_${PN} = " \
+FILES:${PN} = " \
     ${libdir}/fonts/* \
 "

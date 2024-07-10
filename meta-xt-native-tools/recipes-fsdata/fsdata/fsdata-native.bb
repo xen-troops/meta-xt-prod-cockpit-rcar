@@ -1,7 +1,7 @@
 SUMMARY = "Application generates the fs_data.c and Images.c for cluster application."
 LICENSE = "CLOSED"
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 inherit native
 

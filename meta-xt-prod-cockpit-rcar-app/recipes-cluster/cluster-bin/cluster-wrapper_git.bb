@@ -11,7 +11,7 @@ PLATFORM = "rcar"
 PARALLEL_MAKE = ""
 
 SRC_URI = " \
-   git://git@gitpct.epam.com/epmd-aepr/vlib;protocol=ssh;branch=${BRANCH} \
+   git://git@gitpct.epam.com/Ihor_Usyk/vlib;protocol=ssh;branch=${BRANCH} \
 "
 
 SRCREV = "046a0cbe6f628e098527943edadafd2a47879143"
