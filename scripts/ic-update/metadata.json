@@ -2,9 +2,9 @@
     "formatVersion": 1,
     "components": [
         {
-            "id": "h3ulcb-4x2g-ab-1.0-cluster",
+            "id": "rcar-multinode-zephyr-1.0-spider-cluster",
             "fileName": "update-mode.tar.bz2",
-            "vendorVersion": "0.0.42",
+            "vendorVersion": "0.0.8",
             "description": "Update IC mode"
         }
     ]
