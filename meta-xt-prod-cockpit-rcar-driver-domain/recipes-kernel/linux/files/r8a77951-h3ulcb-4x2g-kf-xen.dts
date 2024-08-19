@@ -553,6 +553,7 @@
 &ssi9			{ xen,passthrough; };
 &tsc			{ xen,passthrough; };
 &usb2_phy0		{ xen,passthrough; };
+&usb2_phy1              { xen,passthrough; };
 &hsusb			{ xen,passthrough; };
 &xhci0			{ xen,passthrough; };
 &usb3_peri0		{ xen,passthrough; };
