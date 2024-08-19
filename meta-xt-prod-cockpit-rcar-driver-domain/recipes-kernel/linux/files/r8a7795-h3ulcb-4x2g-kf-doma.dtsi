@@ -8,6 +8,24 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
+	cpu_scp_shm: scp-shmem@57000000/*0x1FF0000*/ {
+		compatible = "arm,scmi-shmem";
+		reg = <0x0 0x57000000 0x0 0x1000>;
+	};
+	scp-shmem@57001000 {
+		compatible = "arm,scmi-shmem";
+		reg = <0x00 0x57001000 0x00 0x1000>;
+	};
+	scp-shmem@57002000 {
+		compatible = "arm,scmi-shmem";
+		reg = <0x00 0x57002000 0x00 0x1000>;
+	};
+	scp-shmem@0x57003000 {
+		compatible = "arm,scmi-shmem";
+		reg = <0x00 0x57003000 0x00 0x1000>;
+		phandle = <0x19>;
+	};
+
 	reserved-memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -46,6 +64,12 @@
 			reusable;
 			reg = <0x00000000 0x68000000 0x0 0x20000000>; /* 512Mb */
 		};
+
+		/* reserved region for scmi channels*/
+                scmi_memory: linux,scmi_mem@57000000 {
+                        no-map;
+                        reg = <0x0 0x57000000 0x0 0x4000>;
+                };
 	};
 
 	rvgc {
@@ -113,6 +137,10 @@
 		usb2_phy0: usb-phy@ee080200 {
 			compatible = "renesas,usb2-phy-r8a7795",
 				     "renesas,rcar-gen3-usb2-phy";
+			scmi_devid = <16>;
+			clocks = <&scmi_clock 8>;
+			resets = <&scmi_reset 15>;
+			power-domains = <&scmi_power 0>;
 			reg = <0 0xee080200 0 0x700>;
 			interrupts = <GIC_SPI 108 IRQ_TYPE_LEVEL_HIGH>;
 			/*clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>;*/
@@ -126,6 +154,10 @@
 		ohci0: usb@ee080000 {
 			compatible = "generic-ohci";
 			reg = <0 0xee080000 0 0x100>;
+			scmi_devid = <9>;
+			clocks = <&scmi_clock 2>, <&scmi_clock 3>;
+			resets = <&scmi_reset 9>, <&scmi_reset 10>;
+			power-domains = <&scmi_power 0>;
 			interrupts = <GIC_SPI 108 IRQ_TYPE_LEVEL_HIGH>;
 			/*clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>;*/
 			phys = <&usb2_phy0 1>;
@@ -138,6 +170,10 @@
 		ehci0: usb@ee080100 {
 			compatible = "generic-ehci";
 			reg = <0 0xee080100 0 0x100>;
+			scmi_devid = <10>;
+                        clocks = <&scmi_clock 2>, <&scmi_clock 3>;
+                        resets = <&scmi_reset 9>, <&scmi_reset 10>;
+                        power-domains = <&scmi_power 0>;
 			interrupts = <GIC_SPI 108 IRQ_TYPE_LEVEL_HIGH>;
 			/*clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>;*/
 			phys = <&usb2_phy0 2>;
@@ -152,6 +188,10 @@
 			compatible = "renesas,usb2-phy-r8a7795",
 				     "renesas,rcar-gen3-usb2-phy";
 			reg = <0 0xee0a0200 0 0x700>;
+			scmi_devid = <13>;
+			clocks = <&scmi_clock 5>;
+			resets = <&scmi_reset 12>;
+			power-domains = <&scmi_power 0>;
 			#phy-cells = <1>;
 			/* clocks = <&cpg CPG_MOD 702>; */
 			/* power-domains = <&sysc R8A7795_PD_ALWAYS_ON>; */
@@ -162,6 +202,10 @@
 		ohci1: usb@ee0a0000 {
 			compatible = "generic-ohci";
 			reg = <0 0xee0a0000 0 0x100>;
+			scmi_devid = <11>;
+                        clocks = <&scmi_clock 4>;
+                        resets = <&scmi_reset 11>;
+                        power-domains = <&scmi_power 0>;
 			interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
 			phys = <&usb2_phy1 1>;
 			phy-names = "usb";
@@ -172,6 +216,10 @@
 		ehci1: usb@ee0a0100 {
 			compatible = "generic-ehci";
 			reg = <0 0xee0a0100 0 0x100>;
+			scmi_devid = <12>;
+			clocks = <&scmi_clock 4>;
+			resets = <&scmi_reset 11>;
+			power-domains = <&scmi_power 0>;
 			interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
 			companion = <&ohci1>;
 			phys = <&usb2_phy1 2>;
@@ -815,6 +863,29 @@
 	};
 
 	firmware {
+		scmi {
+			compatible = "arm,scmi-smc";
+			arm,smc-id = <0x82000002>;
+			shmem = <&cpu_scp_shm>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			scmi_power: protocol@11 {
+				reg = <0x11>;
+				#power-domain-cells = <1>;
+			};
+
+			scmi_clock: protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
+
+			scmi_reset: protocol@16 {
+				reg = <0x16>;
+				#reset-cells = <1>;
+			};
+		};
+
 		android {
 			compatible = "android,firmware";
 

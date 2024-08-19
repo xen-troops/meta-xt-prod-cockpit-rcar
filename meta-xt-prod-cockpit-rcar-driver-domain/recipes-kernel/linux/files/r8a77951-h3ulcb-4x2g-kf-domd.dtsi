@@ -204,14 +204,32 @@
 
 &usb2_phy1 {
 	compatible = "xen-troops,passthrough";
+        /delete-property/clocks;
+        /delete-property/resets;
+        /delete-property/power-domains;
+};
+
+&ohci0 {
+        status = "disabled";
+};
+
+&ehci0 {
+        status = "disabled";
 };
 
 &ohci1 {
 	compatible = "xen-troops,passthrough";
+	status = "disabled";
 };
 
 &ehci1 {
 	compatible = "xen-troops,passthrough";
+        status = "disabled";	
+};
+
+&xhci0 /* usb@ee000000*/
+{
+        status = "disabled";
 };
 
 /* These MM devices are used by DomA/U. */
