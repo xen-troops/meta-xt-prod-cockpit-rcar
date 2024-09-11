@@ -147,6 +147,7 @@ components:
         - [XEN_REL_pn-xen, "4.16"]
         - [XEN_REL_pn-xen-tools, "4.16"]
         - [SRCREV_pn-xen, "%{XT_XEN_REVISION}"]
+        - [IMAGE_INSTALL_append_pn-core-image-thin-initramfs, " xen-tools-xenstat"]
 
       layers:
         - "../meta-virtualization"
