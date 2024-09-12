@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>main.qml</file>
-        <file>qt_logo.png</file>
-        <file>Nav_car.png</file>
-    </qresource>
-</RCC>
