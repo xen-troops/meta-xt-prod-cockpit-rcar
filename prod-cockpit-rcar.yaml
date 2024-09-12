@@ -248,6 +248,7 @@ components:
         - "../meta-xt-rcar/meta-xt-rcar-domx"
         - "../meta-xt-rcar/meta-xt-rcar-gles_common"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-driver-domain"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-app"
         - "../meta-qt5"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-qt5"
         - "../meta-aos"
