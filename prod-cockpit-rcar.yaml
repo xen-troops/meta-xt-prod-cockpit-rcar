@@ -213,6 +213,10 @@ components:
         - [XEN_REL_pn-xen, "4.16"]
         - [XEN_REL_pn-xen-tools, "4.16"]
         - [SRCREV_pn-xen, "%{XT_XEN_REVISION}"]
+
+        # set bmap-tools SRC_URI
+        - [SRC_URI_pn-bmap-tools_3.5, "git://github.com/intel/${BPN};branch=main;protocol=https"]
+        - [SRCREV_pn-bmap-tools_3.5, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
         
         # add graphic packages required qt
         - [DISTRO_FEATURES_append, " pam"]
