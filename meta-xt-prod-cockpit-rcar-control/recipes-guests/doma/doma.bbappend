@@ -31,3 +31,4 @@ do_install_append() {
         install -m 0644 ${WORKDIR}/doma-pvcamera.conf ${D}${sysconfdir}/systemd/system/doma.service.d
     fi
 }
+

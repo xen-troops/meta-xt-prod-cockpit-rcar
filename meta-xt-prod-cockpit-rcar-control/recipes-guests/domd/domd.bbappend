@@ -23,3 +23,4 @@ do_install_append() {
     echo "[Service]" >> ${D}${systemd_unitdir}/system/domd.service
     echo "ExecStartPre=${libdir}/xen/bin/domd-set-root" >> ${D}${systemd_unitdir}/system/domd.service
 }
+
