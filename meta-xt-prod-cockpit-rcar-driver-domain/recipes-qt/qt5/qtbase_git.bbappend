@@ -1,30 +1,11 @@
 
-require qt5-xt-git.inc
+#require qt5-xt-git.inc
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/qtbase:"
-
-SRC_URI_remove = " \
-    file://0001-Add-linux-oe-g-platform.patch \
-    file://0008-Replace-pthread_yield-with-sched_yield.patch \
-    file://0004-configure-bump-path-length-from-256-to-512-character.patch \
-    file://0018-tst_qpainter-FE_-macros-are-not-defined-for-every-pl.patch \
-    file://0019-Define-__NR_futex-if-it-does-not-exist.patch \
-    file://0020-Revert-Fix-workaround-in-pthread-destructor.patch \
-    file://0021-qfloat16-Include-limits-header.patch \
-"
-
-SRC_URI_append = " \
-    file://0001-Add-linux-oe-g-platform-xt.patch \
-    file://0008-Replace-pthread_yield-with-sched_yield-xt.patch \
-    file://0004-configure-bump-path-length-from-256-to-512-character-xt.patch \
-    file://0018-tst_qpainter-FE_-macros-are-not-defined-for-every-pl-xt.patch \
-"
 
 unset LTO
 
 LDFLAGS_remove_riscv64 = "-pthread"
-
-SRCREV = "e4961b35deb202525d4711dbb14f8c2bb0bf5c26"
 
 PACKAGECONFIG_GL = "${@bb.utils.contains('DISTRO_FEATURES', 'opengl', 'gles2 eglfs', 'no-opengl', d)}"
 
