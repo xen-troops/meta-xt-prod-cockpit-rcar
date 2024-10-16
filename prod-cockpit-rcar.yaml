@@ -41,9 +41,11 @@ common_data:
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
       rev: dunfell-v0.1.0
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: master
-
+      url: "https://github.com/iusyk/meta-xt-prod-cockpit-rcar.git"
+      rev: qt5-dunfel
+    - type: git
+      url: "https://github.com/meta-qt5/meta-qt5"
+      rev: "5ef3a0ffd3324937252790266e2b2e64d33ef34f"
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -178,9 +180,6 @@ components:
         url: git://git.yoctoproject.org/meta-selinux
         rev: 1a13839d114e6694d5ae2aa5dfa11c6824277b99
       - type: git
-        url: "https://github.com/meta-qt5/meta-qt5"
-        rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
-      - type: git
         url: "https://github.com/xen-troops/meta-renesas.git"
         rev: b379ca61c3cc8919b4bbd1008c65f21a39638f26
       - type: git
@@ -229,6 +228,9 @@ components:
         - [BBMASK_append, "mesa-gl"]
         - [BBMASK_append, "|meta-xt-domx/recipes-core/base-files"]
 
+        # remove not used qt5 tests
+        - [PACKAGECONFIG_remove_pn-qtbase, " tests"]
+
       build_target: core-image-minimal
       layers:
         - "../poky/meta"
@@ -251,7 +253,6 @@ components:
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-driver-domain"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-app"
         - "../meta-qt5"
-        - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-qt5"
         - "../meta-aos"
       target_images:
         - "tmp/deploy/images/%{MACHINE}/Image"
@@ -322,9 +323,6 @@ components:
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources:
       - *COMMON_SOURCES
-      - type: git
-        url: "https://github.com/meta-qt5/meta-qt5"
-        rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
       - type: git        
         url: "git://git.yoctoproject.org/meta-arm.git"
         rev: "f7c5e7d5094f65d105d9d580ba59527c25fb0d0f"
@@ -347,7 +345,6 @@ components:
         - "../meta-xt-common/meta-xt-domx"
         - "../meta-openembedded/meta-oe"
         - "../meta-qt5"
-        - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-qt5"
       target_images:
         - "tmp/deploy/cluster_wrapper.bin"
 
