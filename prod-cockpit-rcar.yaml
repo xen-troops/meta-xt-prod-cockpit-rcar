@@ -41,8 +41,8 @@ common_data:
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
       rev: dunfell-v0.1.0
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: master
+      url: "https://github.com/iusyk/meta-xt-prod-cockpit-rcar.git"
+      rev: qt5-dunfel
     - type: git
       url: "https://github.com/meta-qt5/meta-qt5"
       rev: "5ef3a0ffd3324937252790266e2b2e64d33ef34f"
@@ -215,9 +215,11 @@ components:
         - [SRCREV_pn-xen, "%{XT_XEN_REVISION}"]
 
         # set bmap-tools SRC_URI
-        - [SRC_URI_pn-bmap-tools_3.5, "git://github.com/intel/${BPN};branch=main;protocol=https"]
-        - [SRCREV_pn-bmap-tools_3.5, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
-        
+        - [SRC_URI_pn-bmap-tools, "git://github.com/intel/${BPN};branch=main;protocol=https"]
+        - [SRCREV_pn-bmap-tools, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
+        - [SRC_URI_pn-bmap-tools-native, "git://github.com/intel/${BPN};branch=main;protocol=https"]
+        - [SRCREV_pn-bmap-tools-native, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
+
         # add graphic packages required qt
         - [DISTRO_FEATURES_append, " pam"]
         - [PREFERRED_PROVIDER_virtual/egl, "libegl"]
@@ -291,8 +293,8 @@ components:
     build-dir: "android"
     sources:
       - type: repo
-        url: "git@github.com:xen-troops/android_manifest.git"
-        rev: d83296986d6ff25dc842f341254396745ff36c1b
+        url: "git@github.com:Mishytca/android_manifest.git"
+        rev: android-14-prod-cockpit-rcar-master
         manifest: doma.xml
         depth: 1
         groups: "%{XT_DOMA_SOURCE_GROUP}"
