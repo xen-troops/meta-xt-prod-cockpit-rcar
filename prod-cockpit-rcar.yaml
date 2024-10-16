@@ -41,8 +41,8 @@ common_data:
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
       rev: dunfell-v0.1.0
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: master
+      url: "https://github.com/iusyk/meta-xt-prod-cockpit-rcar.git"
+      rev: qt5-dunfel
     - type: git
       url: "https://github.com/meta-qt5/meta-qt5"
       rev: "5ef3a0ffd3324937252790266e2b2e64d33ef34f"
