@@ -293,7 +293,7 @@ components:
     sources:
       - type: repo
         url: "git@github.com:xen-troops/android_manifest.git"
-        rev: d83296986d6ff25dc842f341254396745ff36c1b
+        rev: 92913150670f1ba1b11fc0934e44c9d32e2be13a
         manifest: doma.xml
         depth: 1
         groups: "%{XT_DOMA_SOURCE_GROUP}"
