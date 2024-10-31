@@ -1,5 +1,5 @@
 desc: "Xen-Troops development setup for Renesas RCAR Gen3 hardware"
-min_ver: "0.16"
+min_ver: "0.27"
 
 variables:
   YOCTOS_WORK_DIR: "yocto"
@@ -395,6 +395,7 @@ images:
       domd_rootfs:
         gpt_type: B921B045-1DF0-41C3-AF44-4C6F280D3FAE # Linux aarch64 root
         type: raw_image
+        resize: false
         image_path: "%{YOCTOS_WORK_DIR}/build-domd/tmp/deploy/images/%{MACHINE}/core-image-minimal-%{MACHINE}.ext4"
 
 parameters:
@@ -508,6 +509,7 @@ parameters:
                 gpt_type: 49A4D17F-93A3-45C1-A0DE-F50B2EBE2599 # Android boot 1
                 type: raw_image
                 size: 40 MiB
+                resize: false
                 image_path: "android/out/target/product/xenvm/boot.img"
               boot_b:
                 gpt_type: 20117F86-E985-4357-B9EE-374BC1D8487D # Android boot 2
@@ -517,6 +519,7 @@ parameters:
                 gpt_type: 19A710A2-B3CA-11E4-B026-10604B889DCF # Android meta
                 type: raw_image
                 size: 1 MiB
+                resize: false
                 image_path: "android/out/target/product/xenvm/vbmeta.img"
               vbmeta_b:
                 gpt_type: 19A710A2-B3CA-11E4-B026-10604B889DCF # Android meta
