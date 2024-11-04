@@ -10,7 +10,7 @@ variables:
   ANDROID_KERNEL_DIR: "android_kernel"
   XT_DOMD_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-lvds-domd.dtb"
   XT_XEN_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-xen.dtb"
-  XT_XEN_REVISION: "b49458867829adf52d8842d2d55100ca4684118e"
+  XT_XEN_REVISION: "93f74646e31107d059e5aa1ed00c6528f2ad0d99"
   XT_PVR_NUM_OSID: "2"
   XT_OP_TEE_FLAVOUR: "generic_dt"
   XT_DOMA_TAG: ""
@@ -42,7 +42,7 @@ common_data:
       rev: dunfell-v0.1.0
     - type: git
       url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: v1.0.3
+      rev: v1.0.4
 
 
     # Common configuration options for all yocto-based domains
@@ -202,10 +202,10 @@ components:
         # take dedicated cr7 kernel
         - [RENESAS_BSP_URL_pn-linux-renesas,  "git://github.com/xen-troops/linux.git;protocol=https"]
         - [BRANCH_pn-linux-renesas, "v5.10.41/rcar-5.1.4.1-cockpit-rcar"]
-        - [SRCREV_pn-linux-renesas, "${AUTOREV}"]
+        - [SRCREV_pn-linux-renesas, "72238715e90372d0451e9b50b0592fb9e69333f1"]
         - [RENESAS_BSP_URL_pn-linux-libc-headers,  "git://github.com/xen-troops/linux.git;protocol=https"]
         - [BRANCH_pn-linux-libc-headers, "v5.10.41/rcar-5.1.4.1-cockpit-rcar"]
-        - [SRCREV_pn-linux-libc-headers, "${AUTOREV}"]
+        - [SRCREV_pn-linux-libc-headers, "72238715e90372d0451e9b50b0592fb9e69333f1"]
 
         # get xen customized under cr7
         - [XEN_URL_pn-xen-tools, "%{XEN_URL}"]
@@ -267,7 +267,7 @@ components:
     sources:
       - type: repo
         url: https://github.com/xen-troops/android_kernel_manifest.git
-        rev: 0631eb20d34c8f367424e84bdb0670ef920beb11
+        rev: 009ba45e8a7cd681e9d0be859e808a53ffc43133
         manifest: default.xml
         depth: 1
         groups: "%{XT_DOMA_SOURCE_GROUP}"
@@ -575,6 +575,7 @@ parameters:
             builder:                                                                                
               conf:                                                                                 
                 - [BRANCH_pn-cluster-wrapper, "CES-2023"]
+                - [SRCREV_pn-cluster-wrapper, "046a0cbe6f628e098527943edadafd2a47879143"]
         variables:
           XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-lvds-domd.dtb"
           XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-lvds-doma.dtb"
