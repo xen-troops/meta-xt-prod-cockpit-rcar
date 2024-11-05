@@ -53,4 +53,4 @@ RUN mkdir -p /home/$USER_NAME/workspace && chown $USER_NAME:$USER_NAME /home/$US
 ENV BUILD_DIR /home/$USER_NAME/workspace
 WORKDIR $BUILD_DIR
 RUN pip3 install --no-warn-script-location --user git+https://github.com/xen-troops/moulin
-ENV PATH ~/.local/bin:$PATH
+ENV PATH="/home/${USER_NAME}/.local/bin:${PATH}"
