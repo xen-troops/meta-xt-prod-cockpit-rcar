@@ -20,29 +20,30 @@ variables:
   XT_DOMA_KERNEL_BUILD_CONFIG: "build.config.xenvm"
   XT_DOMA_KERNEL_INTERNAL_OUT_DIR: "out/android13-5.10/dist"
   XT_DOMA_KERNEL_OUT_DIR: "../%{ANDROID_KERNEL_DIR}/%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}"
-  XT_DOMA_SOURCE_GROUP: ""  
+  XT_DOMA_SOURCE_GROUP: ""
+  XT_USE_DDK1_11: "0"
 
 common_data:
   # Sources used by all yocto-based domains
   sources: &COMMON_SOURCES
     - type: git
       url: https://git.yoctoproject.org/poky
-      rev: kirkstone
+      rev: "e938b18b5342bd28eadb44ad39dbf1f5cf5be09b" # kirkstone
     - type: git
       url: https://git.openembedded.org/meta-openembedded
-      rev: kirkstone
+      rev: "9a24b7679810628b594cc5a9b52f77f53d37004f" # kirkstone
     - type: git
       url: https://git.yoctoproject.org/meta-virtualization
-      rev: kirkstone
+      rev: "e0cd09e3b8367e2745a27db2e7ff1f8452c8cf41" # kirkstone
     - type: git
       url: https://github.com/xen-troops/meta-xt-common.git
-      rev: master
+      rev: "101f6a449ee237e3125a006e4a80196a2c70e949" # kirkstone
     - type: git
       url: https://github.com/xen-troops/meta-xt-rcar.git
-      rev: master
+      rev: "f5b31e9cb4e3521bece7f3f1dd7473c60a17df7a" # kirkstone
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: master
+      url: https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git
+      rev: "master"
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -88,16 +89,38 @@ common_data:
     # HACK: force ipk instead of rpm b/c it makes troubles to PVR UM build otherwise
     - [PACKAGE_CLASSES, "package_ipk"]
 
+  gfx_conf: &GFX_CONF
+    # for Wayland/Weston
+    - [DISTRO_FEATURES:append, " pam"]
+
+    # Enable Gfx Pkgs
+    - [PREFERRED_PROVIDER_virtual/libgles1, ""]
+    - [PREFERRED_PROVIDER_virtual/libgles2, "gles-user-module"]
+    - [PREFERRED_PROVIDER_virtual/libgles3, "gles-user-module"]
+    - [PREFERRED_PROVIDER_virtual/egl, "libegl"]
+    - [PREFERRED_PROVIDER_virtual/libgl, ""]
+    - [PREFERRED_PROVIDER_virtual/mesa, ""]
+    - [PREFERRED_PROVIDER_virtual/libgbm, "libgbm"]
+    - [PREFERRED_PROVIDER_libgbm-dev, "libgbm"]
+    - [BBMASK:append, " mesa-gl"]
+
+    - [XT_USE_DDK1_11, "%{XT_USE_DDK1_11}"]
+
+    # The bbappends below are only used for old DDK v1.11
+    - [BBMASK:append, " ${@bb.utils.contains('XT_USE_DDK1_11', '1', '', 'meta-xt-rcar-fixups/recipes-kernel/kernel-module-gles/kernel-module-gles.bbappend', d)}"]
+    - [BBMASK:append, " ${@bb.utils.contains('XT_USE_DDK1_11', '1', '', 'meta-xt-rcar-fixups/recipes-graphics/gles-module/gles-user-module.bbappend', d)}"]
+    - [BBMASK:append, " ${@bb.utils.contains('XT_USE_DDK1_11', '1', '', 'meta-xt-rcar-fixups/recipes-graphics/packagegroups/packagegroup-graphic-renesas.bbappend', d)}"]
+
   # The same set of layers and configs is used both in DomD and DomU
   # to build a DDK from source code
   ddk_source_overrides: &DDK_SOURCE_OVERRIDES
     sources:
       - type: git
         url: "git://git.openembedded.org/meta-python2"
-        rev: kirkstone
+        rev: "f02882e2aa9279ca7becca8d0cedbffe88b5a253" # kirkstone
       - type: git
         url: "https://github.com/kraj/meta-clang"
-        rev: kirkstone
+        rev: "8bc893d735e5f779a2dcdc3992621d5ab371800d" # kirkstone
       - type: git
         url: "ssh://git@gitpct.epam.com/epmd-aepr/img-proprietary"
         rev: "ef1aa566d74a11c4d2ae9592474030a706b4cf39"
@@ -149,10 +172,13 @@ components:
         - [XEN_REL:pn-xen, "4.16"]
         - [XEN_REL:pn-xen-tools, "4.16"]
         - [SRCREV:pn-xen, "%{XT_XEN_REVISION}"]
-        - [IMAGE_INSTALL:append_pn-core-image-thin-initramfs, " xen-tools-xenstat"]
-        - [BBMASK:append, "|xen-tools_4.16|xen-tools_4.15|xen_4.16|xen_4.15|linux-libc-headers_6.8"]
+        - [IMAGE_INSTALL:append:pn-core-image-thin-initramfs, " xen-tools-xenstat"]
         - [PREFERRED_RPROVIDER_libgstallocators-1.0, "gstreamer1.0-plugins-base"]
         - [PREFERRED_RPROVIDER_libgstapp-1.0, "gstreamer1.0-plugins-base"]
+
+        # Build our own Xen version rather than proposed by meta-virtualization
+        - [PREFERRED_VERSION_xen, "4.16.0+gitAUTOINC+93f74646e3"]
+        - [PREFERRED_VERSION_xen-tools, "4.16.0+gitAUTOINC+93f74646e3"]
 
       layers:
         - "../meta-virtualization"
@@ -182,22 +208,23 @@ components:
       - *COMMON_SOURCES
       - type: git
         url: git://git.yoctoproject.org/meta-selinux
-        rev: kirkstone
+        rev: "a401f4b2816a0b41ce8d9351542658c721935bcd" # kirkstone
+      - type: git
+        url: "https://github.com/renesas-rcar/meta-renesas.git"
+        rev: "11221be7ff3a535f17357bc8ac7e2851d0e8ff02" # kirkstone-dev
       - type: git
         url: "https://github.com/meta-qt5/meta-qt5"
-        rev: "kirkstone"
-      - type: git
-        url: "https://github.com/xen-troops/meta-renesas.git"
-        rev: kirkstone-dev-patched
+        rev: "644ebf220245bdc06e7696ccc90acc97a0dd2566" # kirkstone
       - type: git
         url: "https://github.com/aoscloud/meta-aos"
-        rev: "f0ee96f4e3f8f82662e571c29f836d788764eb3c"
+        rev: "f0ee96f4e3f8f82662e571c29f836d788764eb3c" # Release 7.3.3
     builder:
       type: yocto
       work_dir: "%{DOMD_BUILD_DIR}"
       conf:
         - *COMMON_CONF
         - *DOMD_DOMU_CONF
+        - *GFX_CONF
         - [XT_DOM_NAME, "domd"]
         - [XT_OP_TEE_FLAVOUR, "%{XT_OP_TEE_FLAVOUR}"]
         - [XT_DEVICE_TREES, "%{XT_DOMD_DTB_NAME} %{XT_DOMA_DTB_NAME} %{XT_XEN_DTB_NAME}"]
@@ -222,24 +249,23 @@ components:
         - [SRCREV:pn-xen, "%{XT_XEN_REVISION}"]
 
         # set bmap-tools SRC_URI
-        - [SRC_URI_pn-bmap-tools, "git://github.com/intel/${BPN};branch=main;protocol=https"]
-        - [SRCREV_pn-bmap-tools, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
-        - [SRC_URI_pn-bmap-tools-native, "git://github.com/intel/${BPN};branch=main;protocol=https"]
-        - [SRCREV_pn-bmap-tools-native, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
+        - [SRC_URI:pn-bmap-tools, "git://github.com/intel/${BPN};branch=main;protocol=https"]
+        - [SRCREV:pn-bmap-tools, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
+        - [SRC_URI:pn-bmap-tools-native, "git://github.com/intel/${BPN};branch=main;protocol=https"]
+        - [SRCREV:pn-bmap-tools-native, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
 
         # add graphic packages required qt
-        - [DISTRO_FEATURES:append, " pam"]
-        - [PREFERRED_PROVIDER_virtual/egl, "libegl"]
-        - [PREFERRED_PROVIDER_virtual/libgl, ""]
-        - [PREFERRED_PROVIDER_virtual/mesa, ""]
-        - [PREFERRED_PROVIDER_virtual/libgbm, "libgbm"]
-        - [PREFERRED_PROVIDER_libgbm-dev, "libgbm"]
-        - [PREFERRED_PROVIDER_virtual/libgles2, "gles-user-module"]
-        - [PREFERRED_PROVIDER_virtual/libgles3, "gles-user-module"]
         - [PREFERRED_RPROVIDER_libgstallocators-1.0, "gstreamer1.0-plugins-base"]
         - [PREFERRED_RPROVIDER_libgstapp-1.0, "gstreamer1.0-plugins-base"]
-        - [BBMASK:append, "|xen-tools_4.16|xen-tools_4.15|xen_4.15|xen_4.16|linux-libc-headers_6.8|meta-xt-domx/recipes-core/base-files|mesa-gl|cogl*"]
-        - [BBMASK:append, "|mesa-vulkan-drivers|vulkan-loader|gstreamer1.0-plugins-bad"]
+
+        # gles-um-compile.bb still requires python2
+        - [I_SWEAR_TO_MIGRATE_TO_PYTHON3, "yes"]
+
+        # Build our own Xen version rather than proposed by meta-virtualization
+        - [PREFERRED_VERSION_xen, "4.16.0+gitAUTOINC+93f74646e3"]
+        - [PREFERRED_VERSION_xen-tools, "4.16.0+gitAUTOINC+93f74646e3"]
+
+
       build_target: core-image-minimal
       layers:
         - "../meta-renesas/meta-rcar-gen3"
@@ -333,9 +359,6 @@ components:
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources:
       - *COMMON_SOURCES
-      - type: git
-        url: "https://github.com/meta-qt5/meta-qt5"
-        rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
       - type: git        
         url: "git://git.yoctoproject.org/meta-arm.git"
         rev: "kirkstone"
@@ -347,6 +370,8 @@ components:
         - *COMMON_CONF
         - *DOMD_DOMU_CONF
         - [MACHINE, "generic-armv8-xt"]
+        # ignore xen bbappend files from meta-xt-common
+        - [BBMASK:append, "|meta-xt-domx/recipes-extended/xen/"]
       build_target: cluster-wrapper
       layers:
         - "../meta-arm/meta-arm-toolchain"
@@ -421,7 +446,7 @@ parameters:
             sources:
               - type: git
                 url: "https://github.com/xen-troops/meta-rcar.git"
-                rev: kirkstone-Yocto-v5.9.0-patched
+                rev: "b5eaaaa5f48d221fdb0aa0ea2f96b96558d9851d" # kirkstone-Yocto-v5.9.0-patched
             builder:
               layers:
                 - "../meta-rcar/meta-rcar-gen3-adas"
@@ -487,6 +512,7 @@ parameters:
       overrides:
         variables:
           XT_DOMA_TAG: "doma"
+          XT_USE_DDK1_11: "1"
         components:
           # Build and install ivi-shell in case of Android builds
           domd:
@@ -576,8 +602,8 @@ parameters:
           cluster:                                                                                  
             builder:                                                                                
               conf:                                                                                 
-                - [BRANCH_pn-cluster-wrapper, "CES-2023"]
-                - [SRCREV_pn-cluster-wrapper, "046a0cbe6f628e098527943edadafd2a47879143"]
+                - [BRANCH:pn-cluster-wrapper, "CES-2023"]
+                - [SRCREV:pn-cluster-wrapper, "046a0cbe6f628e098527943edadafd2a47879143"]
         variables:
           XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-lvds-domd.dtb"
           XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-lvds-doma.dtb"

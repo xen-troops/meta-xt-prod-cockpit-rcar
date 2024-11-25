@@ -1,6 +1,6 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-SRC_URI_append = " \
+SRC_URI:append = " \
     file://0001-CR7_mfis_as_in_v5.10.41.patch \
     file://defconfig \
     file://xt_pass_drv.cfg \
