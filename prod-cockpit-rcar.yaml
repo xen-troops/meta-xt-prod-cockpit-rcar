@@ -10,11 +10,11 @@ variables:
   ANDROID_KERNEL_DIR: "android_kernel"
   XT_DOMD_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-lvds-domd.dtb"
   XT_XEN_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-xen.dtb"
-  XT_XEN_REVISION: "93f74646e31107d059e5aa1ed00c6528f2ad0d99"
+  XT_XEN_REVISION: "${AUTOREV}"
   XT_PVR_NUM_OSID: "2"
   XT_OP_TEE_FLAVOUR: "generic_dt"
   XT_DOMA_TAG: ""
-  XEN_URL: "git://git@gitpct.epam.com/rec-inv/xen.git;protocol=ssh;branch=v4.16rc_cr7"
+  XEN_URL: "git://github.com/iusyk/xen.git;protocol=https;branch=support-scmi-xen4.19-compilable"
   XT_PREBUILT_GSX_DIR: ""
   XT_DOMA_DDK_KM_PREBUILT_MODULE: ""
   XT_DOMA_KERNEL_BUILD_CONFIG: "build.config.xenvm"
@@ -145,8 +145,8 @@ components:
         - [XEN_URL_pn-xen-tools, "%{XEN_URL}"]
         - [SRCREV_pn-xen-tools, "%{XT_XEN_REVISION}"]
         - [XEN_URL_pn-xen, "%{XEN_URL}"]
-        - [XEN_REL_pn-xen, "4.16"]
-        - [XEN_REL_pn-xen-tools, "4.16"]
+        - [XEN_REL_pn-xen, "4.19"]
+        - [XEN_REL_pn-xen-tools, "4.19"]
         - [SRCREV_pn-xen, "%{XT_XEN_REVISION}"]
         - [IMAGE_INSTALL_append_pn-core-image-thin-initramfs, " xen-tools-xenstat"]
 
@@ -211,8 +211,8 @@ components:
         - [XEN_URL_pn-xen-tools, "%{XEN_URL}"]
         - [SRCREV_pn-xen-tools, "%{XT_XEN_REVISION}"]
         - [XEN_URL_pn-xen, "%{XEN_URL}"]
-        - [XEN_REL_pn-xen, "4.16"]
-        - [XEN_REL_pn-xen-tools, "4.16"]
+        - [XEN_REL_pn-xen, "4.19"]
+        - [XEN_REL_pn-xen-tools, "4.19"]
         - [SRCREV_pn-xen, "%{XT_XEN_REVISION}"]
 
         # set bmap-tools SRC_URI
