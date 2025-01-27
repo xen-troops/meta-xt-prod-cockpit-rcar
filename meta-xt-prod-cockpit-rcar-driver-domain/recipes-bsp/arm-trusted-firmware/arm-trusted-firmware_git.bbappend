@@ -21,6 +21,7 @@ SRC_URI_append = "\
     file://0001-rcar_scmi_clocks.c-fix-build-error-no-returned-value.patch \
     file://0001-scmi-i2c-add-scmi-clock-to-i2c2.patch \
     file://0001-rcar_sip_svc.c-add-func_id-handler.patch \
+    file://0001-rcar-Use-UART-instead-of-Secure-DRAM-area-for-loggin.patch \
 "
 
 # This patch is required for CR7 on H3. Strictly speaking it is needed only
