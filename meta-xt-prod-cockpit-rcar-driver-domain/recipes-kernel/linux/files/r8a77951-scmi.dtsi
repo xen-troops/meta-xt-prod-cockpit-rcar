@@ -9,31 +9,46 @@
  */
 
 / {
-	cpu_scp_shm: scp-shmem@57000000/*0x1FF0000*/ {
-		compatible = "arm,scmi-shmem";
-		reg = <0x0 0x57000000 0x0 0x1000>;
-	};
-	scp-shmem@57001000 {
-		compatible = "arm,scmi-shmem";
-		reg = <0x00 0x57001000 0x00 0x1000>;
-	};
-	scp-shmem@57002000 {
-		compatible = "arm,scmi-shmem";
-		reg = <0x00 0x57002000 0x00 0x1000>;
-	};
-	scp-shmem@0x57003000 {
-		compatible = "arm,scmi-shmem";
-		reg = <0x00 0x57003000 0x00 0x1000>;
-		phandle = <0x19>;
+	scmi_sram: sram@57000000{
+		compatible = "mmio-sram";
+		reg = <0x0 0x57000000 0x0 0x4000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x0 0x57000000 0x4000>;
+
+		scmi_shm_0: scmi_shm@0 {
+			/* default channel */
+			compatible = "arm,scmi-shmem";
+			reg = <0x0 0x1000>;
+		};
+		scmi_shm_1: scmi_shm@1 {/* 0x57001000 */
+			compatible = "arm,scmi-shmem";
+			reg = <0x1000 0x1000>;
+		};
+		scmi_shm_2: scmi_shm@2 {/*0x57002000 */
+			compatible = "arm,scmi-shmem";
+			reg = <0x2000 0x1000>;
+			xen,passthrough;
+		};
+		scmi_shm_3: scmi_shm@3 {/* 0x57003000*/
+			compatible = "arm,scmi-shmem";
+			reg = <0x3000 0x1000>;
+			xen,passthrough;
+		};
 	};
 
 	firmware {
 		scmi {
 			compatible = "arm,scmi-smc";
 			arm,smc-id = <0x82000002>;
-			shmem = <&cpu_scp_shm>;
+			shmem = <&scmi_shm_0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			epam,secondary-agents = <
+				1 0x82000003 &scmi_shm_1
+				2 0x82000004 &scmi_shm_2
+				3 0x82000005 &scmi_shm_3
+				>;
 
 			scmi_power: protocol@11 {
 				reg = <0x11>;
@@ -54,7 +69,7 @@
 
 	reserved-memory {
 		/* reserved region for scmi channels*/
-		scmi_memory: linux,scmi_mem@57000000 {
+		scmi_mem@57000000 {
 			no-map;
 			reg = <0x0 0x57000000 0x0 0x4000>;
 		};
