@@ -1,0 +1,53 @@
+From 7313b83319f69a588d9d3d056aaf1ec45cb1d74b Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Mon, 27 Jan 2025 13:58:27 +0100
+Subject: [PATCH 14/24] tools: xc: add xc_domain_setrproc function
+
+It basically issues XEN_DOMCTL_enable_rproc request to the hypervisor.
+
+Signed-off-by: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+---
+ tools/include/xenctrl.h     |  4 ++++
+ tools/libs/ctrl/xc_domain.c | 11 +++++++++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/tools/include/xenctrl.h b/tools/include/xenctrl.h
+index bc7c0a9062..e51f1bad74 100644
+--- a/tools/include/xenctrl.h
++++ b/tools/include/xenctrl.h
+@@ -2669,6 +2669,10 @@ int xc_dt_overlay(xc_interface *xch, void *overlay_fdt,
+                   uint32_t overlay_fdt_size, uint8_t overlay_op);
+ #endif
+ 
++int xc_domain_setrproc(xc_interface *xch,
++                       uint32_t domid,
++                       uint32_t chan_id);
++
+ /* Compat shims */
+ #include "xenctrl_compat.h"
+ 
+diff --git a/tools/libs/ctrl/xc_domain.c b/tools/libs/ctrl/xc_domain.c
+index b49304c996..b7bb29de75 100644
+--- a/tools/libs/ctrl/xc_domain.c
++++ b/tools/libs/ctrl/xc_domain.c
+@@ -2197,6 +2197,17 @@ int xc_domain_soft_reset(xc_interface *xch,
+     return do_domctl(xch, &domctl);
+ }
+ 
++int xc_domain_setrproc(xc_interface *xch,
++                       uint32_t domid,
++                       uint32_t chan_id)
++{
++    struct xen_domctl domctl = {};
++    domctl.cmd = XEN_DOMCTL_enable_rproc;
++    domctl.domain = domid;
++    domctl.u.enable_rproc.chan_id = chan_id;
++    return do_domctl(xch, &domctl);
++}
++
+ int xc_domain_get_sci_info(xc_interface *xch, uint32_t domid,
+                             uint64_t *paddr, uint32_t *func_id)
+ {
+-- 
+2.25.1
+

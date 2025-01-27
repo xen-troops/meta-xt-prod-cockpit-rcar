@@ -1,0 +1,240 @@
+From dd23820b648e316b7f3cf1fb8a994dad0c61c950 Mon Sep 17 00:00:00 2001
+From: Stefano Stabellini <sstabellini@kernel.org>
+Date: Tue, 6 Aug 2019 17:14:00 -0700
+Subject: [PATCH 08/24] libxl/xl: add memory policy option to iomem
+
+Add a new memory policy option for the iomem parameter.
+Possible values are:
+- arm_dev_nGnRE, Device-nGnRE, the default on Arm
+- arm_mem_WB, WB cachable memory
+- default
+
+Store the parameter in a new field in libxl_iomem_range.
+
+Pass the memory policy option to xc_domain_mem_map_policy.
+
+Do the libxl to libxc value conversion in per-arch functions so that we
+can return error for x86 parameters on Arm architectures and vice versa.
+
+Signed-off-by: Stefano Stabellini <stefanos@xilinx.com>
+CC: ian.jackson@eu.citrix.com
+CC: wei.liu2@citrix.com
+---
+ docs/man/xl.cfg.5.pod.in         | 10 +++++++++-
+ tools/include/libxl.h            |  5 +++++
+ tools/libs/light/libxl_arch.h    |  3 +++
+ tools/libs/light/libxl_arm.c     | 14 ++++++++++++++
+ tools/libs/light/libxl_create.c  | 12 ++++++++++--
+ tools/libs/light/libxl_types.idl |  8 ++++++++
+ tools/libs/light/libxl_x86.c     | 10 ++++++++++
+ tools/xl/xl_parse.c              | 22 +++++++++++++++++++++-
+ 8 files changed, 80 insertions(+), 4 deletions(-)
+
+diff --git a/docs/man/xl.cfg.5.pod.in b/docs/man/xl.cfg.5.pod.in
+index 5c4dc244f4..2d3aa039c6 100644
+--- a/docs/man/xl.cfg.5.pod.in
++++ b/docs/man/xl.cfg.5.pod.in
+@@ -1268,7 +1268,7 @@ is given in hexadecimal format and may either be a range, e.g. C<2f8-2ff>
+ It is recommended to only use this option for trusted VMs under
+ administrator's control.
+ 
+-=item B<iomem=[ "IOMEM_START,NUM_PAGES[@GFN]", "IOMEM_START,NUM_PAGES[@GFN]", ...]>
++=item B<iomem=[ "IOMEM_START,NUM_PAGES[@GFN],MEMORY_POLICY", "IOMEM_START,NUM_PAGES[@GFN][,MEMORY_POLICY]", ...]>
+ 
+ Allow auto-translated domains to access specific hardware I/O memory pages.
+ 
+@@ -1279,6 +1279,14 @@ B<GFN> is not specified, the mapping will be performed using B<IOMEM_START>
+ as a start in the guest's address space, therefore performing a 1:1 mapping
+ by default.
+ All of these values must be given in hexadecimal format.
++B<MEMORY_POLICY> for Arm platforms:
++  - "arm_dev_nGnRE" for Device-nGnRE (Device Memory on Armv7), the default on Arm
++  - "arm_mem_WB" for Outer Shareable Write-Back Cacheable Memory
++They select the stage-2 memory attributes, but note that the resulting
++memory attributes will be a combination of stage-2 and stage-1 memory
++attributes: it will be the strongest between the 2 stages attributes.
++B<MEMORY_POLICY> can be for both Arm and x86 platforms:
++  - "default" which is Uncachable Memory on x86, and arm_dev_nGnRE on Arm
+ 
+ Note that the IOMMU won't be updated with the mappings specified with this
+ option. This option therefore should not be used to pass through any
+diff --git a/tools/include/libxl.h b/tools/include/libxl.h
+index 3c2b211345..3e4f00603a 100644
+--- a/tools/include/libxl.h
++++ b/tools/include/libxl.h
+@@ -427,6 +427,11 @@
+ #define LIBXL_HAVE_BUILDINFO_BOOTLOADER 1
+ #define LIBXL_HAVE_BUILDINFO_BOOTLOADER_ARGS 1
+ 
++/*
++ * Support specifying memory policy information for memory mappings.
++ */
++#define LIBXL_HAVE_MEMORY_POLICY 1
++
+ /*
+  * LIBXL_HAVE_EXTENDED_VKB indicates that libxl_device_vkb has extended fields:
+  *  - unique_id;
+diff --git a/tools/libs/light/libxl_arch.h b/tools/libs/light/libxl_arch.h
+index f88f11d6de..fa91699fb8 100644
+--- a/tools/libs/light/libxl_arch.h
++++ b/tools/libs/light/libxl_arch.h
+@@ -86,6 +86,9 @@ int libxl__arch_extra_memory(libxl__gc *gc,
+                              const libxl_domain_build_info *info,
+                              uint64_t *out);
+ 
++_hidden
++int libxl__arch_memory_policy_to_xc(libxl_memory_policy c);
++
+ _hidden
+ void libxl__arch_update_domain_config(libxl__gc *gc,
+                                       libxl_domain_config *dst,
+diff --git a/tools/libs/light/libxl_arm.c b/tools/libs/light/libxl_arm.c
+index c949f4acaf..b099653a2d 100644
+--- a/tools/libs/light/libxl_arm.c
++++ b/tools/libs/light/libxl_arm.c
+@@ -2446,6 +2446,20 @@ int libxl__arch_passthrough_mode_setdefault(libxl__gc *gc,
+     return rc;
+ }
+ 
++int libxl__arch_memory_policy_to_xc(libxl_memory_policy c)
++{
++    switch (c) {
++    case LIBXL_MEMORY_POLICY_ARM_MEM_WB:
++        return MEMORY_POLICY_ARM_MEM_WB;
++    case LIBXL_MEMORY_POLICY_ARM_DEV_NGNRE:
++        return MEMORY_POLICY_ARM_DEV_nGnRE;
++   case LIBXL_MEMORY_POLICY_DEFAULT:
++        return MEMORY_POLICY_DEFAULT;
++    default:
++        return ERROR_INVAL;
++    }
++}
++
+ void libxl__arch_update_domain_config(libxl__gc *gc,
+                                       libxl_domain_config *dst,
+                                       const libxl_domain_config *src)
+diff --git a/tools/libs/light/libxl_create.c b/tools/libs/light/libxl_create.c
+index f11c7b1b84..22e0dc7a3d 100644
+--- a/tools/libs/light/libxl_create.c
++++ b/tools/libs/light/libxl_create.c
+@@ -1734,6 +1734,7 @@ static void domcreate_launch_dm(libxl__egc *egc, libxl__multidev *multidev,
+ 
+     for (i = 0; i < d_config->b_info.num_iomem; i++) {
+         libxl_iomem_range *io = &d_config->b_info.iomem[i];
++        int memory_policy;
+ 
+         LOGD(DEBUG, domid, "iomem %"PRIx64"-%"PRIx64,
+              io->start, io->start + io->number - 1);
+@@ -1747,9 +1748,16 @@ static void domcreate_launch_dm(libxl__egc *egc, libxl__multidev *multidev,
+             ret = ERROR_FAIL;
+             goto error_out;
+         }
+-        ret = xc_domain_memory_mapping(CTX->xch, domid,
++        memory_policy = libxl__arch_memory_policy_to_xc(io->memory_policy);
++        if (memory_policy < 0) {
++            LOGED(ERROR, domid,
++                  "invalid memory policy %u", io->memory_policy);
++            ret = ERROR_FAIL;
++            goto error_out;
++        }
++        ret = xc_domain_mem_map_policy(CTX->xch, domid,
+                                        io->gfn, io->start,
+-                                       io->number, 1);
++                                       io->number, 1, memory_policy);
+         if (ret < 0) {
+             LOGED(ERROR, domid,
+                   "failed to map to domain iomem range %"PRIx64"-%"PRIx64
+diff --git a/tools/libs/light/libxl_types.idl b/tools/libs/light/libxl_types.idl
+index 59c35059ce..b5bee5dfed 100644
+--- a/tools/libs/light/libxl_types.idl
++++ b/tools/libs/light/libxl_types.idl
+@@ -307,6 +307,12 @@ libxl_ioport_range = Struct("ioport_range", [
+     ("number", uint32),
+     ])
+ 
++libxl_memory_policy = Enumeration("memory_policy", [
++    (0, "default"),
++    (1, "ARM_Dev_nGnRE"),
++    (2, "ARM_Mem_WB"),
++    ], init_val = "LIBXL_MEMORY_POLICY_DEFAULT")
++
+ libxl_iomem_range = Struct("iomem_range", [
+     # start host frame number to be mapped to the guest
+     ("start", uint64),
+@@ -314,6 +320,8 @@ libxl_iomem_range = Struct("iomem_range", [
+     ("number", uint64),
+     # guest frame number used as a start for the mapping
+     ("gfn", uint64, {'init_val': "LIBXL_INVALID_GFN"}),
++    # memory_policy of the memory region
++    ("memory_policy", libxl_memory_policy),
+     ])
+ 
+ libxl_vga_interface_info = Struct("vga_interface_info", [
+diff --git a/tools/libs/light/libxl_x86.c b/tools/libs/light/libxl_x86.c
+index a50ec37eb3..0640cf1569 100644
+--- a/tools/libs/light/libxl_x86.c
++++ b/tools/libs/light/libxl_x86.c
+@@ -861,6 +861,16 @@ int libxl__arch_passthrough_mode_setdefault(libxl__gc *gc,
+     return rc;
+ }
+ 
++int libxl__arch_memory_policy_to_xc(libxl_memory_policy c)
++{
++    switch (c) {
++    case LIBXL_MEMORY_POLICY_DEFAULT:
++        return MEMORY_POLICY_DEFAULT;
++    default:
++        return ERROR_INVAL;
++    }
++}
++
+ void libxl__arch_update_domain_config(libxl__gc *gc,
+                                       libxl_domain_config *dst,
+                                       const libxl_domain_config *src)
+diff --git a/tools/xl/xl_parse.c b/tools/xl/xl_parse.c
+index dc81dc11cf..6ae26899d2 100644
+--- a/tools/xl/xl_parse.c
++++ b/tools/xl/xl_parse.c
+@@ -2512,6 +2512,7 @@ void parse_config_data(const char *config_source,
+         }
+         for (i = 0; i < num_iomem; i++) {
+             int used;
++            const char *mempolicy;
+ 
+             buf = xlu_cfg_get_listitem (iomem, i);
+             if (!buf) {
+@@ -2524,11 +2525,30 @@ void parse_config_data(const char *config_source,
+                          &b_info->iomem[i].start,
+                          &b_info->iomem[i].number, &used,
+                          &b_info->iomem[i].gfn, &used);
+-            if (ret < 2 || buf[used] != '\0') {
++            if (ret < 2) {
+                 fprintf(stderr,
+                         "xl: Invalid argument parsing iomem: %s\n", buf);
+                 exit(1);
+             }
++            mempolicy = &buf[used];
++            if (strlen(mempolicy) > 1) {
++                mempolicy++;
++                if (!strcmp(mempolicy, "arm_dev_nGnRE"))
++                    b_info->iomem[i].memory_policy =
++                        LIBXL_MEMORY_POLICY_ARM_DEV_NGNRE;
++                else if (!strcmp(mempolicy, "arm_mem_WB"))
++                    b_info->iomem[i].memory_policy =
++                        LIBXL_MEMORY_POLICY_ARM_MEM_WB;
++                else if (!strcmp(mempolicy, "default"))
++                    b_info->iomem[i].memory_policy =
++                        LIBXL_MEMORY_POLICY_DEFAULT;
++                else {
++                    fprintf(stderr,
++                            "xl: Invalid iomem memory policy parameter: %s\n",
++                            mempolicy);
++                    exit(1);
++                }
++            }
+         }
+     }
+ 
+-- 
+2.25.1
+

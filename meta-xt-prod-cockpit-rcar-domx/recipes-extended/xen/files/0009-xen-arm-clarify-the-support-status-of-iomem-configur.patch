@@ -1,0 +1,37 @@
+From 133f4a37235f444be7014509f0fe2d1c0010944f Mon Sep 17 00:00:00 2001
+From: Stefano Stabellini <sstabellini@kernel.org>
+Date: Tue, 6 Aug 2019 17:15:00 -0700
+Subject: [PATCH 09/24] xen/arm: clarify the support status of iomem
+ configurations
+
+iomem settings fall under the broader category of "Non-PCI device
+passthrough": they are not security supported. Make it clearer.
+
+Signed-off-by: Stefano Stabellini <stefanos@xilinx.com>
+CC: tim@xen.org
+CC: konrad.wilk@oracle.com
+CC: Julien Grall <julien.grall@arm.com>
+CC: JBeulich@suse.com
+CC: andrew.cooper3@citrix.com
+CC: ian.jackson@eu.citrix.com
+CC: wei.liu2@citrix.com
+---
+ SUPPORT.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/SUPPORT.md b/SUPPORT.md
+index a90d1108c9..1a605daa69 100644
+--- a/SUPPORT.md
++++ b/SUPPORT.md
+@@ -829,7 +829,7 @@ to be used in addition to QEMU.
+ 
+ 	Status: Tech Preview
+ 
+-### ARM/Non-PCI device passthrough
++### ARM/Non-PCI device passthrough and other iomem configurations
+ 
+     Status: Supported, not security supported
+ 
+-- 
+2.25.1
+

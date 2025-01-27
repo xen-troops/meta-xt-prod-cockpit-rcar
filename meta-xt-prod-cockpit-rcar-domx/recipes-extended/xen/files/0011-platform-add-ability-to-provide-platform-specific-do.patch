@@ -1,0 +1,98 @@
+From 8723bbdcaa85de5ff086318d5a32f68426e7cf68 Mon Sep 17 00:00:00 2001
+From: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+Date: Wed, 31 Mar 2021 23:05:02 +0300
+Subject: [PATCH 11/24] platform: add ability to provide platform-specific
+ domctls
+
+There are domctls that are meaningful only for a certain platform.
+To handle them, we should allow platform drivers to register own
+domctl handlers.
+
+Signed-off-by: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+---
+ xen/arch/arm/domctl.c               | 16 +++++++++++++++-
+ xen/arch/arm/include/asm/platform.h |  6 ++++++
+ xen/arch/arm/platform.c             |  9 +++++++++
+ 3 files changed, 30 insertions(+), 1 deletion(-)
+
+diff --git a/xen/arch/arm/domctl.c b/xen/arch/arm/domctl.c
+index 72efe66b9f..e7bccb1a23 100644
+--- a/xen/arch/arm/domctl.c
++++ b/xen/arch/arm/domctl.c
+@@ -17,6 +17,8 @@
+ #include <xsm/xsm.h>
+ #include <public/domctl.h>
+ 
++#include <asm/platform.h>
++
+ void arch_get_domain_info(const struct domain *d,
+                           struct xen_domctl_getdomaininfo *info)
+ {
+@@ -198,7 +200,19 @@ long arch_do_domctl(struct xen_domctl *domctl, struct domain *d,
+         return rc;
+     }
+     default:
+-        return subarch_do_domctl(domctl, d, u_domctl);
++    {
++        int rc;
++
++        rc = subarch_do_domctl(domctl, d, u_domctl);
++
++        if ( rc == -ENOSYS )
++            rc = platform_do_domctl(domctl, d, u_domctl);
++
++        if ( rc == -ENOSYS )
++            rc = iommu_do_domctl(domctl, d, u_domctl);
++
++        return rc;
++    }
+     }
+ }
+ 
+diff --git a/xen/arch/arm/include/asm/platform.h b/xen/arch/arm/include/asm/platform.h
+index 6fe2e528ff..323c9f112f 100644
+--- a/xen/arch/arm/include/asm/platform.h
++++ b/xen/arch/arm/include/asm/platform.h
+@@ -33,6 +33,10 @@ struct platform_desc {
+      * Defined has a function because a platform can support multiple
+      * board with different quirk on each
+      */
++    /* Platform-specific domctl handler */
++    int (*do_domctl)(struct xen_domctl *domctl, struct domain *d,
++                     XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl);
++
+     uint32_t (*quirks)(void);
+     /*
+      * Platform blacklist devices
+@@ -63,6 +67,8 @@ void platform_poweroff(void);
+ bool platform_smc(struct cpu_user_regs *regs);
+ bool platform_has_quirk(uint32_t quirk);
+ bool platform_device_is_blacklisted(const struct dt_device_node *node);
++int  platform_do_domctl(struct xen_domctl *domctl, struct domain *d,
++                        XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl);
+ 
+ #define PLATFORM_START(_name, _namestr)                         \
+ static const struct platform_desc  __plat_desc_##_name __used   \
+diff --git a/xen/arch/arm/platform.c b/xen/arch/arm/platform.c
+index f6d45303d6..7b484b9f96 100644
+--- a/xen/arch/arm/platform.c
++++ b/xen/arch/arm/platform.c
+@@ -136,6 +136,15 @@ bool platform_smc(struct cpu_user_regs *regs)
+     return false;
+ }
+ 
++int platform_do_domctl(struct xen_domctl *domctl, struct domain *d,
++                       XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
++{
++    if ( likely(platform && platform->do_domctl) )
++        return platform->do_domctl(domctl, d, u_domctl);
++
++    return -ENOSYS;
++}
++
+ bool platform_has_quirk(uint32_t quirk)
+ {
+     uint32_t quirks = 0;
+-- 
+2.25.1
+

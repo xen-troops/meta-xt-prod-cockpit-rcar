@@ -1,0 +1,63 @@
+From 3305c4f867ec4b11f346f8245503ff58e7ee0411 Mon Sep 17 00:00:00 2001
+From: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+Date: Wed, 31 Mar 2021 23:09:28 +0300
+Subject: [PATCH 12/24] rcar3: move MFIS SPI (IRQ number) definition to public
+ interface
+
+It appears that toolstack needs to know IRQ number to properly
+configure GIC.
+
+Signed-off-by: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+---
+ xen/arch/arm/platforms/rcar3.c | 7 ++++---
+ xen/include/public/arch-arm.h  | 1 +
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/xen/arch/arm/platforms/rcar3.c b/xen/arch/arm/platforms/rcar3.c
+index e05f621891..da0d1eb856 100644
+--- a/xen/arch/arm/platforms/rcar3.c
++++ b/xen/arch/arm/platforms/rcar3.c
+@@ -23,8 +23,9 @@
+ #include <asm/regs.h>
+ #include <asm/smccc.h>
+ 
++#include <public/arch-arm.h>
++
+ #define MFIS_MAX_CHANNELS 8
+-#define MFIS_SPI          265 /* "Reserved" on Gen3 */
+ #define MFIS_IICR(n) (0x0400 + n * 0x8)
+ #define MFIS_EICR(n) (0x0404 + n * 0x8)
+ #define MFIS_IMBR(n) (0x0440 + n * 0x4)
+@@ -148,7 +149,7 @@ static void mfis_irq_handler(int irq, void *dev_id, struct cpu_user_regs *regs)
+             writel(val & ~0x1, mfis_data->base + MFIS_EICR(i));
+ 
+             if ( mfis_data->domains[i] )
+-                vgic_inject_irq(mfis_data->domains[i], NULL, MFIS_SPI, true);
++                vgic_inject_irq(mfis_data->domains[i], NULL, GUEST_MFIS_SPI, true);
+             else
+                 printk(XENLOG_WARNING"MFIS: IRQ for chan %d without domain\n", i);
+ 
+@@ -163,7 +164,7 @@ static int mfis_add_domain(struct domain* d, int chan)
+     if ( chan >= mfis_data->chan_cnt )
+         return -EINVAL;
+ 
+-    ret = vgic_reserve_virq(d, MFIS_SPI);
++    ret = vgic_reserve_virq(d, GUEST_MFIS_SPI);
+     if ( ret < 0)
+         return ret;
+ 
+diff --git a/xen/include/public/arch-arm.h b/xen/include/public/arch-arm.h
+index 24d730d4b3..1aa55dbcee 100644
+--- a/xen/include/public/arch-arm.h
++++ b/xen/include/public/arch-arm.h
+@@ -548,6 +548,7 @@ typedef uint64_t xen_callback_t;
+ #define GUEST_EVTCHN_PPI        31
+ 
+ #define GUEST_VPL011_SPI        32
++#define GUEST_MFIS_SPI          265 /* "Reserved" on Gen3 */
+ 
+ #define GUEST_VIRTIO_MMIO_SPI_FIRST   33
+ #define GUEST_VIRTIO_MMIO_SPI_LAST    43
+-- 
+2.25.1
+

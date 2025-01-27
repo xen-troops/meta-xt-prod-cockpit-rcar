@@ -1,0 +1,85 @@
+From 48243cfba90cf6f8bed2d0bc318bc82e7fb704d7 Mon Sep 17 00:00:00 2001
+From: Volodymyr Babchuk <vlad.babchuk@gmail.com>
+Date: Thu, 25 Apr 2019 17:49:06 +0300
+Subject: [PATCH 01/24] rcar: create rcar3 platform file
+
+We can store platform-specific code like MFIS driver there.
+
+Signed-off-by: Volodymyr Babchuk <vlad.babchuk@gmail.com>
+---
+ xen/arch/arm/platforms/Makefile |  1 +
+ xen/arch/arm/platforms/rcar3.c  | 51 +++++++++++++++++++++++++++++++++
+ 2 files changed, 52 insertions(+)
+ create mode 100644 xen/arch/arm/platforms/rcar3.c
+
+diff --git a/xen/arch/arm/platforms/Makefile b/xen/arch/arm/platforms/Makefile
+index 8632f4115f..e768504e2a 100644
+--- a/xen/arch/arm/platforms/Makefile
++++ b/xen/arch/arm/platforms/Makefile
+@@ -9,5 +9,6 @@ obj-$(CONFIG_ALL_PLAT)   += sunxi.o
+ obj-$(CONFIG_ALL64_PLAT) += thunderx.o
+ obj-$(CONFIG_ALL64_PLAT) += xgene-storm.o
+ obj-$(CONFIG_ALL64_PLAT) += brcm-raspberry-pi.o
++obj-$(CONFIG_ALL64_PLAT) += rcar3.o
+ obj-$(CONFIG_MPSOC_PLATFORM)  += xilinx-zynqmp.o
+ obj-$(CONFIG_MPSOC_PLATFORM)  += xilinx-zynqmp-eemi.o
+diff --git a/xen/arch/arm/platforms/rcar3.c b/xen/arch/arm/platforms/rcar3.c
+new file mode 100644
+index 0000000000..f27dd4f89a
+--- /dev/null
++++ b/xen/arch/arm/platforms/rcar3.c
+@@ -0,0 +1,51 @@
++/*
++ * xen/arch/arm/platforms/rcar3.c
++ *
++ * Renesas R-Car Gen3 Platform Code
++ *
++ * Volodymyr Babchuk <volodymyr_babchuk@epam.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++#include <xen/types.h>
++
++#include <asm/regs.h>
++#include <asm/platform.h>
++
++static const char *const rcar3_dt_compat[] __initconst =
++{
++    "renesas,r8a7795",
++    "renesas,r8a7796",
++    NULL
++};
++
++bool rcar3_smc(struct cpu_user_regs *regs)
++{
++    switch ( get_user_reg(regs, 0) )
++    {
++    default:
++        return false;
++    }
++}
++
++PLATFORM_START(rcar3, "Renesas R-Car Gen3")
++    .compatible = rcar3_dt_compat,
++    .smc = rcar3_smc,
++PLATFORM_END
++
++/*
++ * Local variables:
++ * mode: C
++ * c-file-style: "BSD"
++ * c-basic-offset: 4
++ * indent-tabs-mode: nil
++ * End:
++ */
+-- 
+2.25.1
+

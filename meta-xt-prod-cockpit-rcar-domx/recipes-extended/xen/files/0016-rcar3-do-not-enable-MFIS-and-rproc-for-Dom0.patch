@@ -1,0 +1,32 @@
+From 8ed276754d1cd03b1227cd405458240c99cc5d57 Mon Sep 17 00:00:00 2001
+From: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+Date: Sun, 4 Apr 2021 19:55:58 +0300
+Subject: [PATCH 16/24] rcar3: do not enable MFIS and rproc for Dom0
+
+This was added as a debugging feature. We need to disable it now.
+
+Signed-off-by: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+---
+ xen/arch/arm/platforms/rcar3.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/xen/arch/arm/platforms/rcar3.c b/xen/arch/arm/platforms/rcar3.c
+index b5ddf4a8f4..4550233fe2 100644
+--- a/xen/arch/arm/platforms/rcar3.c
++++ b/xen/arch/arm/platforms/rcar3.c
+@@ -536,12 +536,6 @@ static int __init rcar3_late_init(void)
+ 
+ static int rcar3_specific_mapping(struct domain *d)
+ {
+-    if ( mfis_data )
+-        mfis_add_domain(d, 0);
+-
+-    if ( rproc_data )
+-        rproc_assign_domain(d, 0);
+-
+     return 0;
+ }
+ 
+-- 
+2.25.1
+
