@@ -14,7 +14,7 @@ variables:
   XT_PVR_NUM_OSID: "2"
   XT_OP_TEE_FLAVOUR: "generic_dt"
   XT_DOMA_TAG: ""
-  XEN_URL: "git://github.com/iusyk/xen.git;protocol=https;branch=support-scmi-xen4.19-compilable"
+  XEN_URL: "git://github.com/oleksiimoisieiev/xen;branch=scmi_rcar"
   XT_PREBUILT_GSX_DIR: ""
   XT_DOMA_DDK_KM_PREBUILT_MODULE: ""
   XT_DOMA_KERNEL_BUILD_CONFIG: "build.config.xenvm"
