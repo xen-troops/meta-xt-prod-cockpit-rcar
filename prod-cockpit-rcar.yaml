@@ -14,7 +14,7 @@ variables:
   XT_PVR_NUM_OSID: "2"
   XT_OP_TEE_FLAVOUR: "generic_dt"
   XT_DOMA_TAG: ""
-  XEN_URL: "git://github.com/iusyk/xen.git;protocol=https;branch=support-scmi-xen4.19-compilable"
+  XEN_URL: "git://github.com/iusyk/xen.git;protocol=https;branch=scmi-x419-upstream"
   XT_PREBUILT_GSX_DIR: ""
   XT_DOMA_DDK_KM_PREBUILT_MODULE: ""
   XT_DOMA_KERNEL_BUILD_CONFIG: "build.config.xenvm"
@@ -41,8 +41,8 @@ common_data:
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
       rev: dunfell-v0.1.0
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: v1.0.4
+      url: "https://github.com/iusyk/meta-xt-prod-cockpit-rcar.git"
+      rev: xen-419
 
 
     # Common configuration options for all yocto-based domains
