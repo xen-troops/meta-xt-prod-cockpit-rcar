@@ -1,0 +1,25 @@
+From 2cd41888b1878da1f71a96fdbcdc9edf70a8a78f Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Thu, 19 Dec 2024 20:36:05 +0000
+Subject: [PATCH 23/24] xsm: add Flask policy for get_sci_info
+
+---
+ xen/xsm/flask/policy/access_vectors | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/xen/xsm/flask/policy/access_vectors b/xen/xsm/flask/policy/access_vectors
+index 19b0b13db3..33ce2a57fa 100644
+--- a/xen/xsm/flask/policy/access_vectors
++++ b/xen/xsm/flask/policy/access_vectors
+@@ -251,6 +251,8 @@ class domain2
+     get_cpu_policy
+ # XEN_DOMCTL_enable_rproc
+     enable_rproc
++# XEN_DOMCTL_get_sci_info
++    get_sci_info
+ }
+ 
+ # Similar to class domain, but primarily contains domctls related to HVM domains
+-- 
+2.25.1
+

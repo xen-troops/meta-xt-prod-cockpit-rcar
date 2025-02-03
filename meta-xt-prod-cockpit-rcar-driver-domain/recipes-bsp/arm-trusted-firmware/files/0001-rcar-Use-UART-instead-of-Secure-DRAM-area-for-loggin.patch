@@ -1,0 +1,28 @@
+From 39d9c26f2a9a64bd0ee898183cac0c2ab29bb6a3 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Fri, 20 Dec 2024 16:31:01 +0000
+Subject: [PATCH] rcar: Use UART instead of Secure DRAM area for logging in 
+ BL31
+
+Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Signed-off-by: Valerii Chubar <valerii_chubar@epam.com>
+---
+ plat/renesas/common/common.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plat/renesas/common/common.mk b/plat/renesas/common/common.mk
+index 1ee34f9bc..27ee02d7e 100644
+--- a/plat/renesas/common/common.mk
++++ b/plat/renesas/common/common.mk
+@@ -128,7 +128,7 @@ BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
+ 			plat/renesas/common/aarch64/platform_common.c	\
+ 			plat/renesas/common/bl31_plat_setup.c		\
+ 			plat/renesas/common/plat_pm.c			\
+-			drivers/renesas/common/console/rcar_console.S	\
++			drivers/renesas/common/scif/scif.S	        \
+ 			drivers/renesas/common/console/rcar_printf.c	\
+ 			drivers/renesas/common/delay/micro_delay.c	\
+ 			drivers/renesas/common/pwrc/call_sram.S		\
+-- 
+2.25.1
+

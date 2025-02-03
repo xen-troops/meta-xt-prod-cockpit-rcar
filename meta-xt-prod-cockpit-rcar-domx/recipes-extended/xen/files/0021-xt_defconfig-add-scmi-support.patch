@@ -1,0 +1,22 @@
+From eaf164116f92a72e5c27dfc3adef0b85457bed29 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Mon, 16 Dec 2024 17:44:23 +0000
+Subject: [PATCH 21/24] xt_defconfig: add scmi support
+
+---
+ xen/arch/arm/configs/xt_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/xen/arch/arm/configs/xt_defconfig b/xen/arch/arm/configs/xt_defconfig
+index 379bd5b324..99f7432355 100644
+--- a/xen/arch/arm/configs/xt_defconfig
++++ b/xen/arch/arm/configs/xt_defconfig
+@@ -4,3 +4,5 @@ CONFIG_OPTEE=y
+ CONFIG_IPMMU_VMSA=y
+ CONFIG_IOREQ_SERVER=y
+ CONFIG_EXPERT=y
++CONFIG_ARM_SCI=y
++CONFIG_SCMI_SMC=y
+-- 
+2.25.1
+

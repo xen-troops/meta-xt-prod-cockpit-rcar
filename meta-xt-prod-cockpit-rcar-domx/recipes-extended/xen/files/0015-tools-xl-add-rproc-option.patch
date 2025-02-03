@@ -1,0 +1,64 @@
+From 8c4f86bc18fb311d3cb47637a9ed95afb1ea4206 Mon Sep 17 00:00:00 2001
+From: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+Date: Wed, 31 Mar 2021 23:14:18 +0300
+Subject: [PATCH 15/24] tools: xl: add "rproc" option
+
+This options enables virtual rproc interface in Xen and sets the
+channel.
+
+Right now it does not provide device tree entries, so additional
+configuration via partial DTB is needed.
+
+Signed-off-by: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+---
+ tools/libs/light/libxl_arm.c     | 5 +++++
+ tools/libs/light/libxl_types.idl | 1 +
+ tools/xl/xl_parse.c              | 4 ++++
+ 3 files changed, 10 insertions(+)
+
+diff --git a/tools/libs/light/libxl_arm.c b/tools/libs/light/libxl_arm.c
+index b099653a2d..0e6b7494d9 100644
+--- a/tools/libs/light/libxl_arm.c
++++ b/tools/libs/light/libxl_arm.c
+@@ -195,6 +195,11 @@ int libxl__arch_domain_prepare_config(libxl__gc *gc,
+         vuart_enabled = true;
+     }
+ 
++    if (d_config->b_info.arch_arm.rproc >= 0) {
++        if (nr_spis < (GUEST_MFIS_SPI - 32))
++            nr_spis = (GUEST_MFIS_SPI - 32) + 1;
++    }
++
+     for (i = 0; i < d_config->num_disks; i++) {
+         libxl_device_disk *disk = &d_config->disks[i];
+ 
+diff --git a/tools/libs/light/libxl_types.idl b/tools/libs/light/libxl_types.idl
+index b5bee5dfed..e930c3d239 100644
+--- a/tools/libs/light/libxl_types.idl
++++ b/tools/libs/light/libxl_types.idl
+@@ -754,6 +754,7 @@ libxl_domain_build_info = Struct("domain_build_info",[
+     ("arch_arm", Struct(None, [("gic_version", libxl_gic_version),
+                                ("vuart", libxl_vuart_type),
+                                ("sve_vl", libxl_sve_type),
++                               ("rproc", integer),
+                               ])),
+     ("arch_x86", Struct(None, [("msr_relaxed", libxl_defbool),
+                               ])),
+diff --git a/tools/xl/xl_parse.c b/tools/xl/xl_parse.c
+index 6ae26899d2..2d3957a663 100644
+--- a/tools/xl/xl_parse.c
++++ b/tools/xl/xl_parse.c
+@@ -3304,6 +3304,10 @@ skip_usbdev:
+             exit(EXIT_FAILURE);
+         }
+     }
++    if (!xlu_cfg_get_long (config, "rproc", &l, 0))
++        b_info->arch_arm.rproc = l;
++    else
++        b_info->arch_arm.rproc = -1;
+ 
+     if (!xlu_cfg_get_string (config, "arm_sci", &buf, 1)) {
+         e = libxl_arm_sci_type_from_string(buf, &b_info->arm_sci);
+-- 
+2.25.1
+

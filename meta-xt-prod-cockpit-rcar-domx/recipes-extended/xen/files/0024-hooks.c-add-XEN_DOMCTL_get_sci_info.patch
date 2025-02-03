@@ -1,0 +1,26 @@
+From deefa86d3438b9656afc743c1174db6ceeab73db Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Wed, 22 Jan 2025 11:46:37 +0000
+Subject: [PATCH 24/24] hooks.c: add XEN_DOMCTL_get_sci_info
+
+---
+ xen/xsm/flask/hooks.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/xen/xsm/flask/hooks.c b/xen/xsm/flask/hooks.c
+index e04518a72c..b0a5e4bde2 100644
+--- a/xen/xsm/flask/hooks.c
++++ b/xen/xsm/flask/hooks.c
+@@ -695,6 +695,9 @@ static int cf_check flask_domctl(struct domain *d, int cmd)
+     case XEN_DOMCTL_test_assign_device:
+     case XEN_DOMCTL_assign_device:
+     case XEN_DOMCTL_deassign_device:
++#endif
++#ifdef CONFIG_SCMI_SMC 
++    case XEN_DOMCTL_get_sci_info:
+ #endif
+         return 0;
+ 
+-- 
+2.25.1
+

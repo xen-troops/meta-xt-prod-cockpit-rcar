@@ -1,0 +1,29 @@
+From 4eb2814b714b73bb74f5649b3c3d7b9233f15135 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Mon, 24 Jan 2022 15:59:43 +0100
+Subject: [PATCH 19/24] destroy_domain: add verification of NULL to avoid the
+ xen crash
+
+Xen crashes if tries to kill the domain that has not been created properly.
+
+Signed-off-by: Ihor Usyk <ihor_usyk@epam.com>
+---
+ xen/arch/arm/platforms/rcar3.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/xen/arch/arm/platforms/rcar3.c b/xen/arch/arm/platforms/rcar3.c
+index ea476f0f1d..4b1136c266 100644
+--- a/xen/arch/arm/platforms/rcar3.c
++++ b/xen/arch/arm/platforms/rcar3.c
+@@ -605,6 +605,8 @@ static int rcar3_do_domctl(struct xen_domctl *domctl, struct domain *d,
+ static void rcar3_domain_destroy(struct domain *d)
+ {
+     int i;
++    
++    if (!mfis_data) return;
+ 
+     for ( i = 0; i < mfis_data->chan_cnt; i++)
+     {
+-- 
+2.25.1
+

@@ -1,0 +1,103 @@
+From a25ff2c91136077aca18aacd31822fd9e1c7d21b Mon Sep 17 00:00:00 2001
+From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Date: Thu, 8 Apr 2021 16:27:06 +0300
+Subject: [PATCH 17/24] xen/arm: Introduce platform_domain_destroy() and
+ corresponding callback
+
+The main purpose is to relinquish domain resources. Re-use it for
+rcar3 right now.
+
+Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+---
+ xen/arch/arm/domain.c               |  2 ++
+ xen/arch/arm/include/asm/platform.h |  3 +++
+ xen/arch/arm/platform.c             |  6 ++++++
+ xen/arch/arm/platforms/rcar3.c      | 15 +++++++++++++++
+ 4 files changed, 26 insertions(+)
+
+diff --git a/xen/arch/arm/domain.c b/xen/arch/arm/domain.c
+index 8d1cebc149..309ec868ea 100644
+--- a/xen/arch/arm/domain.c
++++ b/xen/arch/arm/domain.c
+@@ -1085,6 +1085,8 @@ int domain_relinquish_resources(struct domain *d)
+          */
+         domain_vpl011_deinit(d);
+ 
++        platform_domain_destroy(d);
++
+ #ifdef CONFIG_IOREQ_SERVER
+         ioreq_server_destroy_all(d);
+ #endif
+diff --git a/xen/arch/arm/include/asm/platform.h b/xen/arch/arm/include/asm/platform.h
+index 323c9f112f..ab3316694d 100644
+--- a/xen/arch/arm/include/asm/platform.h
++++ b/xen/arch/arm/include/asm/platform.h
+@@ -37,6 +37,8 @@ struct platform_desc {
+     int (*do_domctl)(struct xen_domctl *domctl, struct domain *d,
+                      XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl);
+ 
++    void (*domain_destroy)(struct domain *d);
++
+     uint32_t (*quirks)(void);
+     /*
+      * Platform blacklist devices
+@@ -69,6 +71,7 @@ bool platform_has_quirk(uint32_t quirk);
+ bool platform_device_is_blacklisted(const struct dt_device_node *node);
+ int  platform_do_domctl(struct xen_domctl *domctl, struct domain *d,
+                         XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl);
++void platform_domain_destroy(struct domain *d);
+ 
+ #define PLATFORM_START(_name, _namestr)                         \
+ static const struct platform_desc  __plat_desc_##_name __used   \
+diff --git a/xen/arch/arm/platform.c b/xen/arch/arm/platform.c
+index 7b484b9f96..640f57fc31 100644
+--- a/xen/arch/arm/platform.c
++++ b/xen/arch/arm/platform.c
+@@ -145,6 +145,12 @@ int platform_do_domctl(struct xen_domctl *domctl, struct domain *d,
+     return -ENOSYS;
+ }
+ 
++void platform_domain_destroy(struct domain *d)
++{
++    if ( platform && platform->domain_destroy )
++        platform->domain_destroy(d);
++}
++
+ bool platform_has_quirk(uint32_t quirk)
+ {
+     uint32_t quirks = 0;
+diff --git a/xen/arch/arm/platforms/rcar3.c b/xen/arch/arm/platforms/rcar3.c
+index 4550233fe2..ea476f0f1d 100644
+--- a/xen/arch/arm/platforms/rcar3.c
++++ b/xen/arch/arm/platforms/rcar3.c
+@@ -602,12 +602,27 @@ static int rcar3_do_domctl(struct xen_domctl *domctl, struct domain *d,
+     }
+ }
+ 
++static void rcar3_domain_destroy(struct domain *d)
++{
++    int i;
++
++    for ( i = 0; i < mfis_data->chan_cnt; i++)
++    {
++        if ( mfis_data->domains[i] == d )
++        {
++            mfis_remove_domain(i);
++            break;
++        }
++    }
++}
++
+ PLATFORM_START(rcar3, "Renesas R-Car Gen3")
+     .compatible = rcar3_dt_compat,
+     .smc = rcar3_smc,
+     .late_init = rcar3_late_init,
+     .specific_mapping = rcar3_specific_mapping,
+     .do_domctl = rcar3_do_domctl,
++    .domain_destroy = rcar3_domain_destroy,
+ PLATFORM_END
+ 
+ /*
+-- 
+2.25.1
+

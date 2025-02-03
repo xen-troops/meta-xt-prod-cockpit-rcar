@@ -1,0 +1,52 @@
+From 4fdf146a86ed068a7f24e80fe9fb0c312e06f79e Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Mon, 16 Dec 2024 19:20:23 +0000
+Subject: [PATCH 22/24] xen/common/domctl.c: fix commit from Stefano, put it in
+ right place
+
+---
+ xen/common/domctl.c | 26 ++------------------------
+ 1 file changed, 2 insertions(+), 24 deletions(-)
+
+diff --git a/xen/common/domctl.c b/xen/common/domctl.c
+index 6ed3d80c3e..a23404cda0 100644
+--- a/xen/common/domctl.c
++++ b/xen/common/domctl.c
+@@ -725,32 +725,10 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
+         if ( add )
+         {
+             printk(XENLOG_G_DEBUG
+-                   "memory_map:add: dom%d gfn=%lx mfn=%lx nr=%lx policy=%u\n",
+-                   d->domain_id, gfn, mfn, nr_mfns, memory_policy);
++                   "memory_map:add: dom%d gfn=%lx mfn=%lx nr=%lx\n",
++                   d->domain_id, gfn, mfn, nr_mfns);
+ 
+             ret = map_mmio_regions(d, _gfn(gfn), nr_mfns, _mfn(mfn));
+-            switch ( memory_policy )
+-            {
+-#ifdef CONFIG_ARM
+-                case MEMORY_POLICY_ARM_MEM_WB:
+-                    p2mt = p2m_mmio_direct_c;
+-                    break;
+-                case MEMORY_POLICY_ARM_DEV_nGnRE:
+-                    p2mt = p2m_mmio_direct_dev;
+-                    break;
+-#endif
+-#ifdef CONFIG_X86
+-                case MEMORY_POLICY_DEFAULT:
+-                    p2mt = p2m_mmio_direct;
+-                    break;
+-#endif
+-                default:
+-                    domctl_lock_release();
+-                    ret = -EINVAL;
+-                    goto domctl_out_unlock_domonly;
+-            }
+-            ret = map_mmio_regions(d, _gfn(gfn), nr_mfns, _mfn(mfn), p2mt);
+->>>>>>> f06f319d56... xen: extend XEN_DOMCTL_memory_mapping to handle memory policy
+             if ( ret < 0 )
+                 printk(XENLOG_G_WARNING
+                        "memory_map:fail: dom%d gfn=%lx mfn=%lx nr=%lx ret:%ld\n",
+-- 
+2.25.1
+

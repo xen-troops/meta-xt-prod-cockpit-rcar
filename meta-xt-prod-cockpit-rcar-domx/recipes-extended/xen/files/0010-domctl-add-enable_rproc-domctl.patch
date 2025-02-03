@@ -1,0 +1,48 @@
+From a8122d175c7b6334b983d77d97f997b50b1671f1 Mon Sep 17 00:00:00 2001
+From: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+Date: Wed, 31 Mar 2021 23:02:45 +0300
+Subject: [PATCH 10/24] domctl: add enable_rproc domctl
+
+This is a platform-specific domctl that enables rproc with a given
+channel for a given domain.
+
+Signed-off-by: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+---
+ xen/include/public/domctl.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/xen/include/public/domctl.h b/xen/include/public/domctl.h
+index d8525a7bc9..959f922d89 100644
+--- a/xen/include/public/domctl.h
++++ b/xen/include/public/domctl.h
+@@ -1175,6 +1175,11 @@ struct xen_domctl_vuart_op {
+                                  */
+ };
+ 
++struct xen_domctl_enable_rproc
++{
++    uint8_t chan_id;
++};
++
+ /* XEN_DOMCTL_vmtrace_op: Perform VM tracing operations. */
+ struct xen_domctl_vmtrace_op {
+     uint32_t cmd;           /* IN */
+@@ -1303,6 +1308,7 @@ struct xen_domctl {
+ #define XEN_DOMCTL_get_paging_mempool_size       85
+ #define XEN_DOMCTL_set_paging_mempool_size       86
+ #define XEN_DOMCTL_get_sci_info                  87
++#define XEN_DOMCTL_enable_rproc                 200
+ #define XEN_DOMCTL_gdbsx_guestmemio            1000
+ #define XEN_DOMCTL_gdbsx_pausevcpu             1001
+ #define XEN_DOMCTL_gdbsx_unpausevcpu           1002
+@@ -1363,6 +1369,7 @@ struct xen_domctl {
+         struct xen_domctl_monitor_op        monitor_op;
+         struct xen_domctl_psr_alloc         psr_alloc;
+         struct xen_domctl_vuart_op          vuart_op;
++        struct xen_domctl_enable_rproc      enable_rproc;
+         struct xen_domctl_vmtrace_op        vmtrace_op;
+         struct xen_domctl_paging_mempool    paging_mempool;
+         struct xen_domctl_sci_info          sci_info;
+-- 
+2.25.1
+

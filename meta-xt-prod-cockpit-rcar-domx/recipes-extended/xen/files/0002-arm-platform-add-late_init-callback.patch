@@ -1,0 +1,73 @@
+From fceda9f8067183141235a30a7251e3e00fa08065 Mon Sep 17 00:00:00 2001
+From: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+Date: Tue, 23 Mar 2021 22:50:23 +0200
+Subject: [PATCH 02/24] arm: platform: add late_init() callback
+
+This callback should be called when all HW is intialized, right before
+Dom0 boot.
+
+Signed-off-by: Volodymyr Babchuk <volodymyr_babchuk@epam.com>
+---
+ xen/arch/arm/include/asm/platform.h |  2 ++
+ xen/arch/arm/platform.c             | 10 ++++++++++
+ xen/arch/arm/setup.c                |  3 +++
+ 3 files changed, 15 insertions(+)
+
+diff --git a/xen/arch/arm/include/asm/platform.h b/xen/arch/arm/include/asm/platform.h
+index 997eb25216..6fe2e528ff 100644
+--- a/xen/arch/arm/include/asm/platform.h
++++ b/xen/arch/arm/include/asm/platform.h
+@@ -13,6 +13,7 @@ struct platform_desc {
+     const char *const *compatible;
+     /* Platform initialization */
+     int (*init)(void);
++    int (*late_init)(void);
+     int (*init_time)(void);
+ #ifdef CONFIG_ARM_32
+     /* SMP */
+@@ -50,6 +51,7 @@ struct platform_desc {
+ #define PLATFORM_QUIRK_GIC_64K_STRIDE (1 << 0)
+ 
+ void platform_init(void);
++int platform_late_init(void);
+ int platform_init_time(void);
+ int platform_specific_mapping(struct domain *d);
+ #ifdef CONFIG_ARM_32
+diff --git a/xen/arch/arm/platform.c b/xen/arch/arm/platform.c
+index 6701ff77bc..f6d45303d6 100644
+--- a/xen/arch/arm/platform.c
++++ b/xen/arch/arm/platform.c
+@@ -65,6 +65,16 @@ void __init platform_init(void)
+         panic("Unable to initialize the platform\n");
+ }
+ 
++int __init platform_late_init(void)
++{
++    int res = 0;
++
++    if ( platform && platform->late_init )
++        res = platform->late_init();
++
++    return res;
++}
++
+ int __init platform_init_time(void)
+ {
+     int res = 0;
+diff --git a/xen/arch/arm/setup.c b/xen/arch/arm/setup.c
+index cc90e03f92..903166671f 100644
+--- a/xen/arch/arm/setup.c
++++ b/xen/arch/arm/setup.c
+@@ -872,6 +872,9 @@ void asmlinkage __init start_xen(unsigned long boot_phys_offset,
+     enable_errata_workarounds();
+     enable_cpu_features();
+ 
++    if (platform_late_init())
++        panic("platform_late_init() failed\n");
++
+     /* Create initial domain 0. */
+     if ( !is_dom0less_mode() )
+         create_dom0();
+-- 
+2.25.1
+
