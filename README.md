@@ -23,8 +23,8 @@
 ## Software preparation
 This product uses proprietary sources and binaries.
 Please contact us to request the access to the following repo:
-https://gitpct.epam.com/rec-inv
-https://gitpct.epam.com/epmp-aos
+- https://gitpct.epam.com/rec-inv
+- https://gitpct.epam.com/epmp-aos
 
 ### git
 Install `git` and create `~/.gitconfig` file
@@ -35,7 +35,7 @@ git config --global user.email "your e-mail"
 ```
 
 ### serial port tools
-Install pyftdi according to https://eblot.github.io/pyftdi/installation.html
+Install `pyftdi` according to https://eblot.github.io/pyftdi/installation.html
 
 ```
 sudo apt install python3-serial
@@ -48,7 +48,7 @@ Set up minicom
 sudo minicom -s
 ```
 Select "Serial port setup" and provide:
-- port connected to the board - /dev/ttyUSB0 or your config
+- port connected to the board - /dev/ttyUSB0
 - Bps/Par/Bits - 115200 8N1
 - Hardware/Software Flow Control - No
 
@@ -77,20 +77,20 @@ docker build . -f Dockerfile --build-arg "USER_ID=$(id -u)" --build-arg "USER_GI
 ```
 
 ### prebuilt binaries
-Download three archives with the prebuilt graphics from the
+Download three archives with the prebuilt graphics from
 https://gitbud.epam.com/epmp-aos/kf_prebuilt_graphics
 
-Download nfs.tar.bz2 and tftp.tar.bz2 from this repo
+Download `nfs.tar.bz2` and `tftp.tar.bz2` from
 https://gitbud.epam.com/epmp-aos/kf_nfs_and_tftp_data.
 
 ### ssh
 Add your public key on the page https://github.com/settings/keys.
-If you do not have ssh key or need any help, follow the manual
-https://docs.github.com/en/authentication/connecting-to-github-with-ssh
+If you do not have ssh key or need any help, follow the
+[manual](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
 
 Go to https://gitpct.epam.com/-/user_settings/ssh_keys and add
-the same public key. Follow the instructions on
-https://gitpct.epam.com/help/user/ssh if needed.
+the same public key. Follow the [instructions](https://gitpct.epam.com/help/user/ssh)
+if needed.
 
 Repeat for the https://gitbud.epam.com/-/user_settings/ssh_keys.
 
