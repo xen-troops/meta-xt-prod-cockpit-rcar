@@ -21,7 +21,6 @@ variables:
   XT_DOMA_KERNEL_INTERNAL_OUT_DIR: "out/android13-5.10/dist"
   XT_DOMA_KERNEL_OUT_DIR: "../%{ANDROID_KERNEL_DIR}/%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}"
   XT_DOMA_SOURCE_GROUP: ""
-  XT_USE_DDK1_11: "0"
 
 common_data:
   # Sources used by all yocto-based domains
@@ -104,15 +103,7 @@ common_data:
     - [PREFERRED_PROVIDER_libgbm-dev, "libgbm"]
     - [BBMASK:append, " mesa-gl"]
 
-    - [XT_USE_DDK1_11, "%{XT_USE_DDK1_11}"]
-
-    # The bbappends below are only used for old DDK v1.11
-    - [BBMASK:append, " ${@bb.utils.contains('XT_USE_DDK1_11', '1', '', 'meta-xt-rcar-fixups/recipes-kernel/kernel-module-gles/kernel-module-gles.bbappend', d)}"]
-    - [BBMASK:append, " ${@bb.utils.contains('XT_USE_DDK1_11', '1', '', 'meta-xt-rcar-fixups/recipes-graphics/gles-module/gles-user-module.bbappend', d)}"]
-    - [BBMASK:append, " ${@bb.utils.contains('XT_USE_DDK1_11', '1', '', 'meta-xt-rcar-fixups/recipes-graphics/packagegroups/packagegroup-graphic-renesas.bbappend', d)}"]
-
-  # The same set of layers and configs is used both in DomD and DomU
-  # to build a DDK from source code
+  # This set of layers and configs is used to build the DDK from the sources
   ddk_source_overrides: &DDK_SOURCE_OVERRIDES
     sources:
       - type: git
@@ -512,7 +503,6 @@ parameters:
       overrides:
         variables:
           XT_DOMA_TAG: "doma"
-          XT_USE_DDK1_11: "1"
         components:
           # Build and install ivi-shell in case of Android builds
           domd:
