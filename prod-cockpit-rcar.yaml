@@ -10,11 +10,11 @@ variables:
   ANDROID_KERNEL_DIR: "android_kernel"
   XT_DOMD_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-lvds-domd.dtb"
   XT_XEN_DTB_NAME: "%{SOC_FAMILY}-%{MACHINE}-xen.dtb"
-  XT_XEN_REVISION: "93f74646e31107d059e5aa1ed00c6528f2ad0d99"
+  XT_XEN_REVISION: "${AUTOREV}"
   XT_PVR_NUM_OSID: "2"
   XT_OP_TEE_FLAVOUR: "generic_dt"
   XT_DOMA_TAG: ""
-  XEN_URL: "git://git@gitpct.epam.com/rec-inv/xen.git;protocol=ssh;branch=v4.16rc_cr7"
+  XEN_URL: "git://github.com/iusyk/xen.git;protocol=https;branch=scmi-x419-upstream"
   XT_PREBUILT_GSX_DIR: ""
   XT_DOMA_DDK_KM_PREBUILT_MODULE: ""
   XT_DOMA_KERNEL_BUILD_CONFIG: "build.config.xenvm"
@@ -41,8 +41,8 @@ common_data:
       url: "https://github.com/xen-troops/meta-xt-rcar.git"
       rev: dunfell-v0.1.0
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: v1.0.4
+      url: "https://github.com/iusyk/meta-xt-prod-cockpit-rcar.git"
+      rev: xen-419
 
 
     # Common configuration options for all yocto-based domains
@@ -145,10 +145,10 @@ components:
         - [XEN_URL_pn-xen-tools, "%{XEN_URL}"]
         - [SRCREV_pn-xen-tools, "%{XT_XEN_REVISION}"]
         - [XEN_URL_pn-xen, "%{XEN_URL}"]
-        - [XEN_REL_pn-xen, "4.16"]
-        - [XEN_REL_pn-xen-tools, "4.16"]
+        - [XEN_REL_pn-xen, "4.19"]
+        - [XEN_REL_pn-xen-tools, "4.19"]
         - [SRCREV_pn-xen, "%{XT_XEN_REVISION}"]
-        - [IMAGE_INSTALL_append_pn-core-image-thin-initramfs, " xen-tools-xenstat"]
+        - [IMAGE_INSTALL_append_pn-core-image-thin-initramfs, " xen-tools-xenstat util-linux"]
 
       layers:
         - "../meta-virtualization"
@@ -160,6 +160,7 @@ components:
         - "../meta-xt-common/meta-xt-dom0"
         - "../meta-xt-common/meta-xt-control-domain"
         - "../meta-xt-rcar/meta-xt-rcar-dom0"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-domx"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-control"
       build_target: core-image-thin-initramfs
       external_src:
@@ -211,8 +212,8 @@ components:
         - [XEN_URL_pn-xen-tools, "%{XEN_URL}"]
         - [SRCREV_pn-xen-tools, "%{XT_XEN_REVISION}"]
         - [XEN_URL_pn-xen, "%{XEN_URL}"]
-        - [XEN_REL_pn-xen, "4.16"]
-        - [XEN_REL_pn-xen-tools, "4.16"]
+        - [XEN_REL_pn-xen, "4.19"]
+        - [XEN_REL_pn-xen-tools, "4.19"]
         - [SRCREV_pn-xen, "%{XT_XEN_REVISION}"]
 
         # set bmap-tools SRC_URI
@@ -251,6 +252,7 @@ components:
         - "../meta-xt-rcar/meta-xt-rcar-domx"
         - "../meta-xt-rcar/meta-xt-rcar-gles_common"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-driver-domain"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-domx"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-app"
         - "../meta-qt5"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-qt5"

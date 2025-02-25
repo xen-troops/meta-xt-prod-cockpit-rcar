@@ -1,0 +1,51 @@
+From a96ba6baa6eb984fc7e7a83d8d38a0088daf77ac Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor_usyk@epam.com>
+Date: Thu, 19 Dec 2024 16:26:53 +0000
+Subject: [PATCH] rcar_sip_svc.c: add func_id handler
+
+---
+ plat/renesas/rcar/rcar_sip_svc.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/plat/renesas/rcar/rcar_sip_svc.c b/plat/renesas/rcar/rcar_sip_svc.c
+index da802bafa..a882b07bd 100644
+--- a/plat/renesas/rcar/rcar_sip_svc.c
++++ b/plat/renesas/rcar/rcar_sip_svc.c
+@@ -43,8 +43,33 @@ static uintptr_t rcar_sip_handler(unsigned int smc_fid,
+ 		SMC_RET1(handle, RCAR_SIP_SVC_FUNCTION_NUM);
+ 
+ 	case RCAR_SIP_SVC_MBOX_TRIGGER:
+-                ret = rcar_trigger_scmi(SMC_GET_GP(handle, CTX_GPREG_X7));
++		ret = rcar_trigger_scmi(0);
+ 		SMC_RET1(handle, ret);
++	case RCAR_SIP_SVC_MBOX_TRIGGER + 1:
++		ret = rcar_trigger_scmi(1);
++		SMC_RET1(handle, ret);
++	case RCAR_SIP_SVC_MBOX_TRIGGER + 2:
++		ret = rcar_trigger_scmi(2);
++		SMC_RET1(handle, ret);
++	case RCAR_SIP_SVC_MBOX_TRIGGER + 3:
++		ret = rcar_trigger_scmi(3);
++		SMC_RET1(handle, ret);
++	case RCAR_SIP_SVC_MBOX_TRIGGER + 4:
++		ret = rcar_trigger_scmi(4);
++		SMC_RET1(handle, ret);
++	case RCAR_SIP_SVC_MBOX_TRIGGER + 5:
++		ret = rcar_trigger_scmi(5);
++		SMC_RET1(handle, ret);
++	case RCAR_SIP_SVC_MBOX_TRIGGER + 6:
++		ret = rcar_trigger_scmi(6);
++		SMC_RET1(handle, ret);
++	case RCAR_SIP_SVC_MBOX_TRIGGER + 7:
++		ret = rcar_trigger_scmi(7);
++		SMC_RET1(handle, ret);
++
++/*	case RCAR_SIP_SVC_CALL_COUNT:*/
++		/* Return the number of function IDs */
++/*		SMC_RET1(handle, RCAR_SIP_SVC_FUNCTION_NUM); */
+ 
+ 	case RCAR_SIP_SVC_UID:
+ 		/* Return UID to the caller */
+-- 
+2.25.1
+
