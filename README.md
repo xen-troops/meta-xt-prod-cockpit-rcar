@@ -138,6 +138,10 @@ sudo exportfs -a
 
 ## Build the product
 
+Please ensure that your storage devices do not use `ecryptfs` or other file systems that impose filename length limitations.
+Yocto requires a file system that supports long file names.
+Failure to meet this requirement will result in an error during the build process.
+
 Create some work directory and download yaml-file and script to it. We will use
 `${WORK_DIR}` as the reference to the work directory in the next steps.
 ```
