@@ -20,30 +20,29 @@ variables:
   XT_DOMA_KERNEL_BUILD_CONFIG: "build.config.xenvm"
   XT_DOMA_KERNEL_INTERNAL_OUT_DIR: "out/android13-5.10/dist"
   XT_DOMA_KERNEL_OUT_DIR: "../%{ANDROID_KERNEL_DIR}/%{XT_DOMA_KERNEL_INTERNAL_OUT_DIR}"
-  XT_DOMA_SOURCE_GROUP: ""  
+  XT_DOMA_SOURCE_GROUP: ""
 
 common_data:
   # Sources used by all yocto-based domains
   sources: &COMMON_SOURCES
     - type: git
-      url: "git://git.yoctoproject.org/poky"
-      rev: 6b8a307b7843af23d189d7ffcecf32c05afac850
+      url: https://git.yoctoproject.org/poky
+      rev: "e938b18b5342bd28eadb44ad39dbf1f5cf5be09b" # kirkstone
     - type: git
-      url: "git://git.openembedded.org/meta-openembedded"
-      rev: e707e9b7cf5c62bff4fee029965a87b22dd4ccba
+      url: https://git.openembedded.org/meta-openembedded
+      rev: "9a24b7679810628b594cc5a9b52f77f53d37004f" # kirkstone
     - type: git
-      url: "git://git.yoctoproject.org/meta-virtualization"
-      rev: beea119eb529b4a11f266004aee8b548427aea39
+      url: https://git.yoctoproject.org/meta-virtualization
+      rev: "e0cd09e3b8367e2745a27db2e7ff1f8452c8cf41" # kirkstone
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-common.git"
-      rev: dunfell-v0.1.0
+      url: https://github.com/xen-troops/meta-xt-common.git
+      rev: "101f6a449ee237e3125a006e4a80196a2c70e949" # kirkstone
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-rcar.git"
-      rev: dunfell-v0.1.0
+      url: https://github.com/xen-troops/meta-xt-rcar.git
+      rev: "f5b31e9cb4e3521bece7f3f1dd7473c60a17df7a" # kirkstone
     - type: git
-      url: "https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git"
-      rev: v1.0.4
-
+      url: https://github.com/xen-troops/meta-xt-prod-cockpit-rcar.git
+      rev: "master"
 
     # Common configuration options for all yocto-based domains
   conf: &COMMON_CONF
@@ -60,7 +59,7 @@ common_data:
     - [XT_PVR_NUM_OSID, "%{XT_PVR_NUM_OSID}"]
 
     # Remove features that we are not using
-    - [DISTRO_FEATURES_remove, "x11 gtk gobject-introspection-data wifi nfc bluetooth irda zeroconf 3g sysvinit"]
+    - [DISTRO_FEATURES:remove, "x11 gtk gobject-introspection-data wifi nfc bluetooth irda zeroconf 3g sysvinit"]
 
   # Conf options for domain that are built used renesas layer
   domd_domu_conf: &DOMD_DOMU_CONF
@@ -71,34 +70,48 @@ common_data:
     - [INIT_MANAGER, "systemd"]
 
     # add the static lib to SDK toolchain
-    - [SDKIMAGE_FEATURES_append, " staticdev-pkgs"]
+    - [SDKIMAGE_FEATURES:append, " staticdev-pkgs"]
 
     # Enable Gfx Pkgs
-    - [MACHINE_FEATURES_append, " gsx"]
-    - [MULTI_PROVIDER_WHITELIST_append," virtual/libgl virtual/egl virtual/libgles1 virtual/libgles2"]
+    - [MACHINE_FEATURES:append, " gsx"]
+    - [BB_MULTI_PROVIDER_ALLOWED:append," virtual/libgl virtual/egl virtual/libgles1 virtual/libgles2"]
 
     # Add for gstreamer plugins ugly
-    - [LICENSE_FLAGS_WHITELIST, "commercial"]
+    - [LICENSE_FLAGS_ACCEPTED, "commercial"]
 
     # Add Capacity Aware migration Strategy (CAS)
-    - [MACHINE_FEATURES_append, " cas"]
+    - [MACHINE_FEATURES:append, " cas"]
 
     # Remove ptest to reduce the build time
-    - [DISTRO_FEATURES_remove, "ptest"]
+    - [DISTRO_FEATURES:remove, "ptest"]
 
     # HACK: force ipk instead of rpm b/c it makes troubles to PVR UM build otherwise
     - [PACKAGE_CLASSES, "package_ipk"]
 
-  # The same set of layers and configs is used both in DomD and DomU
-  # to build a DDK from source code
+  gfx_conf: &GFX_CONF
+    # for Wayland/Weston
+    - [DISTRO_FEATURES:append, " pam"]
+
+    # Enable Gfx Pkgs
+    - [PREFERRED_PROVIDER_virtual/libgles1, ""]
+    - [PREFERRED_PROVIDER_virtual/libgles2, "gles-user-module"]
+    - [PREFERRED_PROVIDER_virtual/libgles3, "gles-user-module"]
+    - [PREFERRED_PROVIDER_virtual/egl, "libegl"]
+    - [PREFERRED_PROVIDER_virtual/libgl, ""]
+    - [PREFERRED_PROVIDER_virtual/mesa, ""]
+    - [PREFERRED_PROVIDER_virtual/libgbm, "libgbm"]
+    - [PREFERRED_PROVIDER_libgbm-dev, "libgbm"]
+    - [BBMASK:append, " mesa-gl"]
+
+  # This set of layers and configs is used to build the DDK from the sources
   ddk_source_overrides: &DDK_SOURCE_OVERRIDES
     sources:
       - type: git
         url: "git://git.openembedded.org/meta-python2"
-        rev: b901080cf57d9a7f5476ab4d96e56c30db8170a8
+        rev: "f02882e2aa9279ca7becca8d0cedbffe88b5a253" # kirkstone
       - type: git
         url: "https://github.com/kraj/meta-clang"
-        rev: 3bb001d3f364bbf6588fed04b9ee2c7e74a0beba
+        rev: "8bc893d735e5f779a2dcdc3992621d5ab371800d" # kirkstone
       - type: git
         url: "ssh://git@gitpct.epam.com/epmd-aepr/img-proprietary"
         rev: "ef1aa566d74a11c4d2ae9592474030a706b4cf39"
@@ -108,6 +121,8 @@ common_data:
         - "../meta-python2"
         - "../meta-clang"
         - "../meta-xt-rcar/meta-xt-rcar-proprietary"
+      conf:
+        - [BBMASK:append, " wayland-wsegl"]
 
 components:
   dom0:
@@ -128,27 +143,33 @@ components:
         - [XT_DOM_NAME, "dom0"]
         - [XT_GUEST_INSTALL, " %{XT_DOMA_TAG} domd"]
         # Disable HWDB which quite huge (around 15MB) and is not required at all
-        - [BAD_RECOMMENDATIONS_append, " udev-hwdb"]
+        - [BAD_RECOMMENDATIONS:append, " udev-hwdb"]
 
         # Remove unused DISTRO_FEATURES
-        - [DISTRO_FEATURES_remove, "acl alsa argp pcmcia usbgadget
+        - [DISTRO_FEATURES:remove, "acl alsa argp pcmcia usbgadget
                 usbhost opengl ptest multiarch wayland vulkan
-                sysvinit"]
+                sysvinit pulseaudio"]
 
         # Enable systemd on dom0
         - [INIT_MANAGER, "systemd"]
 
         # Do not install kernel image to rootfs to decrease initrd size
-        - ["RDEPENDS_${KERNEL_PACKAGE_NAME}-base", ""]
+        - ["RRECOMMENDS:${KERNEL_PACKAGE_NAME}-base", ""]
 
         # get xen customized under cr7
-        - [XEN_URL_pn-xen-tools, "%{XEN_URL}"]
-        - [SRCREV_pn-xen-tools, "%{XT_XEN_REVISION}"]
-        - [XEN_URL_pn-xen, "%{XEN_URL}"]
-        - [XEN_REL_pn-xen, "4.16"]
-        - [XEN_REL_pn-xen-tools, "4.16"]
-        - [SRCREV_pn-xen, "%{XT_XEN_REVISION}"]
-        - [IMAGE_INSTALL_append_pn-core-image-thin-initramfs, " xen-tools-xenstat"]
+        - [XEN_URL:pn-xen-tools, "%{XEN_URL}"]
+        - [SRCREV:pn-xen-tools, "%{XT_XEN_REVISION}"]
+        - [XEN_URL:pn-xen, "%{XEN_URL}"]
+        - [XEN_REL:pn-xen, "4.16"]
+        - [XEN_REL:pn-xen-tools, "4.16"]
+        - [SRCREV:pn-xen, "%{XT_XEN_REVISION}"]
+        - [IMAGE_INSTALL:append:pn-core-image-thin-initramfs, " xen-tools-xenstat"]
+        - [PREFERRED_RPROVIDER_libgstallocators-1.0, "gstreamer1.0-plugins-base"]
+        - [PREFERRED_RPROVIDER_libgstapp-1.0, "gstreamer1.0-plugins-base"]
+
+        # Build our own Xen version rather than proposed by meta-virtualization
+        - [PREFERRED_VERSION_xen, "4.16.0+gitAUTOINC+93f74646e3"]
+        - [PREFERRED_VERSION_xen-tools, "4.16.0+gitAUTOINC+93f74646e3"]
 
       layers:
         - "../meta-virtualization"
@@ -161,6 +182,8 @@ components:
         - "../meta-xt-common/meta-xt-control-domain"
         - "../meta-xt-rcar/meta-xt-rcar-dom0"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-control"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-domx"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-domx-gen3"
       build_target: core-image-thin-initramfs
       external_src:
         domd: "%{YOCTOS_WORK_DIR}/%{DOMD_BUILD_DIR}/tmp/deploy/images/%{MACHINE}/"
@@ -176,66 +199,66 @@ components:
       - *COMMON_SOURCES
       - type: git
         url: git://git.yoctoproject.org/meta-selinux
-        rev: 1a13839d114e6694d5ae2aa5dfa11c6824277b99
+        rev: "a401f4b2816a0b41ce8d9351542658c721935bcd" # kirkstone
+      - type: git
+        url: "https://github.com/renesas-rcar/meta-renesas.git"
+        rev: "11221be7ff3a535f17357bc8ac7e2851d0e8ff02" # kirkstone-dev
       - type: git
         url: "https://github.com/meta-qt5/meta-qt5"
-        rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
-      - type: git
-        url: "https://github.com/xen-troops/meta-renesas.git"
-        rev: b379ca61c3cc8919b4bbd1008c65f21a39638f26
+        rev: "644ebf220245bdc06e7696ccc90acc97a0dd2566" # kirkstone
       - type: git
         url: "https://github.com/aoscloud/meta-aos"
-        rev: "4b0f4ea629db039af8cec8f9ea019bb4c9e6d0c7"
+        rev: "f0ee96f4e3f8f82662e571c29f836d788764eb3c" # Release 7.3.3
     builder:
       type: yocto
       work_dir: "%{DOMD_BUILD_DIR}"
       conf:
         - *COMMON_CONF
         - *DOMD_DOMU_CONF
+        - *GFX_CONF
         - [XT_DOM_NAME, "domd"]
         - [XT_OP_TEE_FLAVOUR, "%{XT_OP_TEE_FLAVOUR}"]
         - [XT_DEVICE_TREES, "%{XT_DOMD_DTB_NAME} %{XT_DOMA_DTB_NAME} %{XT_XEN_DTB_NAME}"]
         - [XT_GUEST_INSTALL, " %{XT_DOMA_TAG}"]
         # Machine feature 'multimedia' is used to enable (VSP in domd) and (LOSSY build option in ATF)
-        - [MACHINE_FEATURES_append, " multimedia"]
+        - [MACHINE_FEATURES:append, " multimedia"]
 
         # take dedicated cr7 kernel
-        - [RENESAS_BSP_URL_pn-linux-renesas,  "git://github.com/xen-troops/linux.git;protocol=https"]
-        - [BRANCH_pn-linux-renesas, "v5.10.41/rcar-5.1.4.1-cockpit-rcar"]
-        - [SRCREV_pn-linux-renesas, "72238715e90372d0451e9b50b0592fb9e69333f1"]
-        - [RENESAS_BSP_URL_pn-linux-libc-headers,  "git://github.com/xen-troops/linux.git;protocol=https"]
-        - [BRANCH_pn-linux-libc-headers, "v5.10.41/rcar-5.1.4.1-cockpit-rcar"]
-        - [SRCREV_pn-linux-libc-headers, "72238715e90372d0451e9b50b0592fb9e69333f1"]
+        - [RENESAS_BSP_URL:pn-linux-renesas,  "git://github.com/xen-troops/linux.git;protocol=https"]
+        - [BRANCH:pn-linux-renesas, "v5.10.41/rcar-5.1.4.1-cockpit-rcar"]
+        - [SRCREV:pn-linux-renesas, "72238715e90372d0451e9b50b0592fb9e69333f1"]
+        - [RENESAS_BSP_URL:pn-linux-libc-headers,  "git://github.com/xen-troops/linux.git;protocol=https"]
+        - [BRANCH:pn-linux-libc-headers, "v5.10.41/rcar-5.1.4.1-cockpit-rcar"]
+        - [SRCREV:pn-linux-libc-headers, "72238715e90372d0451e9b50b0592fb9e69333f1"]
 
         # get xen customized under cr7
-        - [XEN_URL_pn-xen-tools, "%{XEN_URL}"]
-        - [SRCREV_pn-xen-tools, "%{XT_XEN_REVISION}"]
-        - [XEN_URL_pn-xen, "%{XEN_URL}"]
-        - [XEN_REL_pn-xen, "4.16"]
-        - [XEN_REL_pn-xen-tools, "4.16"]
-        - [SRCREV_pn-xen, "%{XT_XEN_REVISION}"]
+        - [XEN_URL:pn-xen-tools, "%{XEN_URL}"]
+        - [SRCREV:pn-xen-tools, "%{XT_XEN_REVISION}"]
+        - [XEN_URL:pn-xen, "%{XEN_URL}"]
+        - [XEN_REL:pn-xen, "4.16"]
+        - [XEN_REL:pn-xen-tools, "4.16"]
+        - [SRCREV:pn-xen, "%{XT_XEN_REVISION}"]
 
         # set bmap-tools SRC_URI
-        - [SRC_URI_pn-bmap-tools, "git://github.com/intel/${BPN};branch=main;protocol=https"]
-        - [SRCREV_pn-bmap-tools, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
-        - [SRC_URI_pn-bmap-tools-native, "git://github.com/intel/${BPN};branch=main;protocol=https"]
-        - [SRCREV_pn-bmap-tools-native, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
+        - [SRC_URI:pn-bmap-tools, "git://github.com/intel/${BPN};branch=main;protocol=https"]
+        - [SRCREV:pn-bmap-tools, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
+        - [SRC_URI:pn-bmap-tools-native, "git://github.com/intel/${BPN};branch=main;protocol=https"]
+        - [SRCREV:pn-bmap-tools-native, "db7087b883bf52cbff063ad17a41cc1cbb85104d"]
 
         # add graphic packages required qt
-        - [DISTRO_FEATURES_append, " pam"]
-        - [PREFERRED_PROVIDER_virtual/egl, "libegl"]
-        - [PREFERRED_PROVIDER_virtual/libgl, ""]
-        - [PREFERRED_PROVIDER_virtual/mesa, ""]
-        - [PREFERRED_PROVIDER_virtual/libgbm, "libgbm"]
-        - [PREFERRED_PROVIDER_libgbm-dev, "libgbm"]
-        - [BBMASK_append, "mesa-gl"]
-        - [BBMASK_append, "|meta-xt-domx/recipes-core/base-files"]
+        - [PREFERRED_RPROVIDER_libgstallocators-1.0, "gstreamer1.0-plugins-base"]
+        - [PREFERRED_RPROVIDER_libgstapp-1.0, "gstreamer1.0-plugins-base"]
+
+        # gles-um-compile.bb still requires python2
+        - [I_SWEAR_TO_MIGRATE_TO_PYTHON3, "yes"]
+
+        # Build our own Xen version rather than proposed by meta-virtualization
+        - [PREFERRED_VERSION_xen, "4.16.0+gitAUTOINC+93f74646e3"]
+        - [PREFERRED_VERSION_xen-tools, "4.16.0+gitAUTOINC+93f74646e3"]
+
 
       build_target: core-image-minimal
       layers:
-        - "../poky/meta"
-        - "../poky/meta-poky"
-        - "../poky/meta-yocto-bsp"
         - "../meta-renesas/meta-rcar-gen3"
         - "../meta-virtualization"
         - "../meta-selinux"
@@ -248,13 +271,16 @@ components:
         - "../meta-xt-rcar/meta-oe-fixups"
         - "../meta-xt-rcar/meta-xt-rcar-fixups"
         - "../meta-xt-rcar/meta-xt-rcar-driver-domain"
-        - "../meta-xt-rcar/meta-xt-rcar-domx"
         - "../meta-xt-rcar/meta-xt-rcar-gles_common"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-driver-domain"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-app"
         - "../meta-qt5"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-qt5"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-domx"
         - "../meta-aos"
+        - "../meta-xt-prod-cockpit-rcar/meta-xt-domx-gen3"
+        - "../meta-xt-rcar/meta-xt-cogent-fixups"
+        - "../meta-rcar/meta-rcar-gen3-adas"  
       target_images:
         - "tmp/deploy/images/%{MACHINE}/Image"
         - "tmp/deploy/images/%{MACHINE}/xen-%{MACHINE}.uImage"
@@ -324,12 +350,9 @@ components:
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources:
       - *COMMON_SOURCES
-      - type: git
-        url: "https://github.com/meta-qt5/meta-qt5"
-        rev: "45c45a1524bd6a8dbd3dcf2077c791a23fec8d91"
       - type: git        
         url: "git://git.yoctoproject.org/meta-arm.git"
-        rev: "f7c5e7d5094f65d105d9d580ba59527c25fb0d0f"
+        rev: "kirkstone"
 
     builder:
       type: yocto
@@ -338,11 +361,10 @@ components:
         - *COMMON_CONF
         - *DOMD_DOMU_CONF
         - [MACHINE, "generic-armv8-xt"]
+        # ignore xen bbappend files from meta-xt-common
+        - [BBMASK:append, "|meta-xt-domx/recipes-extended/xen/"]
       build_target: cluster-wrapper
       layers:
-        - "../poky/meta"
-        - "../poky/meta-poky"
-        - "../poky/meta-yocto-bsp"
         - "../meta-arm/meta-arm-toolchain"
         - "../meta-openembedded/meta-python"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-prod-cockpit-rcar-app"
@@ -356,23 +378,19 @@ components:
   tools:
     build-dir: "%{YOCTOS_WORK_DIR}"
     sources:
-      - type: git
-        url: "git://git.yoctoproject.org/poky"
-        rev: 6b8a307b7843af23d189d7ffcecf32c05afac850
+      - *COMMON_SOURCES
     builder:
       type: yocto
       work_dir: "%{TOOLS_BUILD_DIR}"
       conf:
         - *COMMON_CONF
-        - [DISTRO_FEATURES_append, " systemd"]
+        - [DISTRO_FEATURES:append, " systemd"]
         - [VIRTUAL-RUNTIME_init_manager, "systemd"]
         - [DISTRO_FEATURES_BACKFILL_CONSIDERED, "sysvinit"]
         - [VIRTUAL-RUNTIME_initscripts, ""]
-        - [IMX_DEFAULT_DISTRO_FEATURES_append, " systemd"]
+        - [IMX_DEFAULT_DISTRO_FEATURES:append, " systemd"]
       build_target: fsdata-native
       layers:
-        - "../poky/meta"
-        - "../poky/meta-poky"
         - "../meta-xt-prod-cockpit-rcar/meta-xt-native-tools"
       target_images:
         - "tmp/deploy/cr7-image-gen"
@@ -419,17 +437,17 @@ parameters:
             sources:
               - type: git
                 url: "https://github.com/xen-troops/meta-rcar.git"
-                rev: 3e30e043d28e98934e40d66cdda6c1dc8a8b6a09
+                rev: "b5eaaaa5f48d221fdb0aa0ea2f96b96558d9851d" # kirkstone-Yocto-v5.9.0-patched
             builder:
               layers:
                 - "../meta-rcar/meta-rcar-gen3-adas"
                 - "../meta-xt-rcar/meta-xt-cogent-fixups"
               conf:
                 # Ignore OP-TEE patches as we have own OP-TEE
-                -  [BBMASK_append, "|meta-rcar-gen3-adas/recipes-bsp/optee"]
+                -  [BBMASK:append, "|meta-rcar-gen3-adas/recipes-bsp/optee"]
                 # Remove cmem driver
-                - [BBMASK_append, "|meta-rcar-gen3-adas/recipes-kernel/kernel-module-cmemdrv/"]
-                - [IMAGE_INSTALL_remove, "kernel-module-cmemdrv"]
+                - [BBMASK:append, "|meta-rcar-gen3-adas/recipes-kernel/kernel-module-cmemdrv/"]
+                - [IMAGE_INSTALL:remove, "kernel-module-cmemdrv"]
   PREBUILT_DDK:
     desc: "Use pre-built GPU drivers"
     "no":
@@ -450,8 +468,8 @@ parameters:
             builder:
               conf:
                 - [XT_PREBUILT_GSX_DIR, "%{XT_PREBUILT_GSX_DIR}"]
-                - [FILESEXTRAPATHS_prepend_pn-gles-user-module, "%{XT_PREBUILT_GSX_DIR}:"]
-                - [FILESEXTRAPATHS_prepend_pn-kernel-module-gles, "%{XT_PREBUILT_GSX_DIR}:"]
+                - [FILESEXTRAPATHS:prepend:pn-gles-user-module, "%{XT_PREBUILT_GSX_DIR}:"]
+                - [FILESEXTRAPATHS:prepend:pn-kernel-module-gles, "%{XT_PREBUILT_GSX_DIR}:"]
 
   ENABLE_MM:
     desc: "Enable Multimedia support"
@@ -463,7 +481,7 @@ parameters:
             builder:
               conf:
                 # Mask MMP recipes
-                - [BBMASK_append, "|kernel-module-uvcs-drv|omx-user-module"]          
+                - [BBMASK:append, "|kernel-module-uvcs-drv|omx-user-module"]          
           
   ENABLE_CLUSTER:
     desc: "Build generic Yocto-based DomU"
@@ -490,7 +508,7 @@ parameters:
           domd:
             builder:
               conf:
-                - [DISTRO_FEATURES_append, " ivi-shell"]
+                - [DISTRO_FEATURES:append, " ivi-shell"]
           dom0:
             builder:
               additional_deps:
@@ -574,8 +592,8 @@ parameters:
           cluster:                                                                                  
             builder:                                                                                
               conf:                                                                                 
-                - [BRANCH_pn-cluster-wrapper, "CES-2023"]
-                - [SRCREV_pn-cluster-wrapper, "046a0cbe6f628e098527943edadafd2a47879143"]
+                - [BRANCH:pn-cluster-wrapper, "CES-2023"]
+                - [SRCREV:pn-cluster-wrapper, "046a0cbe6f628e098527943edadafd2a47879143"]
         variables:
           XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-lvds-domd.dtb"
           XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-lvds-doma.dtb"
@@ -585,7 +603,7 @@ parameters:
           cluster:
             builder:
               conf:
-                - [BRANCH_pn-cluster-wrapper, "vga_hdmi_kf"] 
+                - [BRANCH:pn-cluster-wrapper, "vga_hdmi_kf"] 
         variables:
           XT_DOMD_DTB_NAME: "r8a77951-h3ulcb-4x2g-kf-hdmi-domd.dtb"
           XT_DOMA_DTB_NAME: "r8a7795-h3ulcb-4x2g-kf-hdmi-doma.dtb"

@@ -1,0 +1,39 @@
+From 5a384a3a9fa39fcc3e4fed7e3cf102c9ab35fc08 Mon Sep 17 00:00:00 2001
+From: Ihor Usyk <ihor.usyk@gmail.com>
+Date: Wed, 3 Jul 2024 14:56:55 +0200
+Subject: [PATCH] foreign-memory: fix build errors
+
+---
+ tools/libs/foreignmemory/linux.c   | 2 +-
+ tools/libs/foreignmemory/private.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/libs/foreignmemory/linux.c b/tools/libs/foreignmemory/linux.c
+index c1f35e2db7..30f421c88d 100644
+--- a/tools/libs/foreignmemory/linux.c
++++ b/tools/libs/foreignmemory/linux.c
+@@ -161,7 +161,7 @@ out:
+ void *osdep_xenforeignmemory_map(xenforeignmemory_handle *fmem,
+                                  uint32_t dom, void *addr,
+                                  int prot, int flags, size_t num,
+-                                 const xen_pfn_t arr[/*num*/], int err[/*num*/])
++                                 const xen_pfn_t* arr, int * err)
+ {
+     int fd = fmem->fd;
+     privcmd_mmapbatch_v2_t ioctlx;
+diff --git a/tools/libs/foreignmemory/private.h b/tools/libs/foreignmemory/private.h
+index 1ee3626dd2..90981cb45a 100644
+--- a/tools/libs/foreignmemory/private.h
++++ b/tools/libs/foreignmemory/private.h
+@@ -32,7 +32,7 @@ int osdep_xenforeignmemory_close(xenforeignmemory_handle *fmem);
+ void *osdep_xenforeignmemory_map(xenforeignmemory_handle *fmem,
+                                  uint32_t dom, void *addr,
+                                  int prot, int flags, size_t num,
+-                                 const xen_pfn_t arr[num], int err[num]);
++                                 const xen_pfn_t* arr, int* err);
+ int osdep_xenforeignmemory_unmap(xenforeignmemory_handle *fmem,
+                                  void *addr, size_t num);
+ 
+-- 
+2.25.1
+

@@ -1,9 +1,9 @@
 
 require qt5-xt-git.inc
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/qtbase:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/qtbase:"
 
-SRC_URI_remove = " \
+SRC_URI:remove = " \
     file://0001-Add-linux-oe-g-platform.patch \
     file://0008-Replace-pthread_yield-with-sched_yield.patch \
     file://0004-configure-bump-path-length-from-256-to-512-character.patch \
@@ -13,16 +13,16 @@ SRC_URI_remove = " \
     file://0021-qfloat16-Include-limits-header.patch \
 "
 
-SRC_URI_append = " \
+SRC_URI:append = " \
     file://0001-Add-linux-oe-g-platform-xt.patch \
     file://0008-Replace-pthread_yield-with-sched_yield-xt.patch \
     file://0004-configure-bump-path-length-from-256-to-512-character-xt.patch \
-    file://0018-tst_qpainter-FE_-macros-are-not-defined-for-every-pl-xt.patch \
+    file://0001-add-limits-to-fix-build-error.patch \
 "
 
 unset LTO
 
-LDFLAGS_remove_riscv64 = "-pthread"
+LDFLAGS:remove:riscv64 = "-pthread"
 
 SRCREV = "e4961b35deb202525d4711dbb14f8c2bb0bf5c26"
 
@@ -33,10 +33,10 @@ PACKAGECONFIG[vsp2] = "-feature-vsp2,-no-feature-vsp2,v4l-utils,libv4l"
 PACKAGECONFIG += "vsp2"
 PACKAGECONFIG[gbm] = "-gbm,-no-gbm,libgbm"
 PACKAGECONFIG += "gbm"
+PACKAGECONFIG[gl] = "-opengl desktop,,"
+PACKAGECONFIG:remove = " pcre"
 
-PACKAGECONFIG_remove += " pcre"
-
-do_install_append() {
+do_install:append() {
     # Update the mkspecs to include the default OE toolchain config for the target
     conf=${D}/${OE_QMAKE_PATH_QT_ARCHDATA}/mkspecs/${XPLATFORM}/qmake.conf
     cat /dev/null > $conf

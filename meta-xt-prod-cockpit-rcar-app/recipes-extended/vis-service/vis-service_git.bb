@@ -14,7 +14,7 @@ DEPENDS += " \
      qtwebsockets \
 "
 
-RDEPENDS_${PN} += " \
+RDEPENDS:${PN} += " \
      qtwebsockets \
 "
 
@@ -22,16 +22,16 @@ S = "${WORKDIR}"
 
 inherit pkgconfig qmake5 systemd
 
-SYSTEMD_SERVICE_${PN} = "vis-service.service"
+SYSTEMD_SERVICE:${PN} = "vis-service.service"
 
 VISSERVER = "10.0.0.1    wwwivi"
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     ${systemd_system_unitdir}/vis-service.service \
     ${bindir}/vis-service \
 "
 
-do_install_append() {
+do_install:append() {
     install -d ${D}/${bindir}
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/vis-service.service ${D}${systemd_system_unitdir}/vis-service.service
@@ -40,7 +40,7 @@ do_install_append() {
 }
 
 
-pkg_postinst_ontarget_${PN} () {
+pkg_postinst_ontarget:${PN} () {
     if ! grep -q '${VISSERVER}' $D${sysconfdir}/hosts ; then
         echo '${VISSERVER}' >> $D${sysconfdir}/hosts
     fi
