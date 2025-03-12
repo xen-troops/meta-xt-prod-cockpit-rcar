@@ -221,7 +221,7 @@ setenv bootcmd_bsp 'run bsp_set_args; run bsp_cmd'
 setenv bsp_cmd 'tftp 0x48080000 Image; tftp 0x48000000 r8a77951-ulcb-kf.dtb; booti 0x48080000 - 0x48000000'
 setenv bsp_set_args 'setenv bootargs ignore_loglevel clk_ignore_unused=1 rw root=/dev/nfs nfsroot=/srv/nfs,nfsvers=3 ip=${ipaddr}:${serverip}::255.255.255.0'
 
-saveenv flash_cluster 'tftp 0x48000000 cluster_wrapper.bin; erase 0x0A000000 +0x${filesize}; cp.b 0x48000000 0x0A000000 0x${filesize}'
+setenv flash_cluster 'tftp 0x48000000 cluster_wrapper.bin; erase 0x0A000000 +0x${filesize}; cp.b 0x48000000 0x0A000000 0x${filesize}'
 
 saveenv
 ```
